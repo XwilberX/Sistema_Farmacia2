@@ -196,6 +196,7 @@ class SubWindow(QWidget):
 
         #self.comboboxSalida.currentIndexChanged.connect(self.TableViewInsertSalida)
         self.TableViewInsertSalida()
+        self.comboboxSalida.currentIndexChanged.connect(self.TableViewInsertSalida)
 
         self.retranslateUi()
         QtCore.QMetaObject.connectSlotsByName(self)
@@ -207,32 +208,19 @@ class SubWindow(QWidget):
 
     def TableViewInsertSalida(self):
         self.x =str(self.comboboxSalida.currentIndex())
+        self.q = session.query(Farmaco.clave_corta, Farmaco.fecha, Farmaco.area, Farmaco.caducidad, Farmaco.cantidad, Farmaco.lote,Clave.descripcion).join(Clave).filter(Clave.tipo == self.x).all()
 
-        #query = session.query(Farmaco, Clave).filter(Farmaco.clave_corta == Clave.corta).all()
+        self.numero  = session.query(Farmaco.clave_corta).join(Clave).filter(Clave.tipo == self.x).count()
+        self.model = QStandardItemModel(0,7)
+        self.model.setHorizontalHeaderLabels(['clave_corta', 'fecha','Area', 'Cantidad', 'Caducidad', 'Lote','descripcion'])
 
-        query = session.query(Farmaco.clave_corta, Farmaco.fecha, Farmaco.area, Farmaco.caducidad, Farmaco.cantidad, Farmaco.lote, Clave.tipo, Clave.descripcion).\
-            join(Clave).filter(Clave.tipo == 0).all()
-        # for f in query:
-        #         print(f.idFarmaco, f.clave_corta, f.corta, f.tipo)
+        for item in self.q:
+            self.model.appendRow([QStandardItem(str(x)) for x in item])
 
-        #print(query)
-        # print(self.x)
-        self.queryJoin = pd.DataFrame([(f.clave_corta, f.fecha, f.area, f.caducidad, f.cantidad, f.lote, f.tipo, f.descripcion) for f in query],
-                                      columns=['clave_corta', 'fecha', 'area', 'caducidad', 'cantidad', 'lote', 'tipo', 'descripcion'])
-        print(self.queryJoin)
-        self.numero  = session.query(Farmaco.clave_corta).filter_by(tipo=self.x).count()
-        print(self.numero)
-        self.model = QStandardItemModel(self.numero, 8)
-        #self.model.setHorizontalHeaderLabels(['Clave', 'Descripcion','Area', 'Cantidad', 'Caducidad', 'Lote'])
-        self.tableViewSalida.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        for z in range(self.numero):
-            for m in range(8):
-                item = QStandardItem(self.queryJoin.iloc[z, m])
-                self.model.setItem(z, m, item)
         buscador = QSortFilterProxyModel()
         buscador.setSourceModel(self.model)
-        buscador.setFilterKeyColumn(2)
-        self.LineClaveSalida.textChanged.connect(buscador.setFilterRegExp)
+        buscador.setFilterKeyColumn(1)
+        self.LineClaveSalida .textChanged.connect(buscador.setFilterRegExp)
         self.tableViewSalida.setModel(buscador)
 
     def retranslateUi(self):
