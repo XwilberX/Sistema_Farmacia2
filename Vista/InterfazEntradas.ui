@@ -1,0 +1,1022 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Main</class>
+ <widget class="QMainWindow" name="Main">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1291</width>
+    <height>911</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Sistema de Inventario</string>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>../imagenes/Mono.png</normaloff>../imagenes/Mono.png</iconset>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">*{
+font-family:century gothic;
+font-size: 15px;
+}
+QFrame{
+border-radius: 60px;
+ background:#fefefe;
+}
+QLabel{
+	background:transparent;
+}
+#Main{
+background: #b8f4f0;
+}
+QLineEdit{
+	border:none;
+	border-bottom: 1px solid black;
+}
+
+#FrameEntradaprimero{
+border-radius:30px;
+}</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <property name="styleSheet">
+    <string notr="true"/>
+   </property>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>121</width>
+      <height>350</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="pixmap">
+     <pixmap>../imagenes/decoracion10reves2.png</pixmap>
+    </property>
+    <property name="scaledContents">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_2">
+    <property name="geometry">
+     <rect>
+      <x>1170</x>
+      <y>0</y>
+      <width>121</width>
+      <height>350</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="pixmap">
+     <pixmap>../imagenes/volteada.png</pixmap>
+    </property>
+    <property name="scaledContents">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_3">
+    <property name="geometry">
+     <rect>
+      <x>180</x>
+      <y>10</y>
+      <width>191</width>
+      <height>70</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="pixmap">
+     <pixmap>../imagenes/salud_logo.png</pixmap>
+    </property>
+    <property name="scaledContents">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_4">
+    <property name="geometry">
+     <rect>
+      <x>840</x>
+      <y>10</y>
+      <width>201</width>
+      <height>70</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="pixmap">
+     <pixmap>../imagenes/chiapas.png</pixmap>
+    </property>
+    <property name="scaledContents">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QMdiArea" name="mdiArea">
+    <property name="geometry">
+     <rect>
+      <x>120</x>
+      <y>90</y>
+      <width>1051</width>
+      <height>721</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(184, 244, 240);
+</string>
+    </property>
+    <widget class="QWidget" name="subwindowEntradas">
+     <property name="windowTitle">
+      <string>Subwindow</string>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QCalendarWidget QAbstractItemView
+{ 
+selection-background-color: #042944; 
+selection-color: white;
+selection-border:10px solid red;
+
+}
+QCalendarWidget QWidget 
+{
+  color:grey;
+}
+QCalendarWidget QTableView{
+border-width:0px;
+background-color:lightgrey;
+}
+
+QPushButton:hover{
+background:#dea806;
+}</string>
+     </property>
+     <widget class="QFrame" name="FrameEntradaprimero">
+      <property name="geometry">
+       <rect>
+        <x>40</x>
+        <y>20</y>
+        <width>921</width>
+        <height>81</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">
+background:#fefefe;
+</string>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <widget class="QLabel" name="label_5">
+       <property name="geometry">
+        <rect>
+         <x>30</x>
+         <y>10</y>
+         <width>71</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Origen:</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_6">
+       <property name="geometry">
+        <rect>
+         <x>40</x>
+         <y>50</y>
+         <width>51</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Fecha:</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_7">
+       <property name="geometry">
+        <rect>
+         <x>430</x>
+         <y>30</y>
+         <width>161</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Control Secuencial:</string>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="LineOrigenEntra">
+       <property name="geometry">
+        <rect>
+         <x>100</x>
+         <y>9</y>
+         <width>121</width>
+         <height>21</height>
+        </rect>
+       </property>
+      </widget>
+      <widget class="QDateEdit" name="DateFechaEntra">
+       <property name="geometry">
+        <rect>
+         <x>100</x>
+         <y>50</y>
+         <width>121</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="accelerated">
+        <bool>false</bool>
+       </property>
+       <property name="showGroupSeparator" stdset="0">
+        <bool>false</bool>
+       </property>
+       <property name="displayFormat">
+        <string>dd/MM/yyyy</string>
+       </property>
+       <property name="calendarPopup">
+        <bool>true</bool>
+       </property>
+       <property name="timeSpec">
+        <enum>Qt::UTC</enum>
+       </property>
+       <property name="date">
+        <date>
+         <year>2020</year>
+         <month>1</month>
+         <day>1</day>
+        </date>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="LineControlEntra">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>580</x>
+         <y>19</y>
+         <width>113</width>
+         <height>31</height>
+        </rect>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QFrame" name="frame_2">
+      <property name="geometry">
+       <rect>
+        <x>40</x>
+        <y>120</y>
+        <width>921</width>
+        <height>531</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">
+ background:#fefefe;
+
+</string>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <widget class="QLabel" name="label_8">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>20</y>
+         <width>81</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Clave:</string>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="LineClaveEntra">
+       <property name="geometry">
+        <rect>
+         <x>120</x>
+         <y>10</y>
+         <width>191</width>
+         <height>31</height>
+        </rect>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_9">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>70</y>
+         <width>111</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Descripción:</string>
+       </property>
+      </widget>
+      <widget class="QTextEdit" name="TextDescriEntra">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>120</x>
+         <y>50</y>
+         <width>271</width>
+         <height>51</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(184, 244, 240);
+</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_10">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>120</y>
+         <width>111</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Presentación:</string>
+       </property>
+      </widget>
+      <widget class="QTableWidget" name="TableEntra">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>170</y>
+         <width>881</width>
+         <height>321</height>
+        </rect>
+       </property>
+       <column>
+        <property name="text">
+         <string>Eliminar</string>
+        </property>
+        <property name="icon">
+         <iconset>
+          <normaloff>../imagenes/ic_delete_128_28267.png</normaloff>../imagenes/ic_delete_128_28267.png</iconset>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Control</string>
+        </property>
+        <property name="textAlignment">
+         <set>AlignLeading|AlignTop</set>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Origen</string>
+        </property>
+        <property name="textAlignment">
+         <set>AlignLeading|AlignTop</set>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Clave</string>
+        </property>
+        <property name="textAlignment">
+         <set>AlignLeading|AlignTop</set>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Descripción</string>
+        </property>
+        <property name="textAlignment">
+         <set>AlignLeading|AlignTop</set>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Presentación</string>
+        </property>
+        <property name="textAlignment">
+         <set>AlignLeading|AlignTop</set>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Area Almacen</string>
+        </property>
+        <property name="textAlignment">
+         <set>AlignLeading|AlignTop</set>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Cantidad</string>
+        </property>
+        <property name="textAlignment">
+         <set>AlignLeading|AlignTop</set>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Caducidad</string>
+        </property>
+        <property name="textAlignment">
+         <set>AlignLeading|AlignTop</set>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Lote</string>
+        </property>
+        <property name="textAlignment">
+         <set>AlignLeading|AlignTop</set>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Fecha</string>
+        </property>
+        <property name="textAlignment">
+         <set>AlignLeading|AlignTop</set>
+        </property>
+       </column>
+      </widget>
+      <widget class="QLabel" name="label_11">
+       <property name="geometry">
+        <rect>
+         <x>400</x>
+         <y>70</y>
+         <width>71</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Cantidad:</string>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="LineCantidadEntra">
+       <property name="geometry">
+        <rect>
+         <x>510</x>
+         <y>60</y>
+         <width>161</width>
+         <height>31</height>
+        </rect>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_12">
+       <property name="geometry">
+        <rect>
+         <x>400</x>
+         <y>30</y>
+         <width>121</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Area Almacen:</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="btnClaveEntra">
+       <property name="geometry">
+        <rect>
+         <x>320</x>
+         <y>20</y>
+         <width>21</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>../imagenes/minoculares.png</normaloff>../imagenes/minoculares.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="LineaAreaEntra">
+       <property name="geometry">
+        <rect>
+         <x>510</x>
+         <y>20</y>
+         <width>161</width>
+         <height>31</height>
+        </rect>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_13">
+       <property name="geometry">
+        <rect>
+         <x>400</x>
+         <y>130</y>
+         <width>91</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Caducidad:</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_14">
+       <property name="geometry">
+        <rect>
+         <x>700</x>
+         <y>30</y>
+         <width>47</width>
+         <height>13</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Lote:</string>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="LineLoteEntra">
+       <property name="geometry">
+        <rect>
+         <x>750</x>
+         <y>19</y>
+         <width>113</width>
+         <height>31</height>
+        </rect>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="btnAgregarEntra">
+       <property name="geometry">
+        <rect>
+         <x>720</x>
+         <y>60</y>
+         <width>141</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton{
+border-radius:15px;
+background:#ffc001;
+
+}
+QPushButton:hover{
+background:#dea806;
+}
+</string>
+       </property>
+       <property name="text">
+        <string>Agregar</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="btnFinalizarEntra">
+       <property name="geometry">
+        <rect>
+         <x>720</x>
+         <y>100</y>
+         <width>141</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton{
+border-radius:15px;
+background:#ffc001;
+
+}
+QPushButton:hover{
+background:#dea806;
+}
+</string>
+       </property>
+       <property name="text">
+        <string>Finalizar</string>
+       </property>
+      </widget>
+      <widget class="QDateEdit" name="DateCaducidadEntra">
+       <property name="geometry">
+        <rect>
+         <x>500</x>
+         <y>130</y>
+         <width>110</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="displayFormat">
+        <string>dd/MM/yyyy</string>
+       </property>
+       <property name="calendarPopup">
+        <bool>true</bool>
+       </property>
+       <property name="timeSpec">
+        <enum>Qt::LocalTime</enum>
+       </property>
+       <property name="date">
+        <date>
+         <year>2020</year>
+         <month>1</month>
+         <day>1</day>
+        </date>
+       </property>
+      </widget>
+      <widget class="QTextEdit" name="TextPresentaEntra">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>120</x>
+         <y>110</y>
+         <width>271</width>
+         <height>51</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(184, 244, 240);
+</string>
+       </property>
+      </widget>
+     </widget>
+    </widget>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1291</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuEntradas">
+    <property name="title">
+     <string>Entradas</string>
+    </property>
+    <addaction name="actionEntradas"/>
+   </widget>
+   <widget class="QMenu" name="menuSalidas">
+    <property name="title">
+     <string>Salidas</string>
+    </property>
+    <addaction name="actionSalidas"/>
+   </widget>
+   <widget class="QMenu" name="menuConsultas">
+    <property name="title">
+     <string>Consultas</string>
+    </property>
+    <addaction name="actionkardex"/>
+   </widget>
+   <widget class="QMenu" name="menuClaves">
+    <property name="title">
+     <string>Claves</string>
+    </property>
+    <addaction name="actionAgregar_claves"/>
+   </widget>
+   <addaction name="menuEntradas"/>
+   <addaction name="menuSalidas"/>
+   <addaction name="menuConsultas"/>
+   <addaction name="menuClaves"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>32</width>
+     <height>32</height>
+    </size>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionEntradas"/>
+   <addaction name="actionSalidas"/>
+   <addaction name="actionkardex"/>
+   <addaction name="actionAgregar_claves"/>
+  </widget>
+  <action name="actionEntradas">
+   <property name="icon">
+    <iconset>
+     <normaloff>../imagenes/agregar clave (2).png</normaloff>../imagenes/agregar clave (2).png</iconset>
+   </property>
+   <property name="text">
+    <string>Introduce Entradas</string>
+   </property>
+   <property name="toolTip">
+    <string>Entradas</string>
+   </property>
+   <property name="shortcut">
+    <string>Alt+1</string>
+   </property>
+  </action>
+  <action name="actionSalidas">
+   <property name="icon">
+    <iconset>
+     <normaloff>../imagenes/medicina.png</normaloff>../imagenes/medicina.png</iconset>
+   </property>
+   <property name="text">
+    <string>Realizar Salidas</string>
+   </property>
+   <property name="toolTip">
+    <string>salidas</string>
+   </property>
+   <property name="shortcut">
+    <string>Alt+2</string>
+   </property>
+  </action>
+  <action name="actionkardex">
+   <property name="icon">
+    <iconset>
+     <normaloff>../imagenes/salidas.png</normaloff>../imagenes/salidas.png</iconset>
+   </property>
+   <property name="text">
+    <string>Realizar Consultas</string>
+   </property>
+   <property name="toolTip">
+    <string>kardex</string>
+   </property>
+   <property name="shortcut">
+    <string>Alt+3</string>
+   </property>
+  </action>
+  <action name="actionAgregar_claves">
+   <property name="icon">
+    <iconset>
+     <normaloff>../imagenes/agregar clave (1).png</normaloff>../imagenes/agregar clave (1).png</iconset>
+   </property>
+   <property name="text">
+    <string>Introducir Claves</string>
+   </property>
+   <property name="toolTip">
+    <string>Agregar claves</string>
+   </property>
+   <property name="shortcut">
+    <string>Alt+4</string>
+   </property>
+  </action>
+  <action name="actionlogo_chiapas">
+   <property name="icon">
+    <iconset>
+     <normaloff>../imagenes/secretaria de salud.png</normaloff>../imagenes/secretaria de salud.png</iconset>
+   </property>
+   <property name="text">
+    <string>logo chiapas</string>
+   </property>
+   <property name="toolTip">
+    <string>logo de chiapas</string>
+   </property>
+  </action>
+  <action name="actionlogo_secretaria_salud">
+   <property name="icon">
+    <iconset>
+     <normaloff>../imagenes/salud_logo.png</normaloff>../imagenes/salud_logo.png</iconset>
+   </property>
+   <property name="text">
+    <string>logo secretaria salud</string>
+   </property>
+   <property name="toolTip">
+    <string>secretaria de salud</string>
+   </property>
+  </action>
+  <action name="actionIntroducir_Inventario">
+   <property name="text">
+    <string>Introducir Inventario</string>
+   </property>
+  </action>
+  <action name="actionSalida_de_inventario">
+   <property name="text">
+    <string>Salida de inventario</string>
+   </property>
+  </action>
+  <action name="actionConsulta_de_inventario">
+   <property name="text">
+    <string>Consulta de inventario</string>
+   </property>
+  </action>
+  <action name="actionAgregar_claves_de_inventario">
+   <property name="text">
+    <string>Agregar claves de inventario</string>
+   </property>
+  </action>
+ </widget>
+ <tabstops>
+  <tabstop>LineOrigenEntra</tabstop>
+  <tabstop>DateFechaEntra</tabstop>
+  <tabstop>LineControlEntra</tabstop>
+  <tabstop>LineClaveEntra</tabstop>
+  <tabstop>btnClaveEntra</tabstop>
+  <tabstop>TextDescriEntra</tabstop>
+  <tabstop>LineaAreaEntra</tabstop>
+  <tabstop>LineCantidadEntra</tabstop>
+  <tabstop>DateCaducidadEntra</tabstop>
+  <tabstop>LineLoteEntra</tabstop>
+  <tabstop>TableEntra</tabstop>
+  <tabstop>btnAgregarEntra</tabstop>
+  <tabstop>btnFinalizarEntra</tabstop>
+ </tabstops>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>btnFinalizarEntra</sender>
+   <signal>clicked()</signal>
+   <receiver>LineCantidadEntra</receiver>
+   <slot>clear()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>946</x>
+     <y>423</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>773</x>
+     <y>395</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnFinalizarEntra</sender>
+   <signal>clicked()</signal>
+   <receiver>LineaAreaEntra</receiver>
+   <slot>clear()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>944</x>
+     <y>417</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>734</x>
+     <y>345</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnFinalizarEntra</sender>
+   <signal>clicked()</signal>
+   <receiver>LineLoteEntra</receiver>
+   <slot>clear()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>985</x>
+     <y>431</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1002</x>
+     <y>347</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnFinalizarEntra</sender>
+   <signal>clicked()</signal>
+   <receiver>TextDescriEntra</receiver>
+   <slot>clear()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>962</x>
+     <y>426</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>504</x>
+     <y>398</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnFinalizarEntra</sender>
+   <signal>clicked()</signal>
+   <receiver>LineClaveEntra</receiver>
+   <slot>clear()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>980</x>
+     <y>425</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>429</x>
+     <y>342</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnFinalizarEntra</sender>
+   <signal>clicked()</signal>
+   <receiver>LineOrigenEntra</receiver>
+   <slot>clear()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>922</x>
+     <y>422</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>346</x>
+     <y>233</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnAgregarEntra</sender>
+   <signal>clicked()</signal>
+   <receiver>LineaAreaEntra</receiver>
+   <slot>clear()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>951</x>
+     <y>377</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>824</x>
+     <y>344</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnAgregarEntra</sender>
+   <signal>clicked()</signal>
+   <receiver>LineCantidadEntra</receiver>
+   <slot>clear()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>913</x>
+     <y>384</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>816</x>
+     <y>387</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnAgregarEntra</sender>
+   <signal>clicked()</signal>
+   <receiver>TextDescriEntra</receiver>
+   <slot>clear()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>935</x>
+     <y>384</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>476</x>
+     <y>404</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnAgregarEntra</sender>
+   <signal>clicked()</signal>
+   <receiver>LineClaveEntra</receiver>
+   <slot>clear()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>905</x>
+     <y>379</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>435</x>
+     <y>342</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnAgregarEntra</sender>
+   <signal>clicked()</signal>
+   <receiver>TextPresentaEntra</receiver>
+   <slot>clear()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>982</x>
+     <y>383</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>496</x>
+     <y>444</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
