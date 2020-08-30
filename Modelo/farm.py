@@ -8,7 +8,7 @@ import pandas as pd
 from sqlalchemy.sql import func
 
 
-engine = create_engine('mysql+pymysql://root:wil99@localhost/prueba')
+engine = create_engine('mysql+pymysql://root:@localhost/prueba')
 #engine = create_engine('postgresql+psycopg2://postgres:wil99@localhost/farm')
 Session = sessionmaker(bind=engine)
 session = Session()
@@ -65,13 +65,13 @@ class Salida(Base):
 Base.metadata.create_all(engine)
 
 # # Pandas
-# medicamentos_df = pd.read_csv('medicamentos.csv', encoding = 'utf-8')
-# frame_Medi = pd.DataFrame(medicamentos_df)
-# frame_Medi.to_sql(con=engine, name='clave', if_exists='append', index=False)
+#medicamentos_df = pd.read_csv('medicamentos.csv', encoding = 'utf-8')
+#frame_Medi = pd.DataFrame(medicamentos_df)
+#frame_Medi.to_sql(con=engine, name='clave', if_exists='append', index=False)
 #
-# farmacos_df = pd.read_csv('farmacos.csv', encoding = 'utf-8')
-# frame_Farma = pd.DataFrame(farmacos_df)
-# frame_Farma.to_sql(con=engine, name='farmaco', if_exists='append', index=False)
+#farmacos_df = pd.read_csv('farmacos.csv', encoding = 'utf-8')
+#frame_Farma = pd.DataFrame(farmacos_df)
+#frame_Farma.to_sql(con=engine, name='farmaco', if_exists='append', index=False)
 
 #query = session.query(Usuario).filter(Usuario.nombre == '11').first()
 

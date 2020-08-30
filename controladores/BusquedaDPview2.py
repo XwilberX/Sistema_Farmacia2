@@ -19,14 +19,18 @@ from PyQt5.QtGui import QStandardItemModel, QStandardItem
 import pandas as pd
 
 
-engine = create_engine('mysql+pymysql://root:wil99@localhost/prueba')
+engine = create_engine('mysql+pymysql://root:@localhost/prueba')
 Session = sessionmaker(bind=engine)
 session = Session()
-
 class Ui_BDP(object):
+    def __init__(self, x):
+        print('el mensaje es :' + x)
+        self.x2 = x
     def setupUi(self, BDP):
         BDP.setObjectName("BDP")
-        BDP.resize(909, 412)
+        BDP.resize(919, 405)
+        BDP.setMinimumSize(QtCore.QSize(919, 405))
+        BDP.setMaximumSize(QtCore.QSize(919, 405))
         BDP.setStyleSheet("*{\n"
 "font-family:century gothic;\n"
 "font-size: 15px;\n"
@@ -57,24 +61,15 @@ class Ui_BDP(object):
         self.label_9.setGeometry(QtCore.QRect(20, 20, 111, 21))
         self.label_9.setObjectName("label_9")
         self.LineClaveBusqueda = QtWidgets.QLineEdit(self.centralwidget)
-        self.LineClaveBusqueda.setGeometry(QtCore.QRect(130, 10, 641, 31))
+        self.LineClaveBusqueda.setGeometry(QtCore.QRect(130, 10, 751, 31))
         self.LineClaveBusqueda.setObjectName("LineClaveBusqueda")
-        self.label_10 = QtWidgets.QLabel(self.centralwidget)
-        self.label_10.setGeometry(QtCore.QRect(20, 70, 111, 21))
-        self.label_10.setObjectName("label_10")
-        self.LinePresentaBusqueda = QtWidgets.QLineEdit(self.centralwidget)
-        self.LinePresentaBusqueda.setGeometry(QtCore.QRect(130, 60, 641, 31))
-        self.LinePresentaBusqueda.setObjectName("LinePresentaBusqueda")
-        self.btnAceptarBusqueda = QtWidgets.QPushButton(self.centralwidget)
-        self.btnAceptarBusqueda.setGeometry(QtCore.QRect(800, 40, 91, 31))
-        self.btnAceptarBusqueda.setObjectName("btnAceptarBusqueda")
         self.tableView = QtWidgets.QTableView(self.centralwidget)
-        self.tableView.setGeometry(QtCore.QRect(20, 120, 881, 231))
+        self.tableView.setGeometry(QtCore.QRect(20, 60, 881, 291))
         self.tableView.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
         self.tableView.setObjectName("tableView")
         BDP.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(BDP)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 909, 26))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 919, 26))
         self.menubar.setObjectName("menubar")
         BDP.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(BDP)
@@ -83,66 +78,42 @@ class Ui_BDP(object):
 
         self.retranslateUi(BDP)
         QtCore.QMetaObject.connectSlotsByName(BDP)
-    
-        #INGRESA LOS DATOS A LA TABLA Y HACE BUSQUEDA EN DESCRIPCION
-        tipo = 1
-        self.q = pd.read_sql('SELECT clave, descripcion FROM clave WHERE tipo = %s'% tipo, engine)
-        print(self.q)
-        self.numero =clave123 = session.query(Clave.corta).filter_by(tipo=1).count()
-        self.model=QStandardItemModel( self.numero,3)
-        self.model.setHorizontalHeaderLabels(['Clave','Descripcion'])
-        self.tableView.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        for z in range( self.numero):
-            for m in range(2):
-                item = QStandardItem(self.q.iloc[z,m])
-                self.model.setItem(z,m,item)
-        buscador = QSortFilterProxyModel()
-        buscador.setSourceModel(self.model)
-        buscador.setFilterKeyColumn(2)
-        self.LineClaveBusqueda.textChanged.connect(buscador.setFilterRegExp)
-        self.tableView.setModel(buscador)
+
+
+        self.TableViewInsert()
+
+        self.tableView.doubleClicked.connect(self.VentanaClose)
+
         
-        self.LinePresentaBusqueda.mousePressEvent = self.mouseEven1
-        self.LineClaveBusqueda.mousePressEvent = self.mouseEven2
-        self.tableView.doubleClicked.connect(self.pedrito)
-        
-    def pedrito(self):
+    def VentanaClose(self):
         QtWidgets.qApp.activeWindow().close()
 
-    #EVENTO DEL CLICK Y PONE LOS DATOS EN LA TABLA DE NUEVO
-    def mouseEven2(self,event):
-        if event.buttons() and QtCore.Qt.LeftButton:
-            self.BusquedaDPF()
-            buscador = QSortFilterProxyModel()
-            buscador.setSourceModel(self.model)
-            buscador.setFilterKeyColumn(2)
-            self.LineClaveBusqueda.textChanged.connect(buscador.setFilterRegExp)
-            self.tableView.setModel(buscador)
-    #EVENTO DEL CLICK Y PONE LOS DATOS EN LA TABLA DE NUEVO
-    def mouseEven1(self,event):
-        if event.buttons() and QtCore.Qt.LeftButton:
-            self.BusquedaDPF()
-            buscador = QSortFilterProxyModel()
-            buscador.setSourceModel(self.model)
-            buscador.setFilterKeyColumn(1)
-            self.LinePresentaBusqueda.textChanged.connect(buscador.setFilterRegExp)
-            self.tableView.setModel(buscador)
-
-    def BusquedaDPF(self):
-        self.model=QStandardItemModel( self.numero,3)
-        self.model.setHorizontalHeaderLabels(['Clave','Presentacion','Descripcion'])
+    def TableViewInsert(self):
+        # INGRESA LOS DATOS A LA TABLA Y HACE BUSQUEDA EN DESCRIPCION
+        self.q = pd.read_sql('SELECT corta, descripcion FROM clave WHERE tipo = %s' %self.x2, engine)
+        print(self.q)
+        self.numero  = session.query(Clave.corta).filter_by(tipo=self.x2).count()
+        self.model = QStandardItemModel(self.numero, 2)
+        self.model.setHorizontalHeaderLabels(['Clave', 'Descripcion'])
         self.tableView.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        for z in range( self.numero):
-            for m in range(3):
-                item = QStandardItem(self.q.iloc[z,m])
-                self.model.setItem(z,m,item)
+        for z in range(self.numero):
+            for m in range(2):
+                item = QStandardItem(self.q.iloc[z, m])
+                self.model.setItem(z, m, item)
+        buscador = QSortFilterProxyModel()
+        buscador.setSourceModel(self.model)
+        buscador.setFilterKeyColumn(1)
+        self.LineClaveBusqueda.textChanged.connect(buscador.setFilterRegExp)
+        self.tableView.setModel(buscador)
+
+
+
+
 
     def retranslateUi(self, BDP):
         _translate = QtCore.QCoreApplication.translate
         BDP.setWindowTitle(_translate("BDP", "MainWindow"))
         self.label_9.setText(_translate("BDP", "Descripción:"))
-        self.label_10.setText(_translate("BDP", "Presentación:"))
-        self.btnAceptarBusqueda.setText(_translate("BDP", "Aceptar"))
 
 
 if __name__ == "__main__":

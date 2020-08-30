@@ -12,12 +12,12 @@ from sqlalchemy import Column, Integer, String, Text, MetaData, Table,DateTime, 
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 from PyQt5 import QtCore, QtGui, QtWidgets
-from InterfazEntradas import Ui_Main
+from interfazEntradas import Ui_Main
 import sys
 sys.path.append('../Modelo/')
 from farm import Usuario
 
-engine = create_engine('mysql+pymysql://root:wil99@localhost/prueba')
+engine = create_engine('mysql+pymysql://root:@localhost/prueba')
 Session = sessionmaker(bind=engine)
 session = Session()
 
@@ -161,10 +161,15 @@ class Ui_Login(object):
         Login.setTabOrder(self.pushButton, self.pushButton_2)
         Login.setTabOrder(self.pushButton_2, self.toolButtonOne)
 
+
+
         #Al pulsar el boton Aceptar pone a trabajar la funcion
         self.pushButton.clicked.connect(self.ValidacionDeSesion)
         self.lineEdit.returnPressed.connect(self.pressEnter)
         self.lineEdit_2.returnPressed.connect(self.pressEnter)
+
+
+
 
     def pressEnter(self):
         print('precionaste enter')

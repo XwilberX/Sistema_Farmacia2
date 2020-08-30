@@ -16,14 +16,15 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from datetime import datetime
 import sys
 sys.path.append('../Modelo/')
-from farm import Farmaco, Clave
-from BusquedaDPview3 import Ui_BDP
+from farm import Farmaco
+from BusquedaDPview2 import Ui_BDP
 from PyQt5.QtCore import Qt, QSortFilterProxyModel
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QIntValidator
-from subwindow import SubWindow
+from interfazSalidas2 import SubWindow
+from farm import Clave
 import pandas as pd
 
-engine = create_engine('mysql+pymysql://root:wil99@localhost/prueba')
+engine = create_engine('mysql+pymysql://root:@localhost/prueba')
 Session = sessionmaker(bind=engine)
 session = Session()
 
@@ -406,6 +407,7 @@ class Ui_Main(object):
 
         self.btnFinalizarEntra.clicked.connect(self.FinalizarTabla)
         
+        #hace que el LineEdit solo puedan introducir numeros
         intonly = QIntValidator()
         self.LineCantidadEntra.setValidator(intonly)
 
