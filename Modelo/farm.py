@@ -8,7 +8,7 @@ import pandas as pd
 from sqlalchemy.sql import func
 
 
-engine = create_engine('mysql+pymysql://root:@localhost/prueba')
+engine = create_engine('mysql+pymysql://root:wil99@localhost/prueba')
 #engine = create_engine('postgresql+psycopg2://postgres:wil99@localhost/farm')
 Session = sessionmaker(bind=engine)
 session = Session()

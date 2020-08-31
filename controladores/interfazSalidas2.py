@@ -13,7 +13,7 @@ from farm import Clave
 from farm import Farmaco
 import pandas as pd
 
-engine = create_engine('mysql+pymysql://root:@localhost/prueba')
+engine = create_engine('mysql+pymysql://root:wil99@localhost/prueba')
 Session = sessionmaker(bind=engine)
 session = Session()
 
@@ -220,25 +220,31 @@ class SubWindow(QWidget):
 
 
     def insertDatosTablaWid(self):
-        
+        self.ListFarmIDs = []
         indexTableview = self.tableViewSalida.currentIndex().row()
-        #saca id ID de la tableView
-        self.claveid = self.tableViewSalida.model().index(indexTableview,0).data()
-        print(self.claveid)
-        #consulta para sacar los campos  y luego meterlos al tableWidget
-        self.Query = session.query(Clave.descripcion,Clave.presentacion, Farmaco.cantidad,Farmaco.caducidad).join(Clave).filter(Farmaco.idFarmaco == self.claveid).one()
-        print(self.Query)
+        self.claveid2 = self.tableViewSalida.model().index(indexTableview, 0).data()
+        self.ListFarmIDs.append(12)
+        if self.claveid2 in self.ListFarmIDs == True:
+            indexTableview = self.tableViewSalida.currentIndex().row()
+            #saca id ID de la tableView
+            self.claveid = self.tableViewSalida.model().index(indexTableview,0).data()
+            print(self.claveid)
+            #consulta para sacar los campos  y luego meterlos al tableWidget
+            self.Query = session.query(Clave.descripcion,Clave.presentacion, Farmaco.cantidad,Farmaco.caducidad).join(Clave).filter(Farmaco.idFarmaco == self.claveid).one()
+            print(self.Query)
 
-        #aqui quiero preguntar la cantidad
-        self.ventanaCanti = QtWidgets.QDialog()
-        self.vtncanti = Ui_vtnCantidad()
-        self.vtncanti.setupUi(self.ventanaCanti)
-        self.ventanaCanti.show()
-        self.vtncanti.btnAceptardialogSalida.clicked.connect(self.inserDatosBtn)
-        self.vtncanti.btnCancelardialogSalida.clicked.connect(self.closeVtn)
-        #hace que el LineEdit solo puedan introducir numeros
-        intonly = QIntValidator()
-        self.vtncanti.LineCantidaddialogSalida.setValidator(intonly)
+            #aqui quiero preguntar la cantidad
+            self.ventanaCanti = QtWidgets.QDialog()
+            self.vtncanti = Ui_vtnCantidad()
+            self.vtncanti.setupUi(self.ventanaCanti)
+            self.ventanaCanti.show()
+            self.vtncanti.btnAceptardialogSalida.clicked.connect(self.inserDatosBtn)
+            self.vtncanti.btnCancelardialogSalida.clicked.connect(self.closeVtn)
+            #hace que el LineEdit solo puedan introducir numeros
+            intonly = QIntValidator()
+            self.vtncanti.LineCantidaddialogSalida.setValidator(intonly)
+        else:
+            print('no funcia')
 
     #cierra la ventana de vtnCantidad
     def closeVtn(self):
@@ -246,6 +252,7 @@ class SubWindow(QWidget):
 
     def inserDatosBtn(self):
         cantidadPuesta = int(self.vtncanti.LineCantidaddialogSalida.text())
+
         if cantidadPuesta <= self.Query[2]:
             Nrow = self.TableSalida.rowCount()
             self.TableSalida.insertRow(Nrow)
@@ -278,6 +285,7 @@ class SubWindow(QWidget):
             self.btnDeleteSalida.clicked.connect(self.contadorSalida)
             #aumenta el numero en el control de salida
             self.NcontrolS()
+            self.ListFarmIDs.append(self.claveid)
             #cierra la ventana
             self.closeVtn()
         else: 
@@ -286,7 +294,6 @@ class SubWindow(QWidget):
             error_dialog.setText("Ingresa una cantidad Menor")
             error_dialog.setWindowTitle("Error")
             error_dialog.exec()
-
     #funcion con la cual controlamos el control de salida
     def NcontrolS(self):  
         self.Ncontrol = session.query(Salida).count()
@@ -333,6 +340,8 @@ class SubWindow(QWidget):
             buscador.setFilterKeyColumn(2)
             self.LineDescripSalida.textChanged.connect(buscador.setFilterRegExp)
         self.tableViewSalida.setModel(buscador)
+
+        session.close()
 
 
 

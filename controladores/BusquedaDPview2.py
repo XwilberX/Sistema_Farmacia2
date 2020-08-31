@@ -19,7 +19,7 @@ from PyQt5.QtGui import QStandardItemModel, QStandardItem
 import pandas as pd
 
 
-engine = create_engine('mysql+pymysql://root:@localhost/prueba')
+engine = create_engine('mysql+pymysql://root:wil99@localhost/prueba')
 Session = sessionmaker(bind=engine)
 session = Session()
 class Ui_BDP(object):

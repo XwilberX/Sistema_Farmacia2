@@ -17,7 +17,7 @@ import sys
 sys.path.append('../Modelo/')
 from farm import Usuario
 
-engine = create_engine('mysql+pymysql://root:@localhost/prueba')
+engine = create_engine('mysql+pymysql://root:wil99@localhost/prueba')
 Session = sessionmaker(bind=engine)
 session = Session()
 

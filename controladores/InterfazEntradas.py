@@ -24,7 +24,7 @@ from interfazSalidas2 import SubWindow
 from farm import Clave
 import pandas as pd
 
-engine = create_engine('mysql+pymysql://root:@localhost/prueba')
+engine = create_engine('mysql+pymysql://root:wil99@localhost/prueba')
 Session = sessionmaker(bind=engine)
 session = Session()
 
