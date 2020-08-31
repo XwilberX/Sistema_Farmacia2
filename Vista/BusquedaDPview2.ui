@@ -6,9 +6,21 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>909</width>
-    <height>412</height>
+    <width>919</width>
+    <height>405</height>
    </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>919</width>
+    <height>405</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>919</width>
+    <height>405</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
@@ -58,54 +70,18 @@ background:#dea806;
      <rect>
       <x>130</x>
       <y>10</y>
-      <width>641</width>
+      <width>751</width>
       <height>31</height>
      </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_10">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>70</y>
-      <width>111</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Presentación:</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="LinePresentaBusqueda">
-    <property name="geometry">
-     <rect>
-      <x>130</x>
-      <y>60</y>
-      <width>641</width>
-      <height>31</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="btnAceptarBusqueda">
-    <property name="geometry">
-     <rect>
-      <x>800</x>
-      <y>40</y>
-      <width>91</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Aceptar</string>
     </property>
    </widget>
    <widget class="QTableView" name="tableView">
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>120</y>
+      <y>60</y>
       <width>881</width>
-      <height>231</height>
+      <height>291</height>
      </rect>
     </property>
     <property name="editTriggers">
@@ -118,7 +94,7 @@ background:#dea806;
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>909</width>
+     <width>919</width>
      <height>26</height>
     </rect>
    </property>
