@@ -470,11 +470,14 @@ class Ui_Main(object):
             lista=[]
             Dp = pd.DataFrame()
             rows = self.TableEntra.rowCount()
+            print(rows)
             Column = self.TableEntra.columnCount()
+            print(Column)
             #TUVIMOS QUE ARREGLAR EL ORDEN DE LOS HEADERS PARA QUE JALE LA CONSULTA JUSTO CON LA TABLA DE BD Y EL DATAFRAME
-            headers = ['idFarmaco', 'origen', 'clave_corta', 'area','cantidad','caducidad','lote','fecha']
+            headers = ['idFarmaco', 'origen', 'clave_corta', 'area','cantidad','caducidad','lote','fechaIngreso']
             for i in range(rows):
                 for j in range(Column):
+                    print(j)
                     #Este If es por que no necesitamos las columnas de descripcion y presentacion en el ingreso al DATAFRAME ya que al ingresar el dataframe a la BD no estan esos campos
                     if j != 4 and j != 5 and j != 0:
                         Dp.loc[i,j] = self.TableEntra.item(i,j).text()
@@ -581,7 +584,7 @@ class Ui_Main(object):
             row = self.TableEntra.rowCount()
             rowPosition = self.TableEntra.rowCount()
             self.TableEntra.insertRow(rowPosition)
-
+            #cambio el formato de fecha
             Date =  self.DateCaducidadEntra.date()
             caducidad = Date.toPyDate()
             Date2 = self.DateFechaEntra.date()
