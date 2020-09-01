@@ -215,23 +215,20 @@ class SubWindow(QWidget):
         
 
         self.tableViewSalida.doubleClicked.connect(self.insertDatosTablaWid)
-        
+        self.listaId = []
+
 
 
 
     def insertDatosTablaWid(self):
-        self.ListFarmIDs = []
         indexTableview = self.tableViewSalida.currentIndex().row()
-        self.claveid2 = self.tableViewSalida.model().index(indexTableview, 0).data()
-        self.ListFarmIDs.append(12)
-        if self.claveid2 in self.ListFarmIDs == True:
-            indexTableview = self.tableViewSalida.currentIndex().row()
-            #saca id ID de la tableView
-            self.claveid = self.tableViewSalida.model().index(indexTableview,0).data()
-            print(self.claveid)
+        #saca id ID de la tableView
+        self.claveid = self.tableViewSalida.model().index(indexTableview,0).data()
+        #print(self.claveid)
+        if not self.claveid in self.listaId:
             #consulta para sacar los campos  y luego meterlos al tableWidget
             self.Query = session.query(Clave.descripcion,Clave.presentacion, Farmaco.cantidad,Farmaco.caducidad).join(Clave).filter(Farmaco.idFarmaco == self.claveid).one()
-            print(self.Query)
+            #print(self.Query)
 
             #aqui quiero preguntar la cantidad
             self.ventanaCanti = QtWidgets.QDialog()
@@ -244,7 +241,12 @@ class SubWindow(QWidget):
             intonly = QIntValidator()
             self.vtncanti.LineCantidaddialogSalida.setValidator(intonly)
         else:
-            print('no funcia')
+            error_dialog = QtWidgets.QMessageBox()
+            error_dialog.setIcon(QtWidgets.QMessageBox.Critical)
+            error_dialog.setText("Este Farmaco ya esta agregado")
+            error_dialog.setWindowTitle("Error")
+            error_dialog.exec()
+
 
     #cierra la ventana de vtnCantidad
     def closeVtn(self):
@@ -285,7 +287,7 @@ class SubWindow(QWidget):
             self.btnDeleteSalida.clicked.connect(self.contadorSalida)
             #aumenta el numero en el control de salida
             self.NcontrolS()
-            self.ListFarmIDs.append(self.claveid)
+            self.listaId.append(self.claveid)
             #cierra la ventana
             self.closeVtn()
         else: 
@@ -303,15 +305,19 @@ class SubWindow(QWidget):
     #Elimina filas den tableWidget y resta a al control de salida
     def contadorSalida(self):
         rowC = self.TableSalida.currentRow()
+        print(rowC)
+        self.listaId.pop(rowC)
+        print(self.listaId)
         self.TableSalida.removeRow(rowC)
         self.conta = self.conta - 1 
         self.LineControlSalida.setText(str(self.Ncontrol + self.conta))
         row2 = self.TableSalida.rowCount()
         for a in range(row2):
-                if a >= rowC:
-                        hola = int(self.TableSalida.item(a,1).text())
-                        pedro = hola - 1 
-                        self.TableSalida.setItem(a,1,QTableWidgetItem(str(pedro)))
+            if a >= rowC:
+                hola = int(self.TableSalida.item(a,1).text())
+                pedro = hola - 1
+                self.TableSalida.setItem(a,1,QTableWidgetItem(str(pedro)))
+
 
 
     #le pasa el parametro de busqueda al lineDescribe
