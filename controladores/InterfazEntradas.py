@@ -472,7 +472,7 @@ class Ui_Main(object):
             rows = self.TableEntra.rowCount()
             Column = self.TableEntra.columnCount()
             #TUVIMOS QUE ARREGLAR EL ORDEN DE LOS HEADERS PARA QUE JALE LA CONSULTA JUSTO CON LA TABLA DE BD Y EL DATAFRAME
-            headers = ['idFarmaco', 'origen', 'clave_corta', 'area','cantidad','caducidad','lote','fecha']
+            headers = ['idFarmaco', 'origen', 'clave_corta', 'area','cantidad','caducidad','lote','fechaIngreso']
             for i in range(rows):
                 for j in range(Column):
                     #Este If es por que no necesitamos las columnas de descripcion y presentacion en el ingreso al DATAFRAME ya que al ingresar el dataframe a la BD no estan esos campos

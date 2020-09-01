@@ -41,14 +41,11 @@ class Farmaco(Base):
     idFarmaco = Column(Integer, primary_key=True, autoincrement = True)
     lote = Column(String(30))
     cantidad = Column(Integer)
-    caducidad = Column(String(30))
+    caducidad = Column(Date)
     area = Column(String(50))
     origen = Column(String(50))
-    fecha = Column(DateTime(timezone=True), server_default=func.now())
+    fechaIngreso = Column(Date, server_default=func.now())
     clave_corta = Column(String(30), ForeignKey('clave.corta'))
-    #clave_corta = Column(String(50), ForeignKey('clave.corta'))
-    
-    Salidas = relationship("Salida")
 
 class Salida(Base):
     __tablename__ = 'salida'
@@ -57,21 +54,26 @@ class Salida(Base):
     cantidadSal = Column(Integer)
     fechaEntrega = Column(Date)
     FechaPedido = Column(Date)
+    Caducidad = Column(Date)
+    area = Column(String(50))
     
     clave_corta = Column(String(30), ForeignKey('clave.corta'))
-    farmaco_idFarmaco = Column(Integer, ForeignKey('farmaco.idFarmaco'))
     
 
 Base.metadata.create_all(engine)
 
 # # Pandas
-#medicamentos_df = pd.read_csv('medicamentos.csv', encoding = 'utf-8')
-#frame_Medi = pd.DataFrame(medicamentos_df)
-#frame_Medi.to_sql(con=engine, name='clave', if_exists='append', index=False)
-#
-#farmacos_df = pd.read_csv('farmacos.csv', encoding = 'utf-8')
-#frame_Farma = pd.DataFrame(farmacos_df)
-#frame_Farma.to_sql(con=engine, name='farmaco', if_exists='append', index=False)
+q = session.query(Clave).count()
+if q  <= 0:
+    medicamentos_df = pd.read_csv('medicamentos.csv', encoding = 'utf-8')
+    frame_Medi = pd.DataFrame(medicamentos_df)
+    frame_Medi.to_sql(con=engine, name='clave', if_exists='append', index=False)
+
+    farmacos_df = pd.read_csv('farmacos.csv', encoding = 'utf-8')
+    frame_Farma = pd.DataFrame(farmacos_df)
+    frame_Farma.to_sql(con=engine, name='farmaco', if_exists='append', index=False)
+else:
+    print('ya hay datos')
 
 #query = session.query(Usuario).filter(Usuario.nombre == '11').first()
 

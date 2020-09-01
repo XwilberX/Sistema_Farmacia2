@@ -305,9 +305,7 @@ class SubWindow(QWidget):
     #Elimina filas den tableWidget y resta a al control de salida
     def contadorSalida(self):
         rowC = self.TableSalida.currentRow()
-        print(rowC)
         self.listaId.pop(rowC)
-        print(self.listaId)
         self.TableSalida.removeRow(rowC)
         self.conta = self.conta - 1 
         self.LineControlSalida.setText(str(self.Ncontrol + self.conta))
@@ -328,7 +326,7 @@ class SubWindow(QWidget):
     def TableViewInsertSalida(self):
         #poner otra columna del ID-FARMACO
         self.x = str(self.comboboxSalida.currentIndex())
-        self.q = session.query(Farmaco.idFarmaco,Farmaco.clave_corta, Clave.descripcion, Farmaco.caducidad, Farmaco.cantidad, Farmaco.lote,Farmaco.area,Farmaco.fecha).join(Clave).filter(Clave.tipo == self.x).all()
+        self.q = session.query(Farmaco.idFarmaco,Farmaco.clave_corta, Clave.descripcion, Farmaco.caducidad, Farmaco.cantidad, Farmaco.lote,Farmaco.area,Farmaco.fechaIngreso).join(Clave).filter(Clave.tipo == self.x).all()
         self.numero  = session.query(Farmaco.clave_corta).join(Clave).filter(Clave.tipo == self.x).count()
         self.model = QStandardItemModel(0,8)
         self.model.setHorizontalHeaderLabels(['Id farmaco','Clave', 'Descripción','Caducidad', 'Cantidad', 'Lote', 'Area Almacen','Fecha Ingreso'])
