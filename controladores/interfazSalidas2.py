@@ -244,9 +244,14 @@ class SubWindow(QWidget):
             self.conta= 0
             #receteamos el numero de control para que no exista problemas
             self.NcontrolS()
-            #limpiamos la lista para que no contenga un ID y acepte todos nuevamente
-            LisReport = DfSalida.values.tolist()
+
+            list_names = ['Id', 'Clave', 'Cantidad Salida', 'Caducidad', 'Fecha de pedido', 'Fecha de Entrega', 'Area']
+            DfSalida.columns = list_names
+            print(DfSalida)
+            LisReport = [DfSalida.columns[:,].values.astype(str).tolist()] + DfSalida.values.tolist()
             GeneretReport.export(LisReport)
+
+            # limpiamos la lista para que no contenga un ID y acepte todos nuevamente
             self.listaId[:] = []
         except Exception as e:
             print(e)
@@ -382,6 +387,7 @@ class SubWindow(QWidget):
         #aqui se necesita convertir a str por que el datatime hacia problemas
         for item in self.q:
             self.model.appendRow([QStandardItem(str(x)) for x in item])
+
         buscador = QSortFilterProxyModel()
         buscador.setSourceModel(self.model)
         buscador.setFilterKeyColumn(1)
