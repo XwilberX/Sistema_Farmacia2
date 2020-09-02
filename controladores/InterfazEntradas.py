@@ -539,10 +539,10 @@ class Ui_Main(object):
 
     #consulta para el Numero de control
     def control(self):
-        
         self.Ncontrol = session.query(Farmaco).count()
         self.conta= self.conta + 1
         self.LineControlEntra.setText(str(self.Ncontrol + self.conta))
+        session.close()
 
 
     

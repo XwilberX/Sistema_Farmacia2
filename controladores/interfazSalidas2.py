@@ -6,11 +6,10 @@ from PyQt5.QtGui import QStandardItemModel, QStandardItem, QIntValidator
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, relationship
 from vtnCantidad import Ui_vtnCantidad
+from reports import GeneretReport
 import sys
 sys.path.append('../Modelo/')
-from farm import Salida
-from farm import Clave
-from farm import Farmaco
+from farm import Salida, Clave, Farmaco
 import pandas as pd
 
 engine = create_engine('mysql+pymysql://root:wil99@localhost/prueba')
@@ -199,7 +198,9 @@ class SubWindow(QWidget):
         self.retranslateUi()
         QtCore.QMetaObject.connectSlotsByName(self)
 
-        
+         
+
+
         #INICIO DEL CODIGO
         now = datetime.now()
         self.DateFechaESalida.setDate(now)
@@ -212,23 +213,58 @@ class SubWindow(QWidget):
         self.comboboxSalida.currentIndexChanged.connect(self.TableViewInsertSalida)
 
         self.LineDescripSalida.mousePressEvent = self.click
-        
-
+        #funcion para enviar los datos a la base de datos y crear el archivo.
+        self.btnFinalizarSalida.clicked.connect(self.bdFinalizarSalida)
         self.tableViewSalida.doubleClicked.connect(self.insertDatosTablaWid)
-        self.listaId = []
+        self.listaId=[]
 
 
 
+
+    def bdFinalizarSalida(self):
+        try:
+            DfSalida = pd.DataFrame()
+            rows = self.TableSalida.rowCount()
+            Column = self.TableSalida.columnCount()
+            #TUVIMOS QUE ARREGLAR EL ORDEN DE LOS HEADERS PARA QUE JALE LA CONSULTA JUSTO CON LA TABLA DE BD Y EL DATAFRAME
+            headers = ['idSalida', 'clave_corta', 'cantidadSal', 'Caducidad','FechaPedido','fechaEntrega','area']
+            for i in range(rows):
+                for j in range(Column+1):
+                    #Este If es por que no necesitamos las columnas de descripcion y presentacion en el ingreso al DATAFRAME ya que al ingresar el dataframe a la BD no estan esos campos
+                    if j != 3 and j != 4 and j != 0 and j != 9 :
+                        DfSalida.loc[i,j] = self.TableSalida.item(i,j).text()
+                    if j== 9:
+                        DfSalida.loc[i,j] = self.LineAreaSalida.text()
+            DfSalida.columns = headers
+            #Ingreso DEl dataframe a la bd tipo ingreso pandas(NO SQLALCHEMY)
+            DfSalida.to_sql('salida', engine, index= False, if_exists="append")
+            #borramos los datos de la tablaWidget
+            for i in reversed(range(self.TableSalida.rowCount())):
+                self.TableSalida.removeRow(i)
+            self.conta= 0
+            #receteamos el numero de control para que no exista problemas
+            self.NcontrolS()
+            #limpiamos la lista para que no contenga un ID y acepte todos nuevamente
+            LisReport = DfSalida.values.tolist()
+            GeneretReport.export(LisReport)
+            self.listaId[:] = []
+        except Exception as e:
+            print(e)
+            self.LineAreaSalida.setFocus()
+            error_dialog = QtWidgets.QMessageBox()
+            error_dialog.setIcon(QtWidgets.QMessageBox.Critical)
+            error_dialog.setText("No hay datos en la tabla")
+            error_dialog.setWindowTitle("Error")
+            error_dialog.exec()
 
     def insertDatosTablaWid(self):
         indexTableview = self.tableViewSalida.currentIndex().row()
         #saca id ID de la tableView
         self.claveid = self.tableViewSalida.model().index(indexTableview,0).data()
-        #print(self.claveid)
+        #pregunta si el id de farmaco se repite en la tablaview, si no ... entra y si si... no puede
         if not self.claveid in self.listaId:
             #consulta para sacar los campos  y luego meterlos al tableWidget
             self.Query = session.query(Clave.descripcion,Clave.presentacion, Farmaco.cantidad,Farmaco.caducidad).join(Clave).filter(Farmaco.idFarmaco == self.claveid).one()
-            #print(self.Query)
 
             #aqui quiero preguntar la cantidad
             self.ventanaCanti = QtWidgets.QDialog()
@@ -247,15 +283,21 @@ class SubWindow(QWidget):
             error_dialog.setWindowTitle("Error")
             error_dialog.exec()
 
-
     #cierra la ventana de vtnCantidad
     def closeVtn(self):
         QtWidgets.qApp.activeWindow().close()
 
     def inserDatosBtn(self):
         cantidadPuesta = int(self.vtncanti.LineCantidaddialogSalida.text())
-
         if cantidadPuesta <= self.Query[2]:
+            #####################################
+            #cambio el formato de fecha
+            Date =  self.DateFechaESalida.date()
+            FechaEsalida = Date.toPyDate()
+            Date =  self.DateFechaPSalida.date()
+            FechaPsalida = Date.toPyDate()
+            it = self.tableViewSalida.currentIndex().row()
+            self.Clavecorta = self.tableViewSalida.model().index(it,1).data()
             Nrow = self.TableSalida.rowCount()
             self.TableSalida.insertRow(Nrow)
             #campos para el boton de eliminar
@@ -273,20 +315,22 @@ class SubWindow(QWidget):
                 "background:#dea806;\n"
                 "}\n"
                 "")
+            
             #agrega al tableWidget
             self.TableSalida.setCellWidget(Nrow,0,self.btnDeleteSalida) 
             self.TableSalida.setItem(Nrow,1,QTableWidgetItem(str(self.LineControlSalida.text()))) 
-            self.TableSalida.setItem(Nrow,2,QTableWidgetItem(str(self.claveid)))
+            self.TableSalida.setItem(Nrow,2,QTableWidgetItem(str(self.Clavecorta)))
             self.TableSalida.setItem(Nrow,3,QTableWidgetItem(str(self.Query[0])))
             self.TableSalida.setItem(Nrow,4,QTableWidgetItem(str(self.Query[1])))
             self.TableSalida.setItem(Nrow,5,QTableWidgetItem(str(cantidadPuesta)))
             self.TableSalida.setItem(Nrow,6,QTableWidgetItem(str(self.Query[3])))
-            self.TableSalida.setItem(Nrow,7,QTableWidgetItem(str(self.DateFechaPSalida.text())))
-            self.TableSalida.setItem(Nrow,8,QTableWidgetItem(str(self.DateFechaESalida.text())))
+            self.TableSalida.setItem(Nrow,7,QTableWidgetItem(str(FechaEsalida)))
+            self.TableSalida.setItem(Nrow,8,QTableWidgetItem(str(FechaPsalida)))
 
             self.btnDeleteSalida.clicked.connect(self.contadorSalida)
             #aumenta el numero en el control de salida
             self.NcontrolS()
+            #Agrega el id a una lsita para que no pueda repetir
             self.listaId.append(self.claveid)
             #cierra la ventana
             self.closeVtn()
@@ -296,42 +340,45 @@ class SubWindow(QWidget):
             error_dialog.setText("Ingresa una cantidad Menor")
             error_dialog.setWindowTitle("Error")
             error_dialog.exec()
+
     #funcion con la cual controlamos el control de salida
     def NcontrolS(self):  
         self.Ncontrol = session.query(Salida).count()
         self.conta= self.conta + 1
         self.LineControlSalida.setText(str(self.Ncontrol + self.conta))
+        session.close()
 
     #Elimina filas den tableWidget y resta a al control de salida
     def contadorSalida(self):
         rowC = self.TableSalida.currentRow()
+        #aqui elimina el ID de la lista de los ID
         self.listaId.pop(rowC)
         self.TableSalida.removeRow(rowC)
         self.conta = self.conta - 1 
         self.LineControlSalida.setText(str(self.Ncontrol + self.conta))
         row2 = self.TableSalida.rowCount()
         for a in range(row2):
-            if a >= rowC:
-                hola = int(self.TableSalida.item(a,1).text())
-                pedro = hola - 1
-                self.TableSalida.setItem(a,1,QTableWidgetItem(str(pedro)))
-
-
+                if a >= rowC:
+                        hola = int(self.TableSalida.item(a,1).text())
+                        pedro = hola - 1 
+                        self.TableSalida.setItem(a,1,QTableWidgetItem(str(pedro)))
+ 
 
     #le pasa el parametro de busqueda al lineDescribe
     def click(self,event):
         if event.buttons() and QtCore.Qt.LeftButton:
             self.TableViewInsertSalida()
-        #Rellena el TableView Atravez de un QstandarItem
+    #Rellena el TableView Atravez de un QstandarItem
     def TableViewInsertSalida(self):
         #poner otra columna del ID-FARMACO
+        
         self.x = str(self.comboboxSalida.currentIndex())
         self.q = session.query(Farmaco.idFarmaco,Farmaco.clave_corta, Clave.descripcion, Farmaco.caducidad, Farmaco.cantidad, Farmaco.lote,Farmaco.area,Farmaco.fechaIngreso).join(Clave).filter(Clave.tipo == self.x).all()
+
         self.numero  = session.query(Farmaco.clave_corta).join(Clave).filter(Clave.tipo == self.x).count()
         self.model = QStandardItemModel(0,8)
         self.model.setHorizontalHeaderLabels(['Id farmaco','Clave', 'Descripción','Caducidad', 'Cantidad', 'Lote', 'Area Almacen','Fecha Ingreso'])
         self.tableViewSalida.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        
         #aqui se necesita convertir a str por que el datatime hacia problemas
         for item in self.q:
             self.model.appendRow([QStandardItem(str(x)) for x in item])
@@ -344,9 +391,10 @@ class SubWindow(QWidget):
             buscador.setFilterKeyColumn(2)
             self.LineDescripSalida.textChanged.connect(buscador.setFilterRegExp)
         self.tableViewSalida.setModel(buscador)
-
+        #IMPORTATE cerrar la sesion ya que una session tiene los datos de cuando fue abierta , si quieres obtener nuevos datos no podras por que necesitas una nueva session 
+        #y esa session tendra los nuevos datos
+        #cerrar session y automaticamente se abre otra.
         session.close()
-
 
 
 
