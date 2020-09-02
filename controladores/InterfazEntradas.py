@@ -467,19 +467,18 @@ class Ui_Main(object):
         self.subwindowEntradas.showMaximized()
     def FinalizarTabla(self):
         try:
-            lista=[]
             Dp = pd.DataFrame()
             rows = self.TableEntra.rowCount()
             print(rows)
             Column = self.TableEntra.columnCount()
             print(Column)
             #TUVIMOS QUE ARREGLAR EL ORDEN DE LOS HEADERS PARA QUE JALE LA CONSULTA JUSTO CON LA TABLA DE BD Y EL DATAFRAME
-            headers = ['idFarmaco', 'origen', 'clave_corta', 'area','cantidad','caducidad','lote','fechaIngreso']
+            headers = ['origen', 'clave_corta', 'area','cantidad','caducidad','lote','fechaIngreso']
             for i in range(rows):
                 for j in range(Column):
                     print(j)
                     #Este If es por que no necesitamos las columnas de descripcion y presentacion en el ingreso al DATAFRAME ya que al ingresar el dataframe a la BD no estan esos campos
-                    if j != 4 and j != 5 and j != 0:
+                    if j != 4 and j != 5 and j != 0 and j != 1:
                         Dp.loc[i,j] = self.TableEntra.item(i,j).text()
             Dp.columns =headers
             print(Dp)
@@ -489,7 +488,9 @@ class Ui_Main(object):
                 self.TableEntra.removeRow(i)
             self.conta= 0
             self.control()
-        except:
+            session.close()
+        except Exception as e:
+            print(e)
             self.LineClaveEntra.setFocus()
             error_dialog = QtWidgets.QMessageBox()
             error_dialog.setIcon(QtWidgets.QMessageBox.Critical)
@@ -572,11 +573,19 @@ class Ui_Main(object):
 
     #Envia los datos a la tabla
     def enviar(self):
-        if self.LineClaveEntra.text() == "":
+        error_dialog = QtWidgets.QMessageBox()
+        error_dialog.setIcon(QtWidgets.QMessageBox.Information)
+        #que no pueda poner una cantidad vacia
+        if self.LineCantidadEntra.text() == "" or self.LineCantidadEntra.text == "0":
+            self.LineCantidadEntra.setFocus()
+            error_dialog.setText("Cantidad vacia")
+            if self.LineCantidadEntra.text() == "0":
+                error_dialog.setText("Introduzca un numero mayor")
+            error_dialog.setWindowTitle("Error")
+            error_dialog.exec()
+        elif self.LineClaveEntra.text() == "":
             self.LineClaveEntra.setStyleSheet("QLineEdit { border-color: red;}")
             self.LineClaveEntra.setFocus()
-            error_dialog = QtWidgets.QMessageBox()
-            error_dialog.setIcon(QtWidgets.QMessageBox.Information)
             error_dialog.setText("Clave vacia")
             error_dialog.setWindowTitle("Error")
             error_dialog.exec()

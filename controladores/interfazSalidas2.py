@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import QMdiSubWindow, QMainWindow, QWidget, QPushButton,QTa
 from datetime import datetime
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt, QSortFilterProxyModel
-from PyQt5.QtGui import QStandardItemModel, QStandardItem, QIntValidator
+from PyQt5.QtGui import QStandardItemModel, QStandardItem, QIntValidator, QPainter, QColor, QPen
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, relationship
 from vtnCantidad import Ui_vtnCantidad
@@ -288,65 +288,78 @@ class SubWindow(QWidget):
         QtWidgets.qApp.activeWindow().close()
 
     def inserDatosBtn(self):
-        cantidadPuesta = int(self.vtncanti.LineCantidaddialogSalida.text())
-        if cantidadPuesta <= self.Query[2]:
-            #####################################
-            #cambio el formato de fecha
-            Date =  self.DateFechaESalida.date()
-            FechaEsalida = Date.toPyDate()
-            Date =  self.DateFechaPSalida.date()
-            FechaPsalida = Date.toPyDate()
-            it = self.tableViewSalida.currentIndex().row()
-            self.Clavecorta = self.tableViewSalida.model().index(it,1).data()
-            Nrow = self.TableSalida.rowCount()
-            self.TableSalida.insertRow(Nrow)
-            #campos para el boton de eliminar
-            self.btnDeleteSalida = QtWidgets.QPushButton(self)
-            self.btnDeleteSalida.setGeometry(QtCore.QRect(320, 20, 21, 21))
-            IconoDelete2 = QtGui.QIcon()
-            IconoDelete2.addPixmap(QtGui.QPixmap("../imagenes/ic_delete_128_28267.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-            self.btnDeleteSalida.setIcon(IconoDelete2)
-            self.btnDeleteSalida.setStyleSheet("QPushButton{\n"
-                "border-radius:15px;\n"
-                "background:#fefefe;\n"
-                "\n"
-                "}\n"
-                "QPushButton:hover{\n"
-                "background:#dea806;\n"
-                "}\n"
-                "")
-            
-            #agrega al tableWidget
-            self.TableSalida.setCellWidget(Nrow,0,self.btnDeleteSalida) 
-            self.TableSalida.setItem(Nrow,1,QTableWidgetItem(str(self.LineControlSalida.text()))) 
-            self.TableSalida.setItem(Nrow,2,QTableWidgetItem(str(self.Clavecorta)))
-            self.TableSalida.setItem(Nrow,3,QTableWidgetItem(str(self.Query[0])))
-            self.TableSalida.setItem(Nrow,4,QTableWidgetItem(str(self.Query[1])))
-            self.TableSalida.setItem(Nrow,5,QTableWidgetItem(str(cantidadPuesta)))
-            self.TableSalida.setItem(Nrow,6,QTableWidgetItem(str(self.Query[3])))
-            self.TableSalida.setItem(Nrow,7,QTableWidgetItem(str(FechaEsalida)))
-            self.TableSalida.setItem(Nrow,8,QTableWidgetItem(str(FechaPsalida)))
-
-            self.btnDeleteSalida.clicked.connect(self.contadorSalida)
-            #aumenta el numero en el control de salida
-            self.NcontrolS()
-            #Agrega el id a una lsita para que no pueda repetir
-            self.listaId.append(self.claveid)
-            #cierra la ventana
-            self.closeVtn()
-        else: 
+        try:
             error_dialog = QtWidgets.QMessageBox()
             error_dialog.setIcon(QtWidgets.QMessageBox.Critical)
-            error_dialog.setText("Ingresa una cantidad Menor")
+            cantidadPuesta = int(self.vtncanti.LineCantidaddialogSalida.text())
+            if cantidadPuesta <= self.Query[2] and cantidadPuesta != 0:
+                #####################################
+                #cambio el formato de fecha
+                Date =  self.DateFechaESalida.date()
+                FechaEsalida = Date.toPyDate()
+                Date =  self.DateFechaPSalida.date()
+                FechaPsalida = Date.toPyDate()
+                it = self.tableViewSalida.currentIndex().row()
+                self.Clavecorta = self.tableViewSalida.model().index(it,1).data()
+                Nrow = self.TableSalida.rowCount()
+                self.TableSalida.insertRow(Nrow)
+                #campos para el boton de eliminar
+                self.btnDeleteSalida = QtWidgets.QPushButton(self)
+                self.btnDeleteSalida.setGeometry(QtCore.QRect(320, 20, 21, 21))
+                IconoDelete2 = QtGui.QIcon()
+                IconoDelete2.addPixmap(QtGui.QPixmap("../imagenes/ic_delete_128_28267.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+                self.btnDeleteSalida.setIcon(IconoDelete2)
+                self.btnDeleteSalida.setStyleSheet("QPushButton{\n"
+                    "border-radius:15px;\n"
+                    "background:#fefefe;\n"
+                    "\n"
+                    "}\n"
+                    "QPushButton:hover{\n"
+                    "background:#dea806;\n"
+                    "}\n"
+                    "")
+                
+                #agrega al tableWidget
+                self.TableSalida.setCellWidget(Nrow,0,self.btnDeleteSalida) 
+                self.TableSalida.setItem(Nrow,1,QTableWidgetItem(str(self.LineControlSalida.text()))) 
+                self.TableSalida.setItem(Nrow,2,QTableWidgetItem(str(self.Clavecorta)))
+                self.TableSalida.setItem(Nrow,3,QTableWidgetItem(str(self.Query[0])))
+                self.TableSalida.setItem(Nrow,4,QTableWidgetItem(str(self.Query[1])))
+                self.TableSalida.setItem(Nrow,5,QTableWidgetItem(str(cantidadPuesta)))
+                self.TableSalida.setItem(Nrow,6,QTableWidgetItem(str(self.Query[3])))
+                self.TableSalida.setItem(Nrow,7,QTableWidgetItem(str(FechaEsalida)))
+                self.TableSalida.setItem(Nrow,8,QTableWidgetItem(str(FechaPsalida)))
+
+                self.btnDeleteSalida.clicked.connect(self.contadorSalida)
+                #aumenta el numero en el control de salida
+                self.NcontrolS()
+                #Agrega el id a una lsita para que no pueda repetir
+                self.listaId.append(self.claveid)
+                #cierra la ventana
+                self.closeVtn()
+            else:
+                #el dato puesto no sea 0
+                if cantidadPuesta ==0:
+                    error_dialog.setText("Ingresa una cantidad mayor")
+                    error_dialog.setWindowTitle("Error")
+                    error_dialog.exec()
+                else:
+                    #si el dato puesto es mayor a la existencia
+                    error_dialog.setText("Ingresa una cantidad Menor")
+                    error_dialog.setWindowTitle("Error")
+                    error_dialog.exec()
+        except:
+            error_dialog.setText("Cantidad Vacia")
             error_dialog.setWindowTitle("Error")
             error_dialog.exec()
+
 
     #funcion con la cual controlamos el control de salida
     def NcontrolS(self):  
         self.Ncontrol = session.query(Salida).count()
         self.conta= self.conta + 1
         self.LineControlSalida.setText(str(self.Ncontrol + self.conta))
-
+        session.close()
     #Elimina filas den tableWidget y resta a al control de salida
     def contadorSalida(self):
         rowC = self.TableSalida.currentRow()
@@ -392,6 +405,19 @@ class SubWindow(QWidget):
             buscador.setFilterKeyColumn(2)
             self.LineDescripSalida.textChanged.connect(buscador.setFilterRegExp)
         self.tableViewSalida.setModel(buscador)
+
+        for h in range(self.numero):
+            cantiRojo = int(self.tableViewSalida.model().index(h,4).data())
+            print(cantiRojo)
+            if cantiRojo <=10: 
+                #self.model.setData(self.model.index(h,4), QtGui.QBrush(QtCore.Qt.white), QtCore.Qt.ForegroundRole)
+                self.model.setData(self.model.index(h,4), QtGui.QBrush(QtGui.QColor(243,65,22)), QtCore.Qt.BackgroundRole)
+            
+  
+                    
+        #poner de color rojo los farmacos que esten mejor de 10 
+
+
         #IMPORTATE cerrar la sesion ya que una session tiene los datos de cuando fue abierta , si quieres obtener nuevos datos no podras por que necesitas una nueva session 
         #y esa session tendra los nuevos datos
         #cerrar session y automaticamente se abre otra.
