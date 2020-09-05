@@ -218,13 +218,15 @@ class SubWindow(QWidget):
         self.btnFinalizarSalida.clicked.connect(self.bdFinalizarSalida)
         self.tableViewSalida.doubleClicked.connect(self.insertDatosTablaWid)
         self.listaId=[]
+        self.listaCantidad=[]
 
 
 
-
+    #mete los datos de la tabla a la base de datos
     def bdFinalizarSalida(self):
         try:
             DfSalida = pd.DataFrame()
+            
             rows = self.TableSalida.rowCount()
             Column = self.TableSalida.columnCount()
             #TUVIMOS QUE ARREGLAR EL ORDEN DE LOS HEADERS PARA QUE JALE LA CONSULTA JUSTO CON LA TABLA DE BD Y EL DATAFRAME
@@ -237,18 +239,43 @@ class SubWindow(QWidget):
                     if j== 9:
                         DfSalida.loc[i,j] = self.LineAreaSalida.text()
             DfSalida.columns = headers
-            print(DfSalida)
+            #print(DfSalida)
             #Ingreso DEl dataframe a la bd tipo ingreso pandas(NO SQLALCHEMY)
             DfSalida.to_sql('salida', engine, index= False, if_exists="append")
             #borramos los datos de la tablaWidget
             for i in reversed(range(self.TableSalida.rowCount())):
                 self.TableSalida.removeRow(i)
+            #elimina stock de la tabla farmaco
+            #ciclo para que vaya ejecutando el update de cada uno de ellos 
+                self.listaCantidad
+            rango = len(self.listaId)
+            for i in range(rango):
+                idd = self.listaId[i]
+                #obtengo todos los datos de ese ID y actualizo el de cantidad - la cantidad que se resta
+                QueryUpdate = session.query(Farmaco).get(idd)
+                QueryUpdate.cantidad = QueryUpdate.cantidad - int(self.listaCantidad[i])
+                loquequedo = QueryUpdate.cantidad
+                if loquequedo == 0 :
+                    session.delete(QueryUpdate)
+
+            
+                #para que se realice el cambio
+                session.commit()
+
+
+            
+
+
+            
             self.conta= 0
             #receteamos el numero de control para que no exista problemas
             self.NcontrolS()
             #limpiamos la lista para que no contenga un ID y acepte todos nuevamente
             self.listaId[:] = [] 
-        except:
+            self.listaCantidad[:] = [] 
+            self.TableViewInsertSalida()
+        except Exception as e:
+            print(e)
             self.LineAreaSalida.setFocus()
             error_dialog = QtWidgets.QMessageBox()
             error_dialog.setIcon(QtWidgets.QMessageBox.Critical)
@@ -265,7 +292,7 @@ class SubWindow(QWidget):
         if not self.claveid in self.listaId:
             #consulta para sacar los campos  y luego meterlos al tableWidget
             self.Query = session.query(Clave.descripcion,Clave.presentacion, Farmaco.cantidad,Farmaco.caducidad).join(Clave).filter(Farmaco.idFarmaco == self.claveid).one()
-            print(self.Query)
+            #print(self.Query)
             #aqui quiero preguntar la cantidad
             self.ventanaCanti = QtWidgets.QDialog()
             self.vtncanti = Ui_vtnCantidad()
@@ -292,6 +319,7 @@ class SubWindow(QWidget):
             error_dialog = QtWidgets.QMessageBox()
             error_dialog.setIcon(QtWidgets.QMessageBox.Critical)
             cantidadPuesta = int(self.vtncanti.LineCantidaddialogSalida.text())
+            self.CantixId = cantidadPuesta
             if cantidadPuesta <= self.Query[2] and cantidadPuesta != 0:
                 #####################################
                 #cambio el formato de fecha
@@ -335,6 +363,7 @@ class SubWindow(QWidget):
                 self.NcontrolS()
                 #Agrega el id a una lsita para que no pueda repetir
                 self.listaId.append(self.claveid)
+                self.listaCantidad.append(self.CantixId)
                 #cierra la ventana
                 self.closeVtn()
             else:
@@ -366,6 +395,7 @@ class SubWindow(QWidget):
         print(rowC)
         #aqui elimina el ID de la lista de los ID
         self.listaId.pop(rowC)
+        self.listaCantidad.pop(rowC)
         self.TableSalida.removeRow(rowC)
         self.conta = self.conta - 1 
         self.LineControlSalida.setText(str(self.Ncontrol + self.conta))
@@ -386,11 +416,11 @@ class SubWindow(QWidget):
         #poner otra columna del ID-FARMACO
         
         self.x = str(self.comboboxSalida.currentIndex())
-        self.q = session.query(Farmaco.idFarmaco,Farmaco.clave_corta, Clave.descripcion, Farmaco.caducidad, Farmaco.cantidad, Farmaco.lote,Farmaco.area,Farmaco.fechaIngreso).join(Clave).filter(Clave.tipo == self.x).all()
+        self.q = session.query(Farmaco.idFarmaco,Farmaco.clave_corta, Clave.descripcion, Farmaco.caducidad, Farmaco.lote, Farmaco.cantidad,Farmaco.area,Farmaco.fechaIngreso).join(Clave).filter(Clave.tipo == self.x).all()
         #print(self.q)
         self.numero  = session.query(Farmaco.clave_corta).join(Clave).filter(Clave.tipo == self.x).count()
         self.model = QStandardItemModel(0,8)
-        self.model.setHorizontalHeaderLabels(['Id farmaco','Clave', 'Descripción','Caducidad', 'Cantidad', 'Lote', 'Area Almacen','Fecha Ingreso'])
+        self.model.setHorizontalHeaderLabels(['Id farmaco','Clave', 'Descripción','Caducidad', 'Lote', 'Cantidad', 'Area Almacen','Fecha Ingreso'])
         self.tableViewSalida.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         print('cambio realizado')
         #aqui se necesita convertir a str por que el datatime hacia problemas
@@ -405,15 +435,14 @@ class SubWindow(QWidget):
             buscador.setFilterKeyColumn(2)
             self.LineDescripSalida.textChanged.connect(buscador.setFilterRegExp)
         self.tableViewSalida.setModel(buscador)
-
+        #sirve para darle color a las celdas de cantidad las que tienen menor a 10 o 10
         for h in range(self.numero):
-            cantiRojo = int(self.tableViewSalida.model().index(h,4).data())
-            print(cantiRojo)
+            cantiRojo = int(self.tableViewSalida.model().index(h,5).data())
+            #print(cantiRojo)
             if cantiRojo <=10: 
-                #self.model.setData(self.model.index(h,4), QtGui.QBrush(QtCore.Qt.white), QtCore.Qt.ForegroundRole)
-                self.model.setData(self.model.index(h,4), QtGui.QBrush(QtGui.QColor(243,65,22)), QtCore.Qt.BackgroundRole)
-            
-  
+                self.model.setData(self.model.index(h,5), QtGui.QBrush(QtCore.Qt.white), QtCore.Qt.ForegroundRole)
+                self.model.setData(self.model.index(h,5), QtGui.QBrush(QtGui.QColor(236,47,6)), QtCore.Qt.BackgroundRole)
+
                     
         #poner de color rojo los farmacos que esten mejor de 10 
 

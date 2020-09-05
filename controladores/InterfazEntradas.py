@@ -526,8 +526,8 @@ class Ui_Main(object):
             if tipos == 1:
                 Desc = session.query(Clave.descripcion, Clave.presentacion).filter_by(corta=Vclave, tipo=1).one()
 
-            print(Desc[0])
-            print(Desc[1])
+            # print(Desc[0])
+            # print(Desc[1])
             self.TextDescriEntra.setText(Desc[0])
             self.TextPresentaEntra.setText(Desc[1])
         except:
