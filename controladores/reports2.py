@@ -9,45 +9,90 @@ from reportlab.platypus.tables import Table
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_JUSTIFY, TA_LEFT, TA_CENTER
-styles = getSampleStyleSheet()
-styleN = styles["BodyText"]
-styleN.alignment = TA_LEFT
-width, height = A4
-logo = 'C:\\Users\\infrabyte\\Pictures\\github\\Sistema_FarmaciaInfra\\imagenes\\salud_logo.png'
-elements = []
-print(f'Height={height}')
-imgw = imgh = 100
-im = Image(logo, width=imgw, height=imgh)
-im.hAlign = 'LEFT'
-elements.append(im)
+from reportlab.lib.units import mm, cm
 
 headstyle = ParagraphStyle(
     name='MyHeader',
     fontName='Helvetica-Bold',
-    fontSize=16,
-    leading =10
+    fontSize=14,
+    leading =10,
+    spaceAfter = 4
 )
 doctorstyle = ParagraphStyle(
     name='MyDoctorHeader',
     fontName='Helvetica',
-    fontSize=13,
-    leading =10
+    fontSize=10,
+    #leading =10,
+    spaceAfter = 4
 )
-data = [[Paragraph("Dr John Doe's ENT Clinic", style = headstyle)], [Paragraph("Dr John Doe", style = doctorstyle)], [Paragraph("ENT Specialist", style = doctorstyle)], [Paragraph("Registration No. ", style = doctorstyle)]]
-elements.append(Table(data, repeatRows=1))
-line1 = ("Name", "Test", "Age", "20yr")
-line2 = ("MRD No.", "18","Date", "14-11-2018")
-line3 = ("No.","#", "Doctor", "Dr.John Doe")
-data=[line1,line2, line3]
-patientdetailstable = Table(data)
-patientdetailstable.setStyle(TableStyle([
-    ('BACKGROUND', (0, 0), (4, 0), '#CFEAD4'),
-    ('BACKGROUND', (0, 2), (4, 2), '#CFEAD4'),
-    ('BOX',(0,0),(-1,-1), 0.5, '#CFEAD4'),
-    ('GRID',(0,0),(-1,-1), 0.5, colr(12, 43, 8)),
-]))
-elements.append(patientdetailstable)
+
+styles = getSampleStyleSheet()
+styleN = styles["Normal"]
+styleN.alignment = TA_LEFT
+width, height = A4
+logo = 'loog.jpg'
+lg2 = 'descarga.png'
+
+elements = []
+
+imgw = imgh = 50
+
+im = Image(logo, width=imgw+60, height=imgh)
+im.hAlign = 'LEFT'
+
+lg = Image(lg2, width=imgw+60, height=imgh)
+lg.hAlign = 'RIGHT'
+col1 = Table([[im]])
+
+title = [[Paragraph("INSTITUTO DE SALUD", style = headstyle)], [Paragraph("SALIDA DE ALMACEN", style = headstyle)]]
+
+col2 = Table([[lg]], repeatRows=1)
+
+tblrow1 = Table([[col1, title ,col2]])
+tblrow1.setStyle(
+    TableStyle([
+        ('ALIGN', (0, 0), (-1, -1), 'CENTRE'),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('ALIGN', (0, 0), (0, 0), 'LEFT'),
+        ('ALIGN', (2, 0), (2, 0), 'RIGHT'),
+    ]))
+elements.append(tblrow1)
+
+colOne = [[Paragraph("Almacen: SIAL VIII", style = doctorstyle)], [Paragraph("Programa: COMPRA DIRECTA 2020", style = doctorstyle)],
+           [Paragraph("Num Referencia: B445770", style = doctorstyle)], [Paragraph("Observaciones: N° DE S. 167", style = doctorstyle)],
+          [Paragraph("Proveedor: VENDOGAS S.A DE C.V", style = doctorstyle)]
+           ]
+
+colTwo = [[], [], [Paragraph("Fecha Referencia: 30-may-2020", style = doctorstyle)], [], []]
+
+colThree = [[Paragraph("Num Salida: Ed-60420040", style = doctorstyle)], [Paragraph("Pelido: 167", style = doctorstyle)],
+           [Paragraph("Fecha Salida: 5-jun-2020", style = doctorstyle)], [],
+          [Paragraph("RFC: VEN930917QT2", style = doctorstyle)]
+           ]
+
+tblrow2 = Table([[colOne, colTwo, colThree]])
+tblrow2.setStyle(
+    TableStyle([
+        ('ALIGN', (1, 0), (1, 0), 'RIGHT'),
+        ('VALIGN', (1, 0), (1, 0), 'MIDDLE'),
+        ('ALIGN',(2,0),(2,3),'RIGHT'),
+        ('VALIGN', (2,0),(2,2), 'TOP'),
+        ('VALIGN', (2,3),(2,3), 'BOTTOM'),
+        #('BOX',(0,0),(-1,-1),2,colors.black),
+        ('LINEBELOW', (0,-1), (-1,-1), 0.25, colors.black),
+        # ('ALIGN', (0, 0), (0, 0), 'LEFT'),
+        # ('ALIGN', (2, 0), (2, 0), 'RIGHT'),
+    ]))
+
+elements.append(tblrow2)
+
+# data = [[Paragraph("Dr John Doe's ENT Clinic", style = headstyle)], [Paragraph("Dr John Doe", style = doctorstyle)], [Paragraph("ENT Specialist", style = doctorstyle)], [Paragraph("Registration No. ", style = doctorstyle)]]
+# elements.append(Table(data, repeatRows=1))
 elements.append(Spacer(1, 20))
+
+
+
+
 # We use paragraph style because we need to wrap text. We cant directly wrap cells otherwise
 line1 = ["Sl.", "Medicine" , "Dose", "Freq", "Durn", "Note"]
 drug1 = Paragraph('AUGMED Syrup 30ml (AMOXICILLIN 200MG + CLAVULANATE(CLAVULANIC ACID) 28.5MG)', styleN)
