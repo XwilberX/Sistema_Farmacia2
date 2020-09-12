@@ -57,10 +57,22 @@ class Salida(Base):
     FechaPedido = Column(Date)
     fechaEntrega = Column(Date)
     area = Column(String(50))
-    
-    
-    
+    lote = Column(String(30))
 
+class Historial(Base):
+    __tablename__ = 'historial'
+
+    idFarmaco = Column(Integer, primary_key=True, autoincrement = True)
+    lote = Column(String(30))
+    cantidad = Column(Integer)
+    caducidad = Column(Date)
+    area = Column(String(50))
+    origen = Column(String(50))
+    fechaIngreso = Column(Date, server_default=func.now())
+    clave_corta = Column(String(30), ForeignKey('clave.corta'))
+    
+    
+    
 Base.metadata.create_all(engine)
 
 # # Pandas

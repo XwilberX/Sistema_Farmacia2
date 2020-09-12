@@ -230,14 +230,16 @@ class SubWindow(QWidget):
             rows = self.TableSalida.rowCount()
             Column = self.TableSalida.columnCount()
             #TUVIMOS QUE ARREGLAR EL ORDEN DE LOS HEADERS PARA QUE JALE LA CONSULTA JUSTO CON LA TABLA DE BD Y EL DATAFRAME
-            headers = ['idSalida', 'clave_corta', 'cantidadSal', 'Caducidad','FechaPedido','fechaEntrega','area']
+            headers = ['idSalida', 'clave_corta', 'cantidadSal', 'Caducidad','FechaPedido','fechaEntrega','area','lote']
             for i in range(rows):
-                for j in range(Column+1):
+                for j in range(Column+2):
                     #Este If es por que no necesitamos las columnas de descripcion y presentacion en el ingreso al DATAFRAME ya que al ingresar el dataframe a la BD no estan esos campos
-                    if j != 3 and j != 4 and j != 0 and j != 9 :
+                    if j != 3 and j != 4 and j != 0 and j != 9 and j != 10 :
                         DfSalida.loc[i,j] = self.TableSalida.item(i,j).text()
                     if j== 9:
                         DfSalida.loc[i,j] = self.LineAreaSalida.text()
+                    if j == 10:
+                         DfSalida.loc[i,j] = self.Lote
             DfSalida.columns = headers
             #print(DfSalida)
             #Ingreso DEl dataframe a la bd tipo ingreso pandas(NO SQLALCHEMY)
@@ -258,15 +260,9 @@ class SubWindow(QWidget):
                 if loquequedo == 0 :
                     session.delete(QueryUpdate)
 
-            
                 #para que se realice el cambio
                 session.commit()
 
-
-            
-
-
-            
             self.conta= 0
             #receteamos el numero de control para que no exista problemas
             self.NcontrolS()
@@ -283,10 +279,15 @@ class SubWindow(QWidget):
             error_dialog.setWindowTitle("Error")
             error_dialog.exec()
 
+
+
+
+    #mete los datos al TableWidget
     def insertDatosTablaWid(self):
         indexTableview = self.tableViewSalida.currentIndex().row()
         #saca id ID de la tableView
         self.claveid = self.tableViewSalida.model().index(indexTableview,0).data()
+        self.Lote = self.tableViewSalida.model().index(indexTableview,4).data()
         print(self.claveid)
         #pregunta si el id de farmaco se repite en la tablaview, si no ... entra y si si... no puede
         if not self.claveid in self.listaId:
@@ -402,9 +403,9 @@ class SubWindow(QWidget):
         row2 = self.TableSalida.rowCount()
         for a in range(row2):
                 if a >= rowC:
-                        hola = int(self.TableSalida.item(a,1).text())
-                        pedro = hola - 1 
-                        self.TableSalida.setItem(a,1,QTableWidgetItem(str(pedro)))
+                        numeroControl = int(self.TableSalida.item(a,1).text())
+                        NumeroControlUp = numeroControl - 1 
+                        self.TableSalida.setItem(a,1,QTableWidgetItem(str(NumeroControlUp)))
  
 
     #le pasa el parametro de busqueda al lineDescribe
