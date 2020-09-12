@@ -272,9 +272,12 @@ class SubWindow(QWidget):
                 self.bandera = True
                 
                 for a in range(2):
-                        for b in range(self.filas):
-                                for c in range(8):
+                        for a in Query:
+                                for b in a:
                                         self.TableConsulta.setItem(rows,col,QTableWidgetItem(str(b)))
+                                        col = col + 1
+                                col = 0
+                                rows = rows + 1 
                                 
 
 
