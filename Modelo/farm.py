@@ -58,6 +58,7 @@ class Salida(Base):
     fechaEntrega = Column(Date)
     area = Column(String(50))
     lote = Column(String(30))
+    numero_pedido = Column(Integer)
 
 class Historial(Base):
     __tablename__ = 'historial'

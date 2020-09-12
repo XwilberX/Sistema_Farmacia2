@@ -5,6 +5,7 @@ from PyQt5.QtCore import Qt, QSortFilterProxyModel
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QIntValidator, QPainter, QColor, QPen
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, relationship
+from sqlalchemy.sql import func
 from vtnCantidad import Ui_vtnCantidad
 import sys
 sys.path.append('../Modelo/')
@@ -219,6 +220,7 @@ class SubWindow(QWidget):
         self.tableViewSalida.doubleClicked.connect(self.insertDatosTablaWid)
         self.listaId=[]
         self.listaCantidad=[]
+        self.listaLote=[]
 
 
 
@@ -226,20 +228,25 @@ class SubWindow(QWidget):
     def bdFinalizarSalida(self):
         try:
             DfSalida = pd.DataFrame()
-            
+            #el func.max es la funcion SELECT MAX de sql (obtiene el dato con mayor valor)
+            Npedido = session.query(func.max(Salida.numero_pedido)).scalar()
+
+            Npedidoup = int(Npedido + 1)
             rows = self.TableSalida.rowCount()
             Column = self.TableSalida.columnCount()
             #TUVIMOS QUE ARREGLAR EL ORDEN DE LOS HEADERS PARA QUE JALE LA CONSULTA JUSTO CON LA TABLA DE BD Y EL DATAFRAME
-            headers = ['idSalida', 'clave_corta', 'cantidadSal', 'Caducidad','FechaPedido','fechaEntrega','area','lote']
+            headers = ['idSalida', 'clave_corta', 'cantidadSal', 'Caducidad','FechaPedido','fechaEntrega','area','lote','numero_pedido']
             for i in range(rows):
-                for j in range(Column+2):
+                for j in range(Column+3):
                     #Este If es por que no necesitamos las columnas de descripcion y presentacion en el ingreso al DATAFRAME ya que al ingresar el dataframe a la BD no estan esos campos
-                    if j != 3 and j != 4 and j != 0 and j != 9 and j != 10 :
+                    if j != 3 and j != 4 and j != 0 and j != 9 and j != 10 and j != 11 :
                         DfSalida.loc[i,j] = self.TableSalida.item(i,j).text()
                     if j== 9:
                         DfSalida.loc[i,j] = self.LineAreaSalida.text()
                     if j == 10:
-                         DfSalida.loc[i,j] = self.Lote
+                         DfSalida.loc[i,j] = self.listaLote[i]
+                    if j == 11:
+                         DfSalida.loc[i,j] =  Npedidoup
             DfSalida.columns = headers
             #print(DfSalida)
             #Ingreso DEl dataframe a la bd tipo ingreso pandas(NO SQLALCHEMY)
@@ -262,6 +269,7 @@ class SubWindow(QWidget):
 
                 #para que se realice el cambio
                 session.commit()
+                session.close()
 
             self.conta= 0
             #receteamos el numero de control para que no exista problemas
@@ -269,6 +277,7 @@ class SubWindow(QWidget):
             #limpiamos la lista para que no contenga un ID y acepte todos nuevamente
             self.listaId[:] = [] 
             self.listaCantidad[:] = [] 
+            self.listaLote[:] =[]
             self.TableViewInsertSalida()
         except Exception as e:
             print(e)
@@ -288,6 +297,7 @@ class SubWindow(QWidget):
         #saca id ID de la tableView
         self.claveid = self.tableViewSalida.model().index(indexTableview,0).data()
         self.Lote = self.tableViewSalida.model().index(indexTableview,4).data()
+        self.listaLote.append(self.Lote)
         print(self.claveid)
         #pregunta si el id de farmaco se repite en la tablaview, si no ... entra y si si... no puede
         if not self.claveid in self.listaId:
@@ -397,6 +407,7 @@ class SubWindow(QWidget):
         #aqui elimina el ID de la lista de los ID
         self.listaId.pop(rowC)
         self.listaCantidad.pop(rowC)
+        self.listaLote.pop(rowC)
         self.TableSalida.removeRow(rowC)
         self.conta = self.conta - 1 
         self.LineControlSalida.setText(str(self.Ncontrol + self.conta))
