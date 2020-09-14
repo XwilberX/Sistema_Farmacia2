@@ -17,6 +17,7 @@ from farm import Clave
 from PyQt5.QtCore import Qt, QSortFilterProxyModel 
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 import pandas as pd
+import pymysql
 
 
 engine = create_engine('mysql+pymysql://root:wil99@localhost/prueba')

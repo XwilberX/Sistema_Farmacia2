@@ -21,7 +21,9 @@ from BusquedaDPview2 import Ui_BDP
 from PyQt5.QtCore import Qt, QSortFilterProxyModel
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QIntValidator
 from interfazSalidas2 import SubWindow
+from interfazClave import SubWindow as vtnClave
 from farm import Clave
+from interfazConsultas import SubWindow as vtnConsultas
 import pandas as pd
 
 engine = create_engine('mysql+pymysql://root:wil99@localhost/prueba')
@@ -374,6 +376,15 @@ class Ui_Main(object):
         self.uiSalida.createSubWindow()
         self.mdiArea.addSubWindow(self.uiSalida)
 
+        self.uiClave = vtnClave()
+        self.uiClave.createSubWindow()
+        self.mdiArea.addSubWindow(self.uiClave)
+
+
+        self.uiConsulta = vtnConsultas()
+        self.uiConsulta.createSubWindow()
+        self.mdiArea.addSubWindow(self.uiConsulta)
+
         self.mdiArea.activateNextSubWindow()
         
         #inicio del codigo
@@ -381,7 +392,8 @@ class Ui_Main(object):
 
         self.actionEntradas.triggered.connect(self.abrirVentana)
         self.actionSalidas.triggered.connect(self.abrirSalidas)
-
+        self.actionAgregar_claves.triggered.connect(self.abrirClaves)
+        self.actionkardex.triggered.connect(self.abrirConsultas)
 
 
         #agregar Items a la tabla de Entradas
@@ -423,26 +435,10 @@ class Ui_Main(object):
         self.btnFinalizarEntra.clicked.connect(self.LineClaveEntra.clear)
         self.btnFinalizarEntra.clicked.connect(self.LineOrigenEntra.clear)
 
-        #
-        self.btnFinalizarEntra.clicked.connect(self.TextPresentaEntra.clear)
-        #
-        #
-        self.btnAgregarEntra.clicked.connect(self.LineLoteEntra.clear)
-        #
+
 
 
         self.retranslateUi(Main)
-        self.btnFinalizarEntra.clicked.connect(self.LineCantidadEntra.clear)
-        self.btnFinalizarEntra.clicked.connect(self.LineaAreaEntra.clear)
-        self.btnFinalizarEntra.clicked.connect(self.LineLoteEntra.clear)
-        self.btnFinalizarEntra.clicked.connect(self.TextDescriEntra.clear)
-        self.btnFinalizarEntra.clicked.connect(self.LineClaveEntra.clear)
-        self.btnFinalizarEntra.clicked.connect(self.LineOrigenEntra.clear)
-        self.btnAgregarEntra.clicked.connect(self.LineaAreaEntra.clear)
-        self.btnAgregarEntra.clicked.connect(self.LineCantidadEntra.clear)
-        self.btnAgregarEntra.clicked.connect(self.TextDescriEntra.clear)
-        self.btnAgregarEntra.clicked.connect(self.LineClaveEntra.clear)
-        self.btnAgregarEntra.clicked.connect(self.TextPresentaEntra.clear)
         QtCore.QMetaObject.connectSlotsByName(Main)
         Main.setTabOrder(self.LineOrigenEntra, self.DateFechaEntra)
         Main.setTabOrder(self.DateFechaEntra, self.LineControlEntra)
@@ -459,34 +455,59 @@ class Ui_Main(object):
 
  #FUNCIONES
     # VER QUE BORRE EL FINALIZAR Y EL AGREGAR
+    def abrirConsultas(self):
+        self.subwindowEntradas.hide()
+        self.uiClave.hide()
+        self.uiSalida.hide()
+        self.uiConsulta.showMaximized()
+    def abrirClaves(self):
+        self.uiConsulta.hide()
+        self.subwindowEntradas.hide()
+        self.uiSalida.hide()
+        self.uiClave.showMaximized()
     def abrirSalidas(self):
+        self.uiConsulta.hide()
+        self.uiClave.hide()
         self.subwindowEntradas.hide()
         self.uiSalida.showMaximized()
     def abrirVentana(self):
+        self.uiConsulta.hide()
+        self.uiClave.hide()
         self.uiSalida.hide()
         self.subwindowEntradas.showMaximized()
     def FinalizarTabla(self):
         try:
-            lista=[]
             Dp = pd.DataFrame()
             rows = self.TableEntra.rowCount()
             Column = self.TableEntra.columnCount()
             #TUVIMOS QUE ARREGLAR EL ORDEN DE LOS HEADERS PARA QUE JALE LA CONSULTA JUSTO CON LA TABLA DE BD Y EL DATAFRAME
-            headers = ['idFarmaco', 'origen', 'clave_corta', 'area','cantidad','caducidad','lote','fechaIngreso']
+            headers = ['origen', 'clave_corta', 'area','cantidad','caducidad','lote','fechaIngreso']
             for i in range(rows):
                 for j in range(Column):
                     #Este If es por que no necesitamos las columnas de descripcion y presentacion en el ingreso al DATAFRAME ya que al ingresar el dataframe a la BD no estan esos campos
-                    if j != 4 and j != 5 and j != 0:
+                    if j != 4 and j != 5 and j != 0 and j != 1:
                         Dp.loc[i,j] = self.TableEntra.item(i,j).text()
             Dp.columns =headers
-            print(Dp)
-            #Ingreso DEl dataframe a la bd tipo ingreso pandas(NO SQLALCHEMY)
+            #Ingreso DEl dataframe a la bd tipo ingreso pandas(NO SQLALCHEMY) a la tabla farmaco
             Dp.to_sql('farmaco', engine, index= False, if_exists="append")
+            #Ingreso DEl dataframe a la bd tipo ingreso pandas(NO SQLALCHEMY) pero a la tabla historial
+            Dp.to_sql('historial',engine, index= False, if_exists="append")
+            
             for i in reversed(range(self.TableEntra.rowCount())):
                 self.TableEntra.removeRow(i)
             self.conta= 0
             self.control()
-        except:
+            session.close()
+            self.TextPresentaEntra.setText('')
+            self.LineCantidadEntra.setText('')
+            self.LineaAreaEntra.setText('')
+            self.LineLoteEntra.setText('')
+            self.TextDescriEntra.setText('')
+            self.LineClaveEntra.setText('')
+            self.LineOrigenEntra.setText('')
+
+        except Exception as e:
+            print(e)
             self.LineClaveEntra.setFocus()
             error_dialog = QtWidgets.QMessageBox()
             error_dialog.setIcon(QtWidgets.QMessageBox.Critical)
@@ -514,7 +535,6 @@ class Ui_Main(object):
     def ConsultaDesc(self):
         try: 
             self.LineClaveEntra.setStyleSheet("QLineEdit { border-color: black;}")
-            print('EJECUTANDO LA FUNCION')
             tipos = self.comboBoxEntradas.currentIndex()
             Vclave = self.LineClaveEntra.text()
             if tipos == 0:
@@ -522,8 +542,6 @@ class Ui_Main(object):
             if tipos == 1:
                 Desc = session.query(Clave.descripcion, Clave.presentacion).filter_by(corta=Vclave, tipo=1).one()
 
-            print(Desc[0])
-            print(Desc[1])
             self.TextDescriEntra.setText(Desc[0])
             self.TextPresentaEntra.setText(Desc[1])
         except:
@@ -539,6 +557,7 @@ class Ui_Main(object):
 
     #consulta para el Numero de control
     def control(self):
+        
         self.Ncontrol = session.query(Farmaco).count()
         self.conta= self.conta + 1
         self.LineControlEntra.setText(str(self.Ncontrol + self.conta))
@@ -550,7 +569,6 @@ class Ui_Main(object):
     def BusquedaTreal(self):
         list = []
         tipos = self.comboBoxEntradas.currentIndex()
-        print(tipos)
         if tipos == 0:
             clave123 = session.query(Clave.corta).filter_by(tipo=0).all()
         if tipos == 1:
@@ -569,19 +587,27 @@ class Ui_Main(object):
 
     #Envia los datos a la tabla
     def enviar(self):
-        if self.LineClaveEntra.text() == "":
+        error_dialog = QtWidgets.QMessageBox()
+        error_dialog.setIcon(QtWidgets.QMessageBox.Information)
+        #que no pueda poner una cantidad vacia
+        if self.LineCantidadEntra.text() == "" or self.LineCantidadEntra.text == "0":
+            self.LineCantidadEntra.setFocus()
+            error_dialog.setText("Cantidad vacia")
+            if self.LineCantidadEntra.text() == "0":
+                error_dialog.setText("Introduzca un numero mayor")
+            error_dialog.setWindowTitle("Error")
+            error_dialog.exec()
+        elif self.LineClaveEntra.text() == "":
             self.LineClaveEntra.setStyleSheet("QLineEdit { border-color: red;}")
             self.LineClaveEntra.setFocus()
-            error_dialog = QtWidgets.QMessageBox()
-            error_dialog.setIcon(QtWidgets.QMessageBox.Information)
             error_dialog.setText("Clave vacia")
             error_dialog.setWindowTitle("Error")
             error_dialog.exec()
-        else:
+        if self.LineCantidadEntra.text() != "" and self.LineCantidadEntra.text != "0" and self.LineClaveEntra.text() != "" :
             row = self.TableEntra.rowCount()
             rowPosition = self.TableEntra.rowCount()
             self.TableEntra.insertRow(rowPosition)
-
+            #cambio el formato de fecha
             Date =  self.DateCaducidadEntra.date()
             caducidad = Date.toPyDate()
             Date2 = self.DateFechaEntra.date()
@@ -627,9 +653,13 @@ class Ui_Main(object):
                 str(FechaIngreso)))
             self.control()    
             self.btnDelete.clicked.connect(self.contador)
-    
-    
-    
+            self.LineLoteEntra.setText('')
+            self.LineaAreaEntra.setText('')
+            self.LineCantidadEntra.setText('')
+            self.TextDescriEntra.setText('')
+            self.LineClaveEntra.setText('')
+            self.TextPresentaEntra.setText('')
+
     #Elimina las filas del tablewitget
     def contador(self):
         rowC = self.TableEntra.currentRow()
@@ -642,6 +672,11 @@ class Ui_Main(object):
                         hola = int(self.TableEntra.item(a,1).text())
                         pedro = hola - 1 
                         self.TableEntra.setItem(a,1,QTableWidgetItem(str(pedro)))
+
+
+
+
+
 
     def retranslateUi(self, Main):
         _translate = QtCore.QCoreApplication.translate

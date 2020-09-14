@@ -12,8 +12,9 @@ from sqlalchemy import Column, Integer, String, Text, MetaData, Table,DateTime, 
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 from PyQt5 import QtCore, QtGui, QtWidgets
-from interfazEntradas import Ui_Main
+from InterfazEntradas import Ui_Main
 import sys
+import pymysql
 sys.path.append('../Modelo/')
 from farm import Usuario
 

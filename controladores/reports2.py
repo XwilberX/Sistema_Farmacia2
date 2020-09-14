@@ -1,117 +1,156 @@
-def colr(x, y, z):
-    return (x/255, y/255, z/255)
-import reportlab
 from reportlab.lib.pagesizes import A4
-from reportlab.pdfgen.canvas import Canvas
-from reportlab.lib.utils import ImageReader
-from reportlab.platypus import SimpleDocTemplate, TableStyle, Paragraph, Image, Spacer, Frame, Paragraph
+from reportlab.platypus import SimpleDocTemplate, TableStyle, Paragraph, Image, Spacer, Frame, Paragraph, BaseDocTemplate, PageTemplate, NextPageTemplate
 from reportlab.platypus.tables import Table
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.pdfgen import canvas
 from reportlab.lib.enums import TA_JUSTIFY, TA_LEFT, TA_CENTER
-from reportlab.lib.units import mm, cm
+from reportlab.platypus.flowables import TopPadder
+from reportlab.lib.units import mm, cm, inch
+from faker import Faker
+import pandas as pd
+import os
+from functools import partial
 
-headstyle = ParagraphStyle(
-    name='MyHeader',
-    fontName='Helvetica-Bold',
-    fontSize=14,
-    leading =10,
-    spaceAfter = 4
-)
-doctorstyle = ParagraphStyle(
-    name='MyDoctorHeader',
-    fontName='Helvetica',
-    fontSize=10,
-    #leading =10,
-    spaceAfter = 4
-)
+class Report():
+    def __init__(self, **kwargs):
+        """ Constructor """
+        print('llego')
+        # Lista donde se agregaran todos los elementos, parrafos tables etc
+        self.elements = []
+        self.styles = getSampleStyleSheet()
 
-styles = getSampleStyleSheet()
-styleN = styles["Normal"]
-styleN.alignment = TA_LEFT
-width, height = A4
-logo = 'loog.jpg'
-lg2 = 'descarga.png'
+    def create(self):
+        def footer(canvas, doc, content):
+            canvas.saveState()
+            w, h = content.wrap(doc.width, doc.topMargin)
+            content.drawOn(canvas, doc.leftMargin, doc.height + doc.topMargin - h)
+            canvas.restoreState()
 
-elements = []
+        self.doc = BaseDocTemplate('output.pdf', pagesize=A4, rightMargin=20, leftMargin=20, topMargin=20, bottomMargin=20,)
+        frame = Frame(self.doc.leftMargin, self.doc.bottomMargin, self.doc.width, self.doc.height-2*cm, id='normal')
+        footer_content = Paragraph("This is a multi-line header.  It goes on every page.  " * 6)
+        template = PageTemplate(id='test', frames=frame, onPageEnd =partial(footer, content=footer_content))
+        self.doc.addPageTemplates([template])
+        self.createDocument()
+        self.doc.build(self.elements, canvasmaker=NumberedCanvas)
+        os.startfile('output.pdf')
 
-imgw = imgh = 50
+    def createDocument(self):
+        # Estilos parrafos del header en medio de las imagenes
+        headstyle = ParagraphStyle(name='MyHeader', fontName='Helvetica-Bold', fontSize=14, leading=10, spaceAfter=4)
 
-im = Image(logo, width=imgw+60, height=imgh)
-im.hAlign = 'LEFT'
+        # Estilo de los parrafos que estan debajo de las imagenes
+        doctorstyle = ParagraphStyle(name='MyDoctorHeader', fontName='Helvetica', fontSize=10, spaceAfter=4)
 
-lg = Image(lg2, width=imgw+60, height=imgh)
-lg.hAlign = 'RIGHT'
-col1 = Table([[im]])
+        width, height = A4
+        logo = 'loog.jpg'
+        lg2 = 'descarga.png'
 
-title = [[Paragraph("INSTITUTO DE SALUD", style = headstyle)], [Paragraph("SALIDA DE ALMACEN", style = headstyle)]]
+        # tamaños de las imagenes
+        imgw = imgh = 50
 
-col2 = Table([[lg]], repeatRows=1)
+        im = Image(logo, width=imgw+60, height=imgh, hAlign='LEFT')
+        im2 = Image(lg2, width=imgw+60, height=imgh, hAlign='RIGHT')
 
-tblrow1 = Table([[col1, title ,col2]])
-tblrow1.setStyle(
-    TableStyle([
-        ('ALIGN', (0, 0), (-1, -1), 'CENTRE'),
-        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-        ('ALIGN', (0, 0), (0, 0), 'LEFT'),
-        ('ALIGN', (2, 0), (2, 0), 'RIGHT'),
-    ]))
-elements.append(tblrow1)
+        HeaderI1 = Table([[im]])
+        HeaderTitle = [[Paragraph("INSTITUTO DE SALUD", style = headstyle)], [Paragraph("SALIDA DE ALMACEN", style = headstyle)]]
+        HeaderI2 =  Table([[im2]])
 
-colOne = [[Paragraph("Almacen: SIAL VIII", style = doctorstyle)], [Paragraph("Programa: COMPRA DIRECTA 2020", style = doctorstyle)],
-           [Paragraph("Num Referencia: B445770", style = doctorstyle)], [Paragraph("Observaciones: N° DE S. 167", style = doctorstyle)],
-          [Paragraph("Proveedor: VENDOGAS S.A DE C.V", style = doctorstyle)]
-           ]
+        Header = Table([[HeaderI1, HeaderTitle ,HeaderI2]])
+        Header.setStyle(
+            TableStyle([
+                ('ALIGN', (0, 0), (-1, -1), 'CENTRE'),
+                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+                ('ALIGN', (0, 0), (0, 0), 'LEFT'),
+                ('ALIGN', (2, 0), (2, 0), 'RIGHT'),
+            ])
+        )
+        
+        self.elements.append(Header)
 
-colTwo = [[], [], [Paragraph("Fecha Referencia: 30-may-2020", style = doctorstyle)], [], []]
+        colOne = [[Paragraph("Almacen: SIAL VIII", style=doctorstyle)],
+                  [Paragraph("Programa: COMPRA DIRECTA 2020", style=doctorstyle)],
+                  [Paragraph("Num Referencia: B445770", style=doctorstyle)],
+                  [Paragraph("Observaciones: N° DE S. 167", style=doctorstyle)],
+                  [Paragraph("Proveedor: VENDOGAS S.A DE C.V", style=doctorstyle)]
+                ]
 
-colThree = [[Paragraph("Num Salida: Ed-60420040", style = doctorstyle)], [Paragraph("Pelido: 167", style = doctorstyle)],
-           [Paragraph("Fecha Salida: 5-jun-2020", style = doctorstyle)], [],
-          [Paragraph("RFC: VEN930917QT2", style = doctorstyle)]
-           ]
+        colTwo = [[Paragraph("Fecha Referencia: 30-may-2020", style=doctorstyle)]]
 
-tblrow2 = Table([[colOne, colTwo, colThree]])
-tblrow2.setStyle(
-    TableStyle([
-        ('ALIGN', (1, 0), (1, 0), 'RIGHT'),
-        ('VALIGN', (1, 0), (1, 0), 'MIDDLE'),
-        ('ALIGN',(2,0),(2,3),'RIGHT'),
-        ('VALIGN', (2,0),(2,2), 'TOP'),
-        ('VALIGN', (2,3),(2,3), 'BOTTOM'),
-        #('BOX',(0,0),(-1,-1),2,colors.black),
-        ('LINEBELOW', (0,-1), (-1,-1), 0.25, colors.black),
-        # ('ALIGN', (0, 0), (0, 0), 'LEFT'),
-        # ('ALIGN', (2, 0), (2, 0), 'RIGHT'),
-    ]))
+        colThree = [[Paragraph("Num Salida: Ed-60420040", style=doctorstyle)],
+                    [Paragraph("Pelido: 167", style=doctorstyle)],
+                    [Paragraph("Fecha Salida: 5-jun-2020", style=doctorstyle)],
+                    [Paragraph("RFC: VEN930917QT2", style=doctorstyle)]
+                    ]
 
-elements.append(tblrow2)
+        tblrow2 = Table([[colOne, colTwo, colThree]])
+        tblrow2.setStyle(
+            TableStyle([
+                ('ALIGN', (1, 0), (1, 0), 'RIGHT'),
+                ('VALIGN', (1, 0), (1, 0), 'MIDDLE'),
+                ('ALIGN', (2, 0), (2, 3), 'RIGHT'),
+                ('VALIGN', (2, 0), (2, 2), 'TOP'),
+                ('VALIGN', (2, 3), (2, 3), 'BOTTOM'),
+                ('LINEBELOW', (0, -1), (-1, -1), 0.25, colors.black)
+            ]))
 
-# data = [[Paragraph("Dr John Doe's ENT Clinic", style = headstyle)], [Paragraph("Dr John Doe", style = doctorstyle)], [Paragraph("ENT Specialist", style = doctorstyle)], [Paragraph("Registration No. ", style = doctorstyle)]]
-# elements.append(Table(data, repeatRows=1))
-elements.append(Spacer(1, 20))
+        self.elements.append(tblrow2)
+
+        self.elements.append(Spacer(1, 10))
+
+        faker = Faker()
+        df = []
+        for n in range(80):
+            df.append({'Lat': faker.coordinate(center=74.0, radius=0.10),
+                       'Lon': faker.coordinate(center=40.8, radius=0.10)
+                       })
+
+        df = pd.DataFrame(df)
+
+        LisReport = [df.columns[:, ].values.astype(str).tolist()] + df.values.tolist()
+
+        tableData = Table(LisReport, repeatRows=1)
+        tableData.setStyle(
+            TableStyle([
+                ('VALIGN',(0,0),(-1,-1), 'TOP'),
+                ('TEXTCOLOR',(0,0),(-1,0),colors.white),
+                ('BACKGROUND', (0, 0), (-1, 0), '#0097e6'),
+                ('GRID',(0,1),(-1,-1), 0.5, '#CFEAD4'),
+            ]))
+        tableData.split(10,40)
+        self.elements.append(tableData)
+
+        self.elements.append(TopPadder(tblrow2))
 
 
+class NumberedCanvas(canvas.Canvas):
+    def __init__(self, *args, **kwargs):
+        canvas.Canvas.__init__(self, *args, **kwargs)
+        self._saved_page_states = []
+
+    def showPage(self):
+        self._saved_page_states.append(dict(self.__dict__))
+        self._startPage()
+
+    def save(self):
+        """add page info to each page (page x of y)"""
+        num_pages = len(self._saved_page_states)
+        for state in self._saved_page_states:
+            self.__dict__.update(state)
+            self.draw_page_number(num_pages)
+            canvas.Canvas.showPage(self)
+        canvas.Canvas.save(self)
+
+    def draw_page_number(self, page_count):
+        # Change the position of this to wherever you want the page number to be
+        self.drawRightString(
+                196 * mm,
+                8 * mm,
+                "Pag. %d de %d" % (self._pageNumber, page_count)
+            )
 
 
-# We use paragraph style because we need to wrap text. We cant directly wrap cells otherwise
-line1 = ["Sl.", "Medicine" , "Dose", "Freq", "Durn", "Note"]
-drug1 = Paragraph('AUGMED Syrup 30ml (AMOXICILLIN 200MG + CLAVULANATE(CLAVULANIC ACID) 28.5MG)', styleN)
-line2 = ["1", drug1, "1 Tab", "1-0-1", "5 days", ""]
-line3 = ["2", drug1, "1 Tab", "1-0-1", "5 days", ""]
-data=[line1,line2, line3]
-for i in range(3,50):
-    temp = [str(i), "Some Drug here", "5 ml", "1-0-1", "10 days", "No comments"]
-    data.append(temp)
-
-medstable = Table(data, repeatRows=1)
-medstable.setStyle(TableStyle([
-    ('VALIGN',(0,0),(-1,-1), 'TOP'),
-    ('TEXTCOLOR',(0,0),(-1,0),colors.white),
-    ('BACKGROUND', (0, 0), (-1, 0), colr(40, 196, 15)),
-    ('GRID',(0,1),(-1,-1), 0.5, '#CFEAD4'),
-                            ]))
-elements.append(medstable)
-doc = SimpleDocTemplate('output.pdf', pagesize=A4, rightMargin=20, leftMargin=20, \
-    topMargin=20, bottomMargin=20, allowSplitting=1,\
-    title="Prescription", author="MyOPIP.com")
-doc.build(elements)
+if __name__ == "__main__":
+    t = Report()
+    t.create()

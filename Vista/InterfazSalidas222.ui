@@ -1,0 +1,446 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>InterFazSalida</class>
+ <widget class="QWidget" name="InterFazSalida">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1034</width>
+    <height>687</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Salidas</string>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>../imagenes/medicina.png</normaloff>../imagenes/medicina.png</iconset>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">*{
+font-family:century gothic;
+font-size: 12px;
+}
+#Frame2{
+border-radius:30;
+}
+QLineEdit{
+	border:none;
+	border-bottom: 1px solid black;
+}
+QFrame{
+border-radius: 60px;
+ background:#fefefe;
+}
+QLabel{
+	background:transparent;
+}
+QCalendarWidget QAbstractItemView
+{ 
+selection-background-color: #042944; 
+selection-color: white;
+selection-border:10px solid red;
+
+}
+QCalendarWidget QWidget 
+{
+  color:grey;
+}
+QCalendarWidget QTableView{
+border-width:0px;
+background-color:lightgrey;
+}
+
+QPushButton:hover{
+background:#dea806;
+}</string>
+  </property>
+  <widget class="QFrame" name="frame_2">
+   <property name="geometry">
+    <rect>
+     <x>50</x>
+     <y>110</y>
+     <width>961</width>
+     <height>560</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">
+ background:#fefefe;
+
+</string>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::StyledPanel</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Raised</enum>
+   </property>
+   <widget class="QLabel" name="label_8">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>20</y>
+      <width>81</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Clave:</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="LineClaveSalida">
+    <property name="geometry">
+     <rect>
+      <x>80</x>
+      <y>20</y>
+      <width>191</width>
+      <height>31</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_9">
+    <property name="geometry">
+     <rect>
+      <x>290</x>
+      <y>20</y>
+      <width>91</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Descripción:</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btnFinalizarSalida">
+    <property name="geometry">
+     <rect>
+      <x>780</x>
+      <y>520</y>
+      <width>141</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton{
+border-radius:15px;
+background:#ffc001;
+
+}
+QPushButton:hover{
+background:#dea806;
+}
+</string>
+    </property>
+    <property name="text">
+     <string>Finalizar</string>
+    </property>
+   </widget>
+   <widget class="QTableWidget" name="TableSalida">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>280</y>
+      <width>941</width>
+      <height>230</height>
+     </rect>
+    </property>
+    <column>
+     <property name="text">
+      <string>Eliminar</string>
+     </property>
+     <property name="icon">
+      <iconset>
+       <normaloff>../imagenes/ic_delete_128_28267.png</normaloff>../imagenes/ic_delete_128_28267.png</iconset>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>Control Salida</string>
+     </property>
+     <property name="textAlignment">
+      <set>AlignLeading|AlignTop</set>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>Clave</string>
+     </property>
+     <property name="textAlignment">
+      <set>AlignLeading|AlignTop</set>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>Descripción</string>
+     </property>
+     <property name="textAlignment">
+      <set>AlignLeading|AlignTop</set>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>Presentación</string>
+     </property>
+     <property name="textAlignment">
+      <set>AlignLeading|AlignTop</set>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>Cantidad</string>
+     </property>
+     <property name="textAlignment">
+      <set>AlignLeading|AlignTop</set>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>Caducidad</string>
+     </property>
+     <property name="textAlignment">
+      <set>AlignLeading|AlignTop</set>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>Fecha pedido</string>
+     </property>
+     <property name="textAlignment">
+      <set>AlignLeading|AlignTop</set>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>Fecha Entrega</string>
+     </property>
+     <property name="textAlignment">
+      <set>AlignLeading|AlignTop</set>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>Lote</string>
+     </property>
+    </column>
+   </widget>
+   <widget class="QTableView" name="tableViewSalida">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>70</y>
+      <width>941</width>
+      <height>200</height>
+     </rect>
+    </property>
+    <property name="editTriggers">
+     <set>QAbstractItemView::NoEditTriggers</set>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="LineDescripSalida">
+    <property name="geometry">
+     <rect>
+      <x>370</x>
+      <y>20</y>
+      <width>541</width>
+      <height>31</height>
+     </rect>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QFrame" name="Frame2">
+   <property name="geometry">
+    <rect>
+     <x>90</x>
+     <y>20</y>
+     <width>881</width>
+     <height>71</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">
+ background:#fefefe;
+
+</string>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::StyledPanel</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Raised</enum>
+   </property>
+   <widget class="QLabel" name="label_16">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>10</y>
+      <width>91</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Control Salida:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_17">
+    <property name="geometry">
+     <rect>
+      <x>550</x>
+      <y>10</y>
+      <width>91</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Fecha Pedido:</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="LineControlSalida">
+    <property name="geometry">
+     <rect>
+      <x>120</x>
+      <y>10</y>
+      <width>121</width>
+      <height>21</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QDateEdit" name="DateFechaPSalida">
+    <property name="geometry">
+     <rect>
+      <x>640</x>
+      <y>10</y>
+      <width>121</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="accelerated">
+     <bool>false</bool>
+    </property>
+    <property name="showGroupSeparator" stdset="0">
+     <bool>false</bool>
+    </property>
+    <property name="displayFormat">
+     <string>dd/MM/yyyy</string>
+    </property>
+    <property name="calendarPopup">
+     <bool>true</bool>
+    </property>
+    <property name="timeSpec">
+     <enum>Qt::UTC</enum>
+    </property>
+    <property name="date">
+     <date>
+      <year>2020</year>
+      <month>1</month>
+      <day>1</day>
+     </date>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_18">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>40</y>
+      <width>41</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Area:</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="LineAreaSalida">
+    <property name="geometry">
+     <rect>
+      <x>120</x>
+      <y>40</y>
+      <width>121</width>
+      <height>21</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_19">
+    <property name="geometry">
+     <rect>
+      <x>550</x>
+      <y>40</y>
+      <width>91</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Fecha Entrega:</string>
+    </property>
+   </widget>
+   <widget class="QDateEdit" name="DateFechaESalida">
+    <property name="geometry">
+     <rect>
+      <x>640</x>
+      <y>40</y>
+      <width>121</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="accelerated">
+     <bool>false</bool>
+    </property>
+    <property name="showGroupSeparator" stdset="0">
+     <bool>false</bool>
+    </property>
+    <property name="displayFormat">
+     <string>dd/MM/yyyy</string>
+    </property>
+    <property name="calendarPopup">
+     <bool>true</bool>
+    </property>
+    <property name="timeSpec">
+     <enum>Qt::UTC</enum>
+    </property>
+    <property name="date">
+     <date>
+      <year>2020</year>
+      <month>1</month>
+      <day>1</day>
+     </date>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="comboboxSalida">
+    <property name="geometry">
+     <rect>
+      <x>350</x>
+      <y>20</y>
+      <width>151</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <item>
+     <property name="text">
+      <string>Medicina</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Material/Curacion</string>
+     </property>
+    </item>
+   </widget>
+   <widget class="QLabel" name="label_20">
+    <property name="geometry">
+     <rect>
+      <x>310</x>
+      <y>20</y>
+      <width>31</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Tipo:</string>
+    </property>
+   </widget>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
