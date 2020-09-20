@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Observaciones</class>
+ <widget class="QWidget" name="Observaciones">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>391</width>
+    <height>148</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>391</width>
+    <height>148</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>391</width>
+    <height>148</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>Observaciones</string>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>../imagenes/iconoComentarios.png</normaloff>../imagenes/iconoComentarios.png</iconset>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">*{
+font-family:century gothic;
+font-size: 15px;
+}
+#vtnCantidad{
+ background:#fefefe;
+}
+QPushButton{
+border-radius:15px;
+background:#ffc001;
+}
+
+QPushButton:hover{
+background:#dea806;
+}
+QLineEdit{
+	border:none;
+	border-bottom: 1px solid black;
+	background:transparent;
+}
+
+</string>
+  </property>
+  <widget class="QPushButton" name="btnAceptarObservaciones">
+   <property name="geometry">
+    <rect>
+     <x>130</x>
+     <y>100</y>
+     <width>111</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Aceptar</string>
+   </property>
+   <property name="shortcut">
+    <string>Enter</string>
+   </property>
+  </widget>
+  <widget class="QTextEdit" name="textObservaciones">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>30</y>
+     <width>371</width>
+     <height>61</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>140</x>
+     <y>0</y>
+     <width>121</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Observaciones&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
+  </widget>
+ </widget>
+ <tabstops>
+  <tabstop>textObservaciones</tabstop>
+  <tabstop>btnAceptarObservaciones</tabstop>
+ </tabstops>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>btnAceptarObservaciones</sender>
+   <signal>clicked()</signal>
+   <receiver>Observaciones</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>211</x>
+     <y>110</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>342</x>
+     <y>114</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

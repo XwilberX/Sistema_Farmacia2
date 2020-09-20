@@ -7,14 +7,16 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy.sql import func
 from vtnCantidad import Ui_vtnCantidad
+from vtnObservaciones import Ui_Observaciones
 import sys
 sys.path.append('../Modelo/')
 from farm import Salida
 from farm import Clave
 from farm import Farmaco
 import pandas as pd
-
-engine = create_engine('mysql+pymysql://root:@localhost/prueba')
+from reports import Report as reportes
+import pymysql
+engine = create_engine('mysql+pymysql://root:@localhost/farmaciaDB')
 Session = sessionmaker(bind=engine)
 session = Session()
 
@@ -26,6 +28,7 @@ class SubWindow(QWidget):
         self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
         self.setObjectName("InterFazSalida")
         self.resize(1051, 721)
+        
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("../imagenes/medicina.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.setWindowIcon(icon)
@@ -214,7 +217,10 @@ class SubWindow(QWidget):
         self.TableViewInsertSalida()
         self.comboboxSalida.currentIndexChanged.connect(self.TableViewInsertSalida)
 
+        #cuando se le da el click a esto , le otorga los permisos de busqueda
         self.LineDescripSalida.mousePressEvent = self.click
+        self.LineClaveSalida.mousePressEvent = self.click
+
         #funcion para enviar los datos a la base de datos y crear el archivo.
         self.btnFinalizarSalida.clicked.connect(self.bdFinalizarSalida)
         self.tableViewSalida.doubleClicked.connect(self.insertDatosTablaWid)
@@ -228,25 +234,32 @@ class SubWindow(QWidget):
     def bdFinalizarSalida(self):
         try:
             DfSalida = pd.DataFrame()
+            self.DfReport = pd.DataFrame()
             #el func.max es la funcion SELECT MAX de sql (obtiene el dato con mayor valor)
             Npedido = session.query(func.max(Salida.numero_pedido)).scalar()
-
-            Npedidoup = int(Npedido + 1)
+            if Npedido is None:
+                Npedido = 0
+            self.Npedidoup = int(Npedido + 1)
             rows = self.TableSalida.rowCount()
             Column = self.TableSalida.columnCount()
             #TUVIMOS QUE ARREGLAR EL ORDEN DE LOS HEADERS PARA QUE JALE LA CONSULTA JUSTO CON LA TABLA DE BD Y EL DATAFRAME
             headers = ['idSalida', 'clave_corta', 'cantidadSal', 'Caducidad','FechaPedido','fechaEntrega','area','lote','numero_pedido']
             for i in range(rows):
-                for j in range(Column+3):
-                    #Este If es por que no necesitamos las columnas de descripcion y presentacion en el ingreso al DATAFRAME ya que al ingresar el dataframe a la BD no estan esos campos
-                    if j != 3 and j != 4 and j != 0 and j != 9 and j != 10 and j != 11 :
-                        DfSalida.loc[i,j] = self.TableSalida.item(i,j).text()
-                    if j== 9:
-                        DfSalida.loc[i,j] = self.LineAreaSalida.text()
+                for j in range(Column + 3):
+                    # Este If es por que no necesitamos las columnas de descripcion y presentacion en el ingreso al DATAFRAME ya que al ingresar el dataframe a la BD no estan esos campos
+                    if j != 0 and j < Column:
+                        self.DfReport.loc[i, j] = self.TableSalida.item(i, j).text()
+                    if j != 3 and j != 4 and j != 0 and j != 9 and j != 10 and j != 11:
+                        DfSalida.loc[i, j] = self.TableSalida.item(i, j).text()
+                    if j == 9:
+                        DfSalida.loc[i, j] = self.LineAreaSalida.text()
+                        self.DfReport.loc[i, j] = self.LineAreaSalida.text()
                     if j == 10:
-                         DfSalida.loc[i,j] = self.listaLote[i]
+                        DfSalida.loc[i, j] = self.listaLote[i]
+                        self.DfReport.loc[i, j] = self.listaLote[i]
                     if j == 11:
-                         DfSalida.loc[i,j] =  Npedidoup
+                        DfSalida.loc[i, j] = self.Npedidoup
+                        DfSalida.loc[i, j] = self.Npedidoup
             DfSalida.columns = headers
             #print(DfSalida)
             #Ingreso DEl dataframe a la bd tipo ingreso pandas(NO SQLALCHEMY)
@@ -271,6 +284,15 @@ class SubWindow(QWidget):
                 session.commit()
                 session.close()
 
+
+                
+            #aqui abrimos la ventana de observaciones
+            self.vtnObserv = QtWidgets.QWidget()
+            self.uiObser = Ui_Observaciones()
+            self.uiObser.setupUi(self.vtnObserv)
+            self.vtnObserv.show()
+            self.uiObser.btnAceptarObservaciones.clicked.connect(self.observaciones)
+
             self.conta= 0
             #receteamos el numero de control para que no exista problemas
             self.NcontrolS()
@@ -279,6 +301,10 @@ class SubWindow(QWidget):
             self.listaCantidad[:] = [] 
             self.listaLote[:] =[]
             self.TableViewInsertSalida()
+
+            
+            
+
         except Exception as e:
             print(e)
             self.LineAreaSalida.setFocus()
@@ -289,7 +315,27 @@ class SubWindow(QWidget):
             error_dialog.exec()
 
 
+    def EnvioReport(self):
+        # mandando datos para generar reportes
+        # cambiando nombre de las columnas para el reporte solamente
+        list_names = ['Id', 'Clave', 'Desc.' ,'Present.', 'Cantidad', 'Caducidad', 'FechaP', 'Fechap', 'Destino', 'Lote']
+        self.DfReport.columns = list_names
+        #pasando de dataframe a una lista de listas
+        LisReport = [self.DfReport.columns[:, ].values.astype(str).tolist()] + self.DfReport.values.tolist()
+        #print(len(LisReport[0]))
 
+        Date = self.DateFechaESalida.date()
+        FechaEsalida = Date.toPyDate()
+        Date = self.DateFechaPSalida.date()
+        FechaPsalida = Date.toPyDate()
+        idSalidaU = int(self.LineControlSalida.text())-1
+
+        reportes(LisReport, self.LineAreaSalida.text(), self.Npedidoup, str(FechaEsalida),
+                                     str(FechaPsalida), self.vObserva,str(idSalidaU))
+    def observaciones(self):
+        self.vObserva = self.uiObser.textObservaciones.toPlainText()
+        self.EnvioReport()
+        self.closeVtn()
 
     #mete los datos al TableWidget
     def insertDatosTablaWid(self):
@@ -438,8 +484,12 @@ class SubWindow(QWidget):
         #aqui se necesita convertir a str por que el datatime hacia problemas
         for item in self.q:
             self.model.appendRow([QStandardItem(str(x)) for x in item])
+        #se instancia la clase , esa clase nos ayuda que al escribir busque algo
         buscador = QSortFilterProxyModel()
+        #este sirve para que puedan buscar alguna cosa no importa si es en mayusculas o minusculas
+        buscador.setFilterCaseSensitivity(Qt.CaseInsensitive)
         buscador.setSourceModel(self.model)
+        #aqui le indicamos en que columba de la tabla va a filter cosas segun lo que se escriba
         buscador.setFilterKeyColumn(1)
         self.LineClaveSalida.textChanged.connect(buscador.setFilterRegExp)
         #condicion para que pueda buscar en descripcion
@@ -469,7 +519,7 @@ class SubWindow(QWidget):
 
     def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
-        self.setWindowTitle(_translate("InterFazSalida", "Salidas"))
+        #self.setWindowTitle(_translate("InterFazSalida", "Salidas"))
         self.label_8.setText(_translate("InterFazSalida", "Clave:"))
         self.label_9.setText(_translate("InterFazSalida", "Descripción:"))
         self.btnFinalizarSalida.setText(_translate("InterFazSalida", "Finalizar"))

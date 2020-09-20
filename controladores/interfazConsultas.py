@@ -5,11 +5,18 @@ from sqlalchemy.orm import sessionmaker, relationship
 from datetime import datetime, timedelta
 from PyQt5.QtWidgets import  QWidget,QTableWidgetItem
 from PyQt5 import QtCore, QtGui, QtWidgets
+from openpyxl import Workbook
+from openpyxl.utils.dataframe import dataframe_to_rows
+from openpyxl.worksheet.table import Table, TableStyleInfo
+import os
+from datetime import datetime
 import sys
 sys.path.append('../Modelo/')
 from farm import Clave,Salida,Farmaco,Historial
 import pandas as pd
-engine = create_engine('mysql+pymysql://root:@localhost/prueba')
+import pymysql
+
+engine = create_engine('mysql+pymysql://root:@localhost/farmaciaDB')
 Session = sessionmaker(bind=engine)
 session = Session()
 
@@ -222,6 +229,8 @@ class SubWindow(QWidget):
 
         self.consultar()
         self.btnConsultarConsulta.clicked.connect(self.consultar)
+
+        self.btnExportarConsulta.clicked.connect(self.exportQueryEx)
        
         #
         #
@@ -343,7 +352,7 @@ class SubWindow(QWidget):
 
         if self.TipoConsulta == 1:
                 Query = session.query(Farmaco.idFarmaco,Farmaco.clave_corta,Clave.descripcion,Clave.presentacion,Farmaco.cantidad,Farmaco.caducidad,Farmaco.area,Farmaco.origen,Farmaco.lote,Clave.tipo).join(Clave).filter(Clave.tipo == self.TipoConsulta).all()
-                self.TableConsulta.setColumnCount(8)
+                self.TableConsulta.setColumnCount(10)
                 self.tipo = 'Ma-Curacion'
                 #pone false en tipo
                 self.TableConsulta.setHorizontalHeaderLabels(['id Farmaco','Clave','Descripcion','Presentacion','Cantidad','Caducidad','Area almacen','Origen','Lote','Tipo'])
@@ -351,7 +360,7 @@ class SubWindow(QWidget):
                 self.TableConsulta.setRowCount(self.filas)
                 self.fillTableQuery(Query)
                 for a in range(self.filas):
-                        self.TableConsulta.setItem(a,7,QTableWidgetItem(self.tipo))
+                        self.TableConsulta.setItem(a,9,QTableWidgetItem(self.tipo))
         if self.TipoConsulta == 2:
                 Query = session.query(Farmaco.idFarmaco,Farmaco.clave_corta,Clave.descripcion,Clave.presentacion,Farmaco.cantidad,Farmaco.caducidad,Farmaco.area,Farmaco.origen,Farmaco.lote).join(Clave).filter(Clave.tipo == 0).all()
                 Query1 = session.query(Farmaco.idFarmaco,Farmaco.clave_corta,Clave.descripcion,Clave.presentacion,Farmaco.cantidad,Farmaco.caducidad,Farmaco.area,Farmaco.origen,Farmaco.lote).join(Clave).filter(Clave.tipo == 1).all()
@@ -365,7 +374,7 @@ class SubWindow(QWidget):
                 self.rows = 0
                 self.SoE = 'Medicina'              
                 self.fillTableQuery(Query)
-                Query = Query1 = session.query(Farmaco.idFarmaco,Farmaco.clave_corta,Clave.descripcion,Clave.presentacion,Farmaco.cantidad,Farmaco.caducidad,Farmaco.area,Farmaco.origen,Farmaco.lote).join(Clave).filter(Clave.tipo == 1).all()
+                Query  = session.query(Farmaco.idFarmaco,Farmaco.clave_corta,Clave.descripcion,Clave.presentacion,Farmaco.cantidad,Farmaco.caducidad,Farmaco.area,Farmaco.origen,Farmaco.lote).join(Clave).filter(Clave.tipo == 1).all()
                 self.SoE = 'Ma-Curacion'
                 self.fillTableQuery(Query)
 
@@ -405,11 +414,52 @@ class SubWindow(QWidget):
                                         self.TableConsulta.setItem(self.rows,self.maxCol,QTableWidgetItem(self.SoE))
                         col = 0
                         self.rows = self.rows + 1    
-                self.lineFilasConsulta.setText(str(self.filas))             
+                self.lineFilasConsulta.setText(str(self.filas))   
+
+
+
+    def exportQueryEx(self):
+        outfilepath2 = os.path.join(os.path.expanduser("~"), "Documents/Reportes")
+        if not os.path.exists(outfilepath2 ):
+                os.mkdir(outfilepath2)
+        now = datetime.now()
+        outfilename = 'ExportConsul-{0}-{1}-{2}-{3}-{4}.xlsx'.format(now.year, now.month, now.day, now.hour, now.second)
+        outfilepath = os.path.join(os.path.expanduser("~"), "Documents/Reportes", outfilename)
+
+        rows = self.TableConsulta.rowCount()
+        cols = self.TableConsulta.columnCount()
+        df = pd.DataFrame()
+        headers = []
+        for i in range(rows):
+            for j in range(cols):
+                df.loc[i,j] = self.TableConsulta.item(i,j).text()
+        for x in range(self.TableConsulta.columnCount()):
+            headers.append(self.TableConsulta.horizontalHeaderItem(x).text())
+        df.columns = headers
+        wb = Workbook()
+        ws = wb.active
+        name_cols = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L"]
+
+        for row in dataframe_to_rows(df, index=False, header=True):
+            ws.append(row)
+
+        rows = ws.max_row
+        a = name_cols[ws.max_column - 1]
+        for x in range(ws.max_column):
+            ws.column_dimensions[name_cols[x]].width = 20
+
+        tab = Table(displayName="Table1", ref="A1:{0}{1}".format(a, rows))
+        style = TableStyleInfo(name="TableStyleMedium9", showFirstColumn=False,
+                               showLastColumn=False, showRowStripes=True, showColumnStripes=True)
+        tab.tableStyleInfo = style
+        ws.add_table(tab)
+
+        wb.save(outfilepath)
+        os.startfile(outfilepath)          
 
     def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
-        self.setWindowTitle(_translate("InterFazConsulta", "Consultas"))
+        #self.setWindowTitle(_translate("InterFazConsulta", "Consultas"))
         self.comboboxTipoConsulta.setItemText(0, _translate("InterFazConsulta", "Medicina"))
         self.comboboxTipoConsulta.setItemText(1, _translate("InterFazConsulta", "Material/Curacion"))
         self.label_2.setText(_translate("InterFazConsulta", "TextLabel"))

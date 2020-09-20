@@ -8,8 +8,18 @@ import pandas as pd
 from sqlalchemy.sql import func
 
 
-engine = create_engine('mysql+pymysql://root:@localhost/prueba')
-#engine = create_engine('postgresql+psycopg2://postgres:wil99@localhost/farm')
+user = 'root'
+passw = ''
+host = 'localhost'
+port = '3306'
+
+database = 'farmaciaDB'
+
+mysql_engine = create_engine('mysql+pymysql://{0}:{1}@{2}:{3}'.format(user, passw, host, port))
+
+mysql_engine.execute("CREATE DATABASE IF NOT EXISTS {0}".format(database))
+
+engine = create_engine('mysql+pymysql://{0}:{1}@{2}:{3}/{4}'.format(user, passw, host, port, database))
 Session = sessionmaker(bind=engine)
 session = Session()
 Base = declarative_base()

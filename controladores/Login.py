@@ -12,12 +12,13 @@ from sqlalchemy import Column, Integer, String, Text, MetaData, Table,DateTime, 
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 from PyQt5 import QtCore, QtGui, QtWidgets
-from interfazEntradas import Ui_Main
+from InterfazEntradas import Ui_Main
+import pymysql
 import sys
 sys.path.append('../Modelo/')
 from farm import Usuario
 
-engine = create_engine('mysql+pymysql://root:@localhost/prueba')
+engine = create_engine('mysql+pymysql://root:@localhost/farmaciaDB')
 Session = sessionmaker(bind=engine)
 session = Session()
 
@@ -196,7 +197,7 @@ class Ui_Login(object):
 
     def retranslateUi(self, Login):
         _translate = QtCore.QCoreApplication.translate
-        Login.setWindowTitle(_translate("Login", "MainWindow"))
+        Login.setWindowTitle(_translate("Login", "Inicio de Sesion"))
         self.label1.setText(_translate("Login", "<html><head/><body><p align=\"center\"><span style=\" font-size:18pt;\">Bienvenido</span></p></body></html>"))
         self.pushButton.setText(_translate("Login", "Aceptar"))
         self.pushButton.setShortcut(_translate("Login", "Return"))
