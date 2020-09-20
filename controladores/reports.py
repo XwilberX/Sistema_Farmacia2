@@ -71,12 +71,17 @@ def foot1(canvas, doc):
 
 def create(*args):
     print("llegoo")
+    outfilepath = os.path.join(os.path.expanduser("~"), "Documents/Reportes")
+    if not os.path.exists(outfilepath ):
+        os.mkdir(outfilepath)
+        
+
     styles = getSampleStyleSheet()
     styleN = styles['Normal']
     styleH = styles['Heading1']
 
-    pdfmetrics.registerFont(TTFont('Vera', '../Fuentes/Vera.ttf'))
-    pdfmetrics.registerFont(TTFont('VeraB', '../Fuentes/VeraBd.ttf'))
+    pdfmetrics.registerFont(TTFont('Vera', '../otros_recursos/Fuentes/Vera.ttf'))
+    pdfmetrics.registerFont(TTFont('VeraB', '../otros_recursos/Fuentes/VeraBd.ttf'))
     pdfmetrics.registerFontFamily('Vera', normal='Vera', bold='VeraB')
 
     # Estilos parrafos del header en medio de las imagenes
@@ -103,7 +108,7 @@ def create(*args):
     doc.addPageTemplates([template])
 
     colOne = [[Paragraph("<b>Salida de almacén con destino a:</b> " + args[1], style=prostyle)],
-                      [Paragraph("<b>Numero de salida:</b> Preguntar", style=prostyle)],
+                      [Paragraph("<b>Numero de salida:</b> "+args[6], style=prostyle)],
                       [Paragraph("<b>Numero pedido:</b> " + str(args[2]), style=prostyle)]
                     ]
 

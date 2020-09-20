@@ -4,12 +4,14 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 from PyQt5.QtWidgets import  QWidget
 from PyQt5 import QtCore, QtGui, QtWidgets
+import winsound
 import sys
 sys.path.append('../Modelo/')
 from farm import Clave
-import pymysql
 from vtnConfirmacion import Ui_vtnDatosCorrectos
-engine = create_engine('mysql+pymysql://root:wil99@localhost/prueba')
+import pymysql
+
+engine = create_engine('mysql+pymysql://root:@localhost/farmaciaDB')
 Session = sessionmaker(bind=engine)
 session = Session()
 
@@ -127,6 +129,7 @@ class SubWindow(QWidget):
                 self.claveCorta = self.LineClaveCClave.text()
                 self.presentacion =self.TextPresentaClave.toPlainText()
                 self.descripcion = self.TextDescriClave.toPlainText()
+                mensaje = ''
                 if self.claveLarga == '' or self.claveCorta == '' or  self.presentacion == '' or self.descripcion == '':
                         mensaje = 'Hay un campo vacio'
                         self.mensajeCritico(mensaje)
@@ -143,13 +146,15 @@ class SubWindow(QWidget):
                 if  ifExistId:
                         mensaje = 'ya existe esa clave'
                         self.mensajeCritico(mensaje)
-                if ifExistId == None:
+                if ifExistId == None and mensaje!='Hay un campo vacio':
+                        winsound.PlaySound("../otros_recursos/audios/hey", winsound.SND_FILENAME)
                         self.ventana = QtWidgets.QDialog()
                         self.vtnConfirmacion = Ui_vtnDatosCorrectos()
                         self.vtnConfirmacion.setupUi(self.ventana)
                         self.ventana.show()
                         self.vtnConfirmacion.btnAceptardialogClave.clicked.connect(self.setDatos)
                         self.vtnConfirmacion.btnCancelardialogClave.clicked.connect(self.cerrarVtn)
+                        
 
         except Exception as e:
                 print(e)
@@ -178,7 +183,7 @@ class SubWindow(QWidget):
 
     def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
-        self.setWindowTitle(_translate("InterFazClave", "Claves"))
+        #self.setWindowTitle(_translate("InterFazClave", "Claves"))
         self.btnFinalizarClave.setText(_translate("InterFazClave", "Aceptar"))
         self.comboboxClave.setItemText(0, _translate("InterFazClave", "Medicina"))
         self.comboboxClave.setItemText(1, _translate("InterFazClave", "Material/Curacion"))

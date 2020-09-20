@@ -15,7 +15,8 @@ sys.path.append('../Modelo/')
 from farm import Clave,Salida,Farmaco,Historial
 import pandas as pd
 import pymysql
-engine = create_engine('mysql+pymysql://root:wil99@localhost/prueba')
+
+engine = create_engine('mysql+pymysql://root:@localhost/farmaciaDB')
 Session = sessionmaker(bind=engine)
 session = Session()
 
@@ -228,8 +229,7 @@ class SubWindow(QWidget):
 
         self.consultar()
         self.btnConsultarConsulta.clicked.connect(self.consultar)
-        self.TipoConsultaTipoConsultaTipoConsulta = self.comboboxSETConsulta.currentIndex()
-        
+
         self.btnExportarConsulta.clicked.connect(self.exportQueryEx)
        
         #
@@ -361,7 +361,6 @@ class SubWindow(QWidget):
                 self.fillTableQuery(Query)
                 for a in range(self.filas):
                         self.TableConsulta.setItem(a,9,QTableWidgetItem(self.tipo))
-
         if self.TipoConsulta == 2:
                 Query = session.query(Farmaco.idFarmaco,Farmaco.clave_corta,Clave.descripcion,Clave.presentacion,Farmaco.cantidad,Farmaco.caducidad,Farmaco.area,Farmaco.origen,Farmaco.lote).join(Clave).filter(Clave.tipo == 0).all()
                 Query1 = session.query(Farmaco.idFarmaco,Farmaco.clave_corta,Clave.descripcion,Clave.presentacion,Farmaco.cantidad,Farmaco.caducidad,Farmaco.area,Farmaco.origen,Farmaco.lote).join(Clave).filter(Clave.tipo == 1).all()
@@ -375,46 +374,54 @@ class SubWindow(QWidget):
                 self.rows = 0
                 self.SoE = 'Medicina'              
                 self.fillTableQuery(Query)
-                Query = session.query(Farmaco.idFarmaco,Farmaco.clave_corta,Clave.descripcion,Clave.presentacion,Farmaco.cantidad,Farmaco.caducidad,Farmaco.area,Farmaco.origen,Farmaco.lote).join(Clave).filter(Clave.tipo == 1).all()
+                Query  = session.query(Farmaco.idFarmaco,Farmaco.clave_corta,Clave.descripcion,Clave.presentacion,Farmaco.cantidad,Farmaco.caducidad,Farmaco.area,Farmaco.origen,Farmaco.lote).join(Clave).filter(Clave.tipo == 1).all()
                 self.SoE = 'Ma-Curacion'
                 self.fillTableQuery(Query)
 
-            
+
+
+                
+
+
+
     def fillTableQuery(self,Query):
-        self.data = Query
         if self.TipoConsulta == 0 or self.TipoConsulta == 1:
-            rows = 0
-            col = 0
-            #hacemos un for anidado en el cual el primero se encarga de las filas de la  consulta
-            #y el segundo de las columnas de cada fila
-            #a contiene una fila y b contiene una columna de la fila
-            for a in Query:
-                for b in a:
-                    self.TableConsulta.setItem(rows,col,QTableWidgetItem(str(b)))
-                    # if self.tipo !='':
-                    #         self.TableConsulta.setItem(rows,col,QTableWidgetItem(str(self.tipo)))
-                    col = col + 1
+                rows = 0
                 col = 0
-                rows = rows + 1
-            self.lineFilasConsulta.setText(str(self.filas))
-            
+                #hacemos un for anidado en el cual el primero se encarga de las filas de la  consulta
+                #y el segundo de las columnas de cada fila
+                #a contiene una fila y b contiene una columna de la fila
+                for a in Query:
+                        for b in a:
+                                self.TableConsulta.setItem(rows,col,QTableWidgetItem(str(b)))
+                                # if self.tipo !='':
+                                #         self.TableConsulta.setItem(rows,col,QTableWidgetItem(str(self.tipo)))
+                                col = col + 1
+                        col = 0
+                        rows = rows + 1 
+                self.lineFilasConsulta.setText(str(self.filas))
         if self.TipoConsulta == 2:
-            #aqui no declaro las rows (filas) en 0 por que son dos consultas que pasan por aqui. si se llegara a poner en 0 ensimaria los datos y no se mostarian todos
-            #declaro las filas arriba en el tipoconsulta = 2
-            col = 0
-            for a in Query:
-                for b in a:
-                    self.TableConsulta.setItem(self.rows,col,QTableWidgetItem(str(b)))
-                    col = col + 1
-                    #QUITAR EL ESTATICO PARA MANDAR MAS COLUMNAS DESDE LAS FUNCIONES
-                    if col == self.maxCol:
-                            #ponemos si la consulta proviene de Salidas o de Entradas(Historial) y colocamos el resultado en la celda 0,7
-                            self.TableConsulta.setItem(self.rows,self.maxCol,QTableWidgetItem(self.SoE))
+                #aqui no declaro las rows (filas) en 0 por que son dos consultas que pasan por aqui. si se llegara a poner en 0 ensimaria los datos y no se mostarian todos
+                #declaro las filas arriba en el tipoconsulta = 2
                 col = 0
-                self.rows = self.rows + 1
-            self.lineFilasConsulta.setText(str(self.filas))
+                for a in Query:
+                        for b in a:
+                                self.TableConsulta.setItem(self.rows,col,QTableWidgetItem(str(b)))
+                                col = col + 1
+                                #QUITAR EL ESTATICO PARA MANDAR MAS COLUMNAS DESDE LAS FUNCIONES
+                                if col == self.maxCol:
+                                        #ponemos si la consulta proviene de Salidas o de Entradas(Historial) y colocamos el resultado en la celda 0,7
+                                        self.TableConsulta.setItem(self.rows,self.maxCol,QTableWidgetItem(self.SoE))
+                        col = 0
+                        self.rows = self.rows + 1    
+                self.lineFilasConsulta.setText(str(self.filas))   
+
+
 
     def exportQueryEx(self):
+        outfilepath2 = os.path.join(os.path.expanduser("~"), "Documents/Reportes")
+        if not os.path.exists(outfilepath2 ):
+                os.mkdir(outfilepath2)
         now = datetime.now()
         outfilename = 'ExportConsul-{0}-{1}-{2}-{3}-{4}.xlsx'.format(now.year, now.month, now.day, now.hour, now.second)
         outfilepath = os.path.join(os.path.expanduser("~"), "Documents/Reportes", outfilename)
@@ -448,13 +455,11 @@ class SubWindow(QWidget):
         ws.add_table(tab)
 
         wb.save(outfilepath)
-        os.startfile(outfilepath)
-
-
+        os.startfile(outfilepath)          
 
     def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
-        self.setWindowTitle(_translate("InterFazConsulta", "Consultas"))
+        #self.setWindowTitle(_translate("InterFazConsulta", "Consultas"))
         self.comboboxTipoConsulta.setItemText(0, _translate("InterFazConsulta", "Medicina"))
         self.comboboxTipoConsulta.setItemText(1, _translate("InterFazConsulta", "Material/Curacion"))
         self.label_2.setText(_translate("InterFazConsulta", "TextLabel"))

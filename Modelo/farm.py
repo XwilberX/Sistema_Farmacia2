@@ -5,12 +5,21 @@ from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy.sql import exists, select
 import datetime
 import pandas as pd
-import pymysql
 from sqlalchemy.sql import func
 
 
-engine = create_engine('mysql+pymysql://root:wil99@localhost/prueba')
-#engine = create_engine('postgresql+psycopg2://postgres:wil99@localhost/farm')
+user = 'root'
+passw = 'wil99'
+host = 'localhost'
+port = '3306'
+
+database = 'farmaciaDB'
+
+mysql_engine = create_engine('mysql+pymysql://{0}:{1}@{2}:{3}'.format(user, passw, host, port))
+
+mysql_engine.execute("CREATE DATABASE IF NOT EXISTS {0}".format(database))
+
+engine = create_engine('mysql+pymysql://{0}:{1}@{2}:{3}/{4}'.format(user, passw, host, port, database))
 Session = sessionmaker(bind=engine)
 session = Session()
 Base = declarative_base()
