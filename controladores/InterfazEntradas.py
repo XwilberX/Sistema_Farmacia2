@@ -14,7 +14,7 @@ from farm import Farmaco
 from BusquedaDPview2 import Ui_BDP
 from PyQt5.QtCore import Qt, QSortFilterProxyModel
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QIntValidator
-from interfazSalidas2 import SubWindow
+from InterfazSalidas20 import SubWindow
 from interfazClave import SubWindow as vtnClave
 from farm import Clave
 from interfazConsultas import SubWindow as vtnConsultas
