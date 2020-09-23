@@ -203,7 +203,8 @@ class SubWindow(QWidget):
         self.retranslateUi()
         QtCore.QMetaObject.connectSlotsByName(self)
 
-         
+        # self.setTabOrder(self.LineClaveSalida, self.LineDescripSalida)
+        # self.setTabOrder(self.LineDescripSalida, self.btnFinalizarSalida)
 
 
         #INICIO DEL CODIGO
@@ -218,8 +219,10 @@ class SubWindow(QWidget):
         self.comboboxSalida.currentIndexChanged.connect(self.TableViewInsertSalida)
 
         #cuando se le da el click a esto , le otorga los permisos de busqueda
+
         self.LineDescripSalida.mousePressEvent = self.click
         self.LineClaveSalida.mousePressEvent = self.click
+        
 
         #funcion para enviar los datos a la base de datos y crear el archivo.
         self.btnFinalizarSalida.clicked.connect(self.bdFinalizarSalida)

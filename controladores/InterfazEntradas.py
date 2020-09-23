@@ -191,6 +191,7 @@ class Ui_Main(object):
         self.TableEntra.setObjectName("TableEntra")
         self.TableEntra.setColumnCount(11)
         self.TableEntra.setRowCount(0)
+        
         item = QtWidgets.QTableWidgetItem()
         icon1 = QtGui.QIcon()
         icon1.addPixmap(QtGui.QPixmap("../imagenes/ic_delete_128_28267.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -377,6 +378,7 @@ class Ui_Main(object):
         Main.setTabOrder(self.LineaAreaEntra, self.LineCantidadEntra)
         Main.setTabOrder(self.LineCantidadEntra, self.DateCaducidadEntra)
         Main.setTabOrder(self.DateCaducidadEntra, self.LineLoteEntra)
+        
         Main.setTabOrder(self.LineLoteEntra, self.TableEntra)
         Main.setTabOrder(self.TableEntra, self.btnAgregarEntra)
         Main.setTabOrder(self.btnAgregarEntra, self.btnFinalizarEntra)
@@ -446,6 +448,7 @@ class Ui_Main(object):
         self.LineCantidadEntra.setValidator(intonly)
 
         self.comboBoxEntradas.currentIndexChanged.connect(self.BusquedaTreal)
+        
 
  #FUNCIONES
     # VER QUE BORRE EL FINALIZAR Y EL AGREGAR
