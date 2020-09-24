@@ -474,7 +474,9 @@ class SubWindow(QWidget):
     #funcion con la cual controlamos el control de salida
     def NcontrolS(self):  
         self.Ncontrol = session.query(func.max(Salida.numero_pedido)).scalar()
-        
+        if self.Ncontrol  is None:
+            self.Ncontrol = 0
+
         self.LineControlSalida.setText(str(self.Ncontrol + 1))
         session.close()
     #Elimina filas den tableWidget y resta a al control de salida

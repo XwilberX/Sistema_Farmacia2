@@ -54,7 +54,7 @@ class Farmaco(Base):
     caducidad = Column(Date)
     area = Column(String(50))
     origen = Column(String(50))
-    fechaIngreso = Column(Date, server_default=func.now())
+    fechaIngreso = Column(Date)
     clave_corta = Column(String(30), ForeignKey('clave.corta'))
 
 class Salida(Base):
@@ -70,6 +70,15 @@ class Salida(Base):
     lote = Column(String(30))
     numero_pedido = Column(Integer)
 
+class Entrada(Base):
+    __tablename__ = 'entrada'
+
+    NoEntrada = Column(Integer, primary_key=True, autoincrement = True)
+    NoReferencia = Column(String(20))
+    FeReferencia = Column(Date)
+    FeEntrada = Column(Date)
+    origen = Column(String(50))
+
 class Historial(Base):
     __tablename__ = 'historial'
 
@@ -79,9 +88,9 @@ class Historial(Base):
     caducidad = Column(Date)
     area = Column(String(50))
     origen = Column(String(50))
-    fechaIngreso = Column(Date, server_default=func.now())
+    fechaIngreso = Column(Date)
     clave_corta = Column(String(30), ForeignKey('clave.corta'))
-    
+    Entrada_NoEntrada = Column(Integer, ForeignKey('entrada.NoEntrada'))
     
     
 Base.metadata.create_all(engine)
