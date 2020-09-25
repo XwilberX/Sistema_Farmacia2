@@ -1,7 +1,6 @@
 
 from sqlalchemy import create_engine
-from sqlalchemy import Column, Integer, String, Text, MetaData, Table,DateTime, Date , ForeignKey
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.sql import func
 from sqlalchemy.orm import sessionmaker, relationship
 from PyQt5.QtWidgets import QTableWidget, QTableWidgetItem, QCompleter, QTableView,QHeaderView,QMessageBox, QMdiSubWindow
 from PyQt5 import QtCore, QtGui, QtWidgets
@@ -10,31 +9,29 @@ import webbrowser as wb
 from os import path
 import sys
 sys.path.append('../Modelo/')
-from farm import Farmaco
 from BusquedaDPview2 import Ui_BDP
 from PyQt5.QtCore import Qt, QSortFilterProxyModel
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QIntValidator
-from interfazSalidas2 import SubWindow
+from InterfazSalidas20 import SubWindow
 from interfazClave import SubWindow as vtnClave
-from farm import Clave
+from farm import Clave, Farmaco, Entrada
 from interfazConsultas import SubWindow as vtnConsultas
+from vtnReferencia20 import Ui_VtnES
 import pymysql
 import pandas as pd
 
-engine = create_engine('mysql+pymysql://root:@localhost/farmaciaDB')
+engine = create_engine('mysql+pymysql://root:wil99@localhost/farmaciaDB')
 Session = sessionmaker(bind=engine)
 session = Session()
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-
 class Ui_Main(object):
     def setupUi(self, Main):
         Main.setObjectName("Main")
         Main.resize(1291, 911)
         Main.setMaximumSize(QtCore.QSize(1291, 911))
-        Main.setMinimumSize(QtCore.QSize(1291, 911))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("../imagenes/Mono.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         Main.setWindowIcon(icon)
@@ -122,19 +119,19 @@ class Ui_Main(object):
         self.FrameEntradaprimero.setFrameShadow(QtWidgets.QFrame.Raised)
         self.FrameEntradaprimero.setObjectName("FrameEntradaprimero")
         self.label_5 = QtWidgets.QLabel(self.FrameEntradaprimero)
-        self.label_5.setGeometry(QtCore.QRect(30, 10, 71, 20))
+        self.label_5.setGeometry(QtCore.QRect(20, 10, 91, 20))
         self.label_5.setObjectName("label_5")
         self.label_6 = QtWidgets.QLabel(self.FrameEntradaprimero)
-        self.label_6.setGeometry(QtCore.QRect(40, 50, 51, 21))
+        self.label_6.setGeometry(QtCore.QRect(650, 40, 71, 21))
         self.label_6.setObjectName("label_6")
         self.label_7 = QtWidgets.QLabel(self.FrameEntradaprimero)
-        self.label_7.setGeometry(QtCore.QRect(590, 30, 161, 20))
+        self.label_7.setGeometry(QtCore.QRect(650, 10, 81, 20))
         self.label_7.setObjectName("label_7")
         self.LineOrigenEntra = QtWidgets.QLineEdit(self.FrameEntradaprimero)
-        self.LineOrigenEntra.setGeometry(QtCore.QRect(100, 9, 121, 21))
+        self.LineOrigenEntra.setGeometry(QtCore.QRect(110, 9, 141, 21))
         self.LineOrigenEntra.setObjectName("LineOrigenEntra")
         self.DateFechaEntra = QtWidgets.QDateEdit(self.FrameEntradaprimero)
-        self.DateFechaEntra.setGeometry(QtCore.QRect(100, 50, 121, 22))
+        self.DateFechaEntra.setGeometry(QtCore.QRect(740, 40, 121, 22))
         self.DateFechaEntra.setAccelerated(False)
         self.DateFechaEntra.setProperty("showGroupSeparator", False)
         self.DateFechaEntra.setCalendarPopup(True)
@@ -143,16 +140,34 @@ class Ui_Main(object):
         self.DateFechaEntra.setObjectName("DateFechaEntra")
         self.LineControlEntra = QtWidgets.QLineEdit(self.FrameEntradaprimero)
         self.LineControlEntra.setEnabled(False)
-        self.LineControlEntra.setGeometry(QtCore.QRect(740, 19, 113, 31))
+        self.LineControlEntra.setGeometry(QtCore.QRect(740, 10, 121, 21))
         self.LineControlEntra.setObjectName("LineControlEntra")
         self.label_15 = QtWidgets.QLabel(self.FrameEntradaprimero)
-        self.label_15.setGeometry(QtCore.QRect(300, 30, 41, 20))
+        self.label_15.setGeometry(QtCore.QRect(330, 40, 41, 20))
         self.label_15.setObjectName("label_15")
         self.comboBoxEntradas = QtWidgets.QComboBox(self.FrameEntradaprimero)
-        self.comboBoxEntradas.setGeometry(QtCore.QRect(340, 30, 151, 22))
+        self.comboBoxEntradas.setGeometry(QtCore.QRect(370, 40, 171, 22))
         self.comboBoxEntradas.setObjectName("comboBoxEntradas")
         self.comboBoxEntradas.addItem("")
         self.comboBoxEntradas.addItem("")
+        self.LineReferenciaEntra = QtWidgets.QLineEdit(self.FrameEntradaprimero)
+        self.LineReferenciaEntra.setEnabled(True)
+        self.LineReferenciaEntra.setGeometry(QtCore.QRect(130, 50, 121, 21))
+        self.LineReferenciaEntra.setObjectName("LineReferenciaEntra")
+        self.label_16 = QtWidgets.QLabel(self.FrameEntradaprimero)
+        self.label_16.setGeometry(QtCore.QRect(20, 50, 101, 20))
+        self.label_16.setObjectName("label_16")
+        self.label_17 = QtWidgets.QLabel(self.FrameEntradaprimero)
+        self.label_17.setGeometry(QtCore.QRect(330, 10, 101, 21))
+        self.label_17.setObjectName("label_17")
+        self.DateFreferenciaEntra = QtWidgets.QDateEdit(self.FrameEntradaprimero)
+        self.DateFreferenciaEntra.setGeometry(QtCore.QRect(430, 10, 110, 24))
+        self.DateFreferenciaEntra.setAccelerated(False)
+        self.DateFreferenciaEntra.setProperty("showGroupSeparator", False)
+        self.DateFreferenciaEntra.setCalendarPopup(True)
+        self.DateFreferenciaEntra.setTimeSpec(QtCore.Qt.UTC)
+        self.DateFreferenciaEntra.setDate(QtCore.QDate(2020, 1, 1))
+        self.DateFreferenciaEntra.setObjectName("DateFreferenciaEntra")
         self.frame_2 = QtWidgets.QFrame(self.subwindowEntradas)
         self.frame_2.setGeometry(QtCore.QRect(40, 120, 921, 531))
         self.frame_2.setStyleSheet("\n"
@@ -163,28 +178,22 @@ class Ui_Main(object):
         self.frame_2.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_2.setObjectName("frame_2")
         self.label_8 = QtWidgets.QLabel(self.frame_2)
-        self.label_8.setGeometry(QtCore.QRect(20, 20, 81, 21))
+        self.label_8.setGeometry(QtCore.QRect(50, 20, 81, 21))
         self.label_8.setObjectName("label_8")
         self.LineClaveEntra = QtWidgets.QLineEdit(self.frame_2)
-        self.LineClaveEntra.setGeometry(QtCore.QRect(120, 10, 191, 31))
+        self.LineClaveEntra.setGeometry(QtCore.QRect(100, 10, 191, 31))
         self.LineClaveEntra.setObjectName("LineClaveEntra")
         self.label_9 = QtWidgets.QLabel(self.frame_2)
-        self.label_9.setGeometry(QtCore.QRect(10, 70, 111, 21))
+        self.label_9.setGeometry(QtCore.QRect(360, 20, 101, 21))
         self.label_9.setObjectName("label_9")
         self.TextDescriEntra = QtWidgets.QTextEdit(self.frame_2)
-        #
-        #
-        #
-        self.TextDescriEntra.setEnabled(True)
-        #
-        #
-        #
-        self.TextDescriEntra.setGeometry(QtCore.QRect(120, 50, 271, 51))
+        self.TextDescriEntra.setEnabled(False)
+        self.TextDescriEntra.setGeometry(QtCore.QRect(460, 10, 301, 51))
         self.TextDescriEntra.setStyleSheet("background-color: rgb(184, 244, 240);\n"
 "")
         self.TextDescriEntra.setObjectName("TextDescriEntra")
         self.label_10 = QtWidgets.QLabel(self.frame_2)
-        self.label_10.setGeometry(QtCore.QRect(10, 120, 111, 21))
+        self.label_10.setGeometry(QtCore.QRect(360, 80, 101, 21))
         self.label_10.setObjectName("label_10")
         self.TableEntra = QtWidgets.QTableWidget(self.frame_2)
         self.TableEntra.setGeometry(QtCore.QRect(20, 170, 881, 321))
@@ -227,48 +236,33 @@ class Ui_Main(object):
         item.setTextAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignTop)
         self.TableEntra.setHorizontalHeaderItem(10, item)
         self.label_11 = QtWidgets.QLabel(self.frame_2)
-        self.label_11.setGeometry(QtCore.QRect(400, 70, 71, 31))
+        self.label_11.setGeometry(QtCore.QRect(20, 60, 71, 21))
         self.label_11.setObjectName("label_11")
         self.LineCantidadEntra = QtWidgets.QLineEdit(self.frame_2)
-        self.LineCantidadEntra.setGeometry(QtCore.QRect(510, 60, 161, 31))
+        self.LineCantidadEntra.setGeometry(QtCore.QRect(100, 60, 191, 20))
         self.LineCantidadEntra.setObjectName("LineCantidadEntra")
         self.label_12 = QtWidgets.QLabel(self.frame_2)
-        self.label_12.setGeometry(QtCore.QRect(400, 30, 121, 16))
+        self.label_12.setGeometry(QtCore.QRect(360, 130, 101, 21))
         self.label_12.setObjectName("label_12")
         self.btnClaveEntra = QtWidgets.QPushButton(self.frame_2)
-        self.btnClaveEntra.setGeometry(QtCore.QRect(320, 20, 21, 21))
+        self.btnClaveEntra.setGeometry(QtCore.QRect(300, 20, 21, 21))
         self.btnClaveEntra.setText("")
         icon2 = QtGui.QIcon()
         icon2.addPixmap(QtGui.QPixmap("../imagenes/lupa.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.btnClaveEntra.setIcon(icon2)
         self.btnClaveEntra.setIconSize(QtCore.QSize(20, 20))
         self.btnClaveEntra.setObjectName("btnClaveEntra")
-        self.LineaAreaEntra = QtWidgets.QLineEdit(self.frame_2)
-        self.LineaAreaEntra.setGeometry(QtCore.QRect(510, 20, 161, 31))
-        self.LineaAreaEntra.setObjectName("LineaAreaEntra")
         self.label_13 = QtWidgets.QLabel(self.frame_2)
-        self.label_13.setGeometry(QtCore.QRect(400, 130, 91, 21))
+        self.label_13.setGeometry(QtCore.QRect(20, 130, 91, 21))
         self.label_13.setObjectName("label_13")
         self.label_14 = QtWidgets.QLabel(self.frame_2)
-        self.label_14.setGeometry(QtCore.QRect(700, 30, 47, 13))
+        self.label_14.setGeometry(QtCore.QRect(60, 93, 41, 20))
         self.label_14.setObjectName("label_14")
         self.LineLoteEntra = QtWidgets.QLineEdit(self.frame_2)
-        self.LineLoteEntra.setGeometry(QtCore.QRect(750, 19, 113, 31))
+        self.LineLoteEntra.setGeometry(QtCore.QRect(100, 90, 191, 21))
         self.LineLoteEntra.setObjectName("LineLoteEntra")
-        self.btnAgregarEntra = QtWidgets.QPushButton(self.frame_2)
-        self.btnAgregarEntra.setGeometry(QtCore.QRect(720, 60, 141, 31))
-        self.btnAgregarEntra.setStyleSheet("QPushButton{\n"
-"border-radius:15px;\n"
-"background:#ffc001;\n"
-"\n"
-"}\n"
-"QPushButton:hover{\n"
-"background:#dea806;\n"
-"}\n"
-"")
-        self.btnAgregarEntra.setObjectName("btnAgregarEntra")
         self.btnFinalizarEntra = QtWidgets.QPushButton(self.frame_2)
-        self.btnFinalizarEntra.setGeometry(QtCore.QRect(720, 100, 141, 31))
+        self.btnFinalizarEntra.setGeometry(QtCore.QRect(770, 100, 141, 31))
         self.btnFinalizarEntra.setStyleSheet("QPushButton{\n"
 "border-radius:15px;\n"
 "background:#ffc001;\n"
@@ -280,23 +274,52 @@ class Ui_Main(object):
 "")
         self.btnFinalizarEntra.setObjectName("btnFinalizarEntra")
         self.DateCaducidadEntra = QtWidgets.QDateEdit(self.frame_2)
-        self.DateCaducidadEntra.setGeometry(QtCore.QRect(500, 130, 110, 22))
+        self.DateCaducidadEntra.setGeometry(QtCore.QRect(120, 130, 171, 22))
         self.DateCaducidadEntra.setCalendarPopup(True)
         self.DateCaducidadEntra.setTimeSpec(QtCore.Qt.LocalTime)
         self.DateCaducidadEntra.setDate(QtCore.QDate(2020, 1, 1))
         self.DateCaducidadEntra.setObjectName("DateCaducidadEntra")
         self.TextPresentaEntra = QtWidgets.QTextEdit(self.frame_2)
-        #
-        #
-        #
-        self.TextPresentaEntra.setEnabled(True)
-        #
-        #
-        #
-        self.TextPresentaEntra.setGeometry(QtCore.QRect(120, 110, 271, 51))
+        self.TextPresentaEntra.setEnabled(False)
+        self.TextPresentaEntra.setGeometry(QtCore.QRect(460, 70, 301, 51))
         self.TextPresentaEntra.setStyleSheet("background-color: rgb(184, 244, 240);\n"
 "")
         self.TextPresentaEntra.setObjectName("TextPresentaEntra")
+        self.radioButton = QtWidgets.QRadioButton(self.frame_2)
+        self.radioButton.setGeometry(QtCore.QRect(470, 130, 91, 17))
+        self.radioButton.setObjectName("radioButton")
+        self.radioButton_2 = QtWidgets.QRadioButton(self.frame_2)
+        self.radioButton_2.setGeometry(QtCore.QRect(580, 130, 82, 17))
+        self.radioButton_2.setObjectName("radioButton_2")
+        self.btnAgregarEntra = QtWidgets.QPushButton(self.frame_2)
+        self.btnAgregarEntra.setGeometry(QtCore.QRect(770, 60, 141, 31))
+        self.btnAgregarEntra.setStyleSheet("QPushButton{\n"
+"border-radius:15px;\n"
+"background:#ffc001;\n"
+"\n"
+"}\n"
+"QPushButton:hover{\n"
+"background:#dea806;\n"
+"}\n"
+"")
+        self.btnAgregarEntra.setObjectName("btnAgregarEntra")
+        self.btnTotalEntradasEntra = QtWidgets.QPushButton(self.frame_2)
+        self.btnTotalEntradasEntra.setGeometry(QtCore.QRect(820, 20, 41, 31))
+        self.btnTotalEntradasEntra.setStyleSheet("QPushButton{\n"
+"border-radius:15px;\n"
+"background:#ffc001;\n"
+"\n"
+"}\n"
+"QPushButton:hover{\n"
+"background:#dea806;\n"
+"}\n"
+"")
+        self.btnTotalEntradasEntra.setText("")
+        icon3 = QtGui.QIcon()
+        icon3.addPixmap(QtGui.QPixmap("../imagenes/papeleo.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.btnTotalEntradasEntra.setIcon(icon3)
+        self.btnTotalEntradasEntra.setIconSize(QtCore.QSize(30, 30))
+        self.btnTotalEntradasEntra.setObjectName("btnTotalEntradasEntra")
         Main.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(Main)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 1291, 26))
@@ -320,29 +343,29 @@ class Ui_Main(object):
         self.toolBar.setObjectName("toolBar")
         Main.addToolBar(QtCore.Qt.TopToolBarArea, self.toolBar)
         self.actionEntradas = QtWidgets.QAction(Main)
-        icon3 = QtGui.QIcon()
-        icon3.addPixmap(QtGui.QPixmap("../imagenes/agregar clave (2).png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.actionEntradas.setIcon(icon3)
+        icon4 = QtGui.QIcon()
+        icon4.addPixmap(QtGui.QPixmap("../imagenes/agregar clave (2).png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.actionEntradas.setIcon(icon4)
         self.actionEntradas.setObjectName("actionEntradas")
         self.actionSalidas = QtWidgets.QAction(Main)
-        icon4 = QtGui.QIcon()
-        icon4.addPixmap(QtGui.QPixmap("../imagenes/medicina.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.actionSalidas.setIcon(icon4)
+        icon5 = QtGui.QIcon()
+        icon5.addPixmap(QtGui.QPixmap("../imagenes/medicina.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.actionSalidas.setIcon(icon5)
         self.actionSalidas.setObjectName("actionSalidas")
         self.actionkardex = QtWidgets.QAction(Main)
-        icon5 = QtGui.QIcon()
-        icon5.addPixmap(QtGui.QPixmap("../imagenes/salidas.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.actionkardex.setIcon(icon5)
+        icon6 = QtGui.QIcon()
+        icon6.addPixmap(QtGui.QPixmap("../imagenes/salidas.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.actionkardex.setIcon(icon6)
         self.actionkardex.setObjectName("actionkardex")
         self.actionAgregar_claves = QtWidgets.QAction(Main)
-        icon6 = QtGui.QIcon()
-        icon6.addPixmap(QtGui.QPixmap("../imagenes/agregar clave (1).png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.actionAgregar_claves.setIcon(icon6)
+        icon7 = QtGui.QIcon()
+        icon7.addPixmap(QtGui.QPixmap("../imagenes/agregar clave (1).png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.actionAgregar_claves.setIcon(icon7)
         self.actionAgregar_claves.setObjectName("actionAgregar_claves")
         self.actionAyuda = QtWidgets.QAction(Main)
-        icon7 = QtGui.QIcon()
-        icon7.addPixmap(QtGui.QPixmap("../imagenes/manual.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.actionAyuda.setIcon(icon7)
+        icon8 = QtGui.QIcon()
+        icon8.addPixmap(QtGui.QPixmap("../imagenes/manual.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.actionAyuda.setIcon(icon8)
         self.actionAyuda.setObjectName("actionAyuda")
         self.menuEntradas.addAction(self.actionEntradas)
         self.menuSalidas.addAction(self.actionSalidas)
@@ -361,25 +384,33 @@ class Ui_Main(object):
 
         self.retranslateUi(Main)
         self.btnFinalizarEntra.clicked.connect(self.LineCantidadEntra.clear)
-        self.btnFinalizarEntra.clicked.connect(self.LineaAreaEntra.clear)
         self.btnFinalizarEntra.clicked.connect(self.LineLoteEntra.clear)
         self.btnFinalizarEntra.clicked.connect(self.TextDescriEntra.clear)
         self.btnFinalizarEntra.clicked.connect(self.LineClaveEntra.clear)
         self.btnFinalizarEntra.clicked.connect(self.LineOrigenEntra.clear)
-
+        self.btnFinalizarEntra.clicked.connect(self.TextPresentaEntra.clear)
+        self.btnFinalizarEntra.clicked.connect(self.LineReferenciaEntra.clear)
         QtCore.QMetaObject.connectSlotsByName(Main)
-        Main.setTabOrder(self.LineOrigenEntra, self.DateFechaEntra)
-        Main.setTabOrder(self.DateFechaEntra, self.LineControlEntra)
-        Main.setTabOrder(self.LineControlEntra, self.LineClaveEntra)
+        Main.setTabOrder(self.LineOrigenEntra, self.LineReferenciaEntra)
+        Main.setTabOrder(self.LineReferenciaEntra, self.DateFreferenciaEntra)
+        Main.setTabOrder(self.DateFreferenciaEntra, self.comboBoxEntradas)
+        Main.setTabOrder(self.comboBoxEntradas, self.LineControlEntra)
+        Main.setTabOrder(self.LineControlEntra, self.DateFechaEntra)
+        Main.setTabOrder(self.DateFechaEntra, self.LineClaveEntra)
         Main.setTabOrder(self.LineClaveEntra, self.btnClaveEntra)
         Main.setTabOrder(self.btnClaveEntra, self.TextDescriEntra)
-        Main.setTabOrder(self.TextDescriEntra, self.LineaAreaEntra)
-        Main.setTabOrder(self.LineaAreaEntra, self.LineCantidadEntra)
-        Main.setTabOrder(self.LineCantidadEntra, self.DateCaducidadEntra)
-        Main.setTabOrder(self.DateCaducidadEntra, self.LineLoteEntra)
-        Main.setTabOrder(self.LineLoteEntra, self.TableEntra)
-        Main.setTabOrder(self.TableEntra, self.btnAgregarEntra)
+        Main.setTabOrder(self.TextDescriEntra, self.TextPresentaEntra)
+        Main.setTabOrder(self.TextPresentaEntra, self.LineCantidadEntra)
+        Main.setTabOrder(self.LineCantidadEntra, self.LineLoteEntra)
+        Main.setTabOrder(self.LineLoteEntra, self.DateCaducidadEntra)
+        Main.setTabOrder(self.DateCaducidadEntra, self.radioButton)
+        Main.setTabOrder(self.radioButton, self.radioButton_2)
+        Main.setTabOrder(self.radioButton_2, self.btnTotalEntradasEntra)
+        Main.setTabOrder(self.btnTotalEntradasEntra, self.btnAgregarEntra)
         Main.setTabOrder(self.btnAgregarEntra, self.btnFinalizarEntra)
+        Main.setTabOrder(self.btnFinalizarEntra, self.TableEntra)
+
+
 
         #comente el nombre de todos los titulos de cada pestaña para que no se pusieraS
         #agregando subwindow entrada ,Qt.WindowTitleHint para que no pueda minizar ni cerrar la subwindow
@@ -403,7 +434,7 @@ class Ui_Main(object):
 
         
 
-        
+        self.radioButton.setChecked(True)
         
 
         self.mdiArea.activateNextSubWindow()
@@ -430,6 +461,7 @@ class Ui_Main(object):
         now = datetime.now()
         self.DateCaducidadEntra.setDate(now)
         self.DateFechaEntra.setDate(now)
+        self.DateFreferenciaEntra.setDate(now)
         
         #Busqueda en tiempo real
         self.BusquedaTreal()
@@ -446,8 +478,10 @@ class Ui_Main(object):
         self.LineCantidadEntra.setValidator(intonly)
 
         self.comboBoxEntradas.currentIndexChanged.connect(self.BusquedaTreal)
+        self.btnTotalEntradasEntra.clicked.connect(self.openRef)
+        
 
- #FUNCIONES
+#FUNCIONES
     # VER QUE BORRE EL FINALIZAR Y EL AGREGAR
     def abrirConsultas(self):
         self.subwindowEntradas.hide()
@@ -471,11 +505,12 @@ class Ui_Main(object):
         self.subwindowEntradas.showMaximized()
     def FinalizarTabla(self):
         try:
-            Dp = pd.DataFrame()
+            self.Dp = pd.DataFrame()
+            DpEntrada = pd.DataFrame()
             rows = self.TableEntra.rowCount()
-            print(rows)
+            # print(rows)
             Column = self.TableEntra.columnCount()
-            print(Column)
+            # print(Column)
             #TUVIMOS QUE ARREGLAR EL ORDEN DE LOS HEADERS PARA QUE JALE LA CONSULTA JUSTO CON LA TABLA DE BD Y EL DATAFRAME
             headers = ['origen', 'clave_corta', 'area','cantidad','caducidad','lote','fechaIngreso']
             for i in range(rows):
@@ -483,13 +518,29 @@ class Ui_Main(object):
                     print(j)
                     #Este If es por que no necesitamos las columnas de descripcion y presentacion en el ingreso al DATAFRAME ya que al ingresar el dataframe a la BD no estan esos campos
                     if j != 4 and j != 5 and j != 0 and j != 1:
-                        Dp.loc[i,j] = self.TableEntra.item(i,j).text()
-            Dp.columns =headers
-            print(Dp)
+                        self.Dp.loc[i,j] = self.TableEntra.item(i,j).text()
+            self.Dp.columns =headers
+            #print(Dp)
             #Ingreso DEl dataframe a la bd tipo ingreso pandas(NO SQLALCHEMY) a la tabla farmaco
-            Dp.to_sql('farmaco', engine, index= False, if_exists="append")
-            #Ingreso DEl dataframe a la bd tipo ingreso pandas(NO SQLALCHEMY) pero a la tabla historial
-            Dp.to_sql('historial',engine, index= False, if_exists="append")
+            self.Dp.to_sql('farmaco', engine, index= False, if_exists="append")
+            print((self.Dp))
+
+            #Tabla de entrada en la base de datos
+            headers1 = ['NoReferencia', 'FeReferencia', 'FeEntrada','origen']
+            DpEntrada.loc[0,1] = self.referencia
+            Date =  self.DateFreferenciaEntra.date()
+            fechaReferencia = Date.toPyDate()
+            DpEntrada.loc[0,2] = str(fechaReferencia)
+            Date =  self.DateFechaEntra.date()
+            fechaEntrada = Date.toPyDate()
+            DpEntrada.loc[0,3] = str(fechaEntrada)
+            DpEntrada.loc[0,4] = self.origen
+            DpEntrada.columns =headers1
+            print(DpEntrada)
+            DpEntrada.to_sql('Entrada',engine, index= False, if_exists="append")
+            session.close()
+
+            self.insertRecord()
             
             for i in reversed(range(self.TableEntra.rowCount())):
                 self.TableEntra.removeRow(i)
@@ -498,7 +549,6 @@ class Ui_Main(object):
             session.close()
             self.TextPresentaEntra.setText('')
             self.LineCantidadEntra.setText('')
-            self.LineaAreaEntra.setText('')
             self.LineLoteEntra.setText('')
             self.TextDescriEntra.setText('')
             self.LineClaveEntra.setText('')
@@ -533,7 +583,6 @@ class Ui_Main(object):
     def ConsultaDesc(self):
         try: 
             self.LineClaveEntra.setStyleSheet("QLineEdit { border-color: black;}")
-            print('EJECUTANDO LA FUNCION')
             tipos = self.comboBoxEntradas.currentIndex()
             Vclave = self.LineClaveEntra.text()
             if tipos == 0:
@@ -553,14 +602,11 @@ class Ui_Main(object):
             error_dialog.setWindowTitle("Informacion!!!")
             error_dialog.exec()
             
-        
-            
 
     #consulta para el Numero de control
     def control(self):
-        
-        self.Ncontrol = session.query(Farmaco).count()
-        self.conta= self.conta + 1
+        self.Ncontrol = session.query(func.max(Entrada.NoEntrada)).scalar()
+        self.conta = 1
         self.LineControlEntra.setText(str(self.Ncontrol + self.conta))
         session.close()
 
@@ -581,11 +627,6 @@ class Ui_Main(object):
         ListaClave = list
         completer =  QCompleter(ListaClave)
         self.LineClaveEntra.setCompleter(completer)
-    
-
-
-
-
 
     #Envia los datos a la tabla
     def enviar(self):
@@ -631,6 +672,12 @@ class Ui_Main(object):
             "}\n"
             "")
             
+            #Ver que opcion hay en Area de resguardo
+            if self.radioButton.isChecked():
+                resguardo = 'Almacen'
+            else:
+                resguardo = 'Bodega'
+
             self.TableEntra.setCellWidget(row,0,self.btnDelete)
             
             self.TableEntra.setItem(row, 1, QTableWidgetItem(
@@ -643,8 +690,7 @@ class Ui_Main(object):
                 str(self.TextDescriEntra.toPlainText())))
             self.TableEntra.setItem(row, 5, QTableWidgetItem(
                 str(self.TextPresentaEntra.toPlainText())))
-            self.TableEntra.setItem(row, 6, QTableWidgetItem(
-                str(self.LineaAreaEntra.text())))
+            self.TableEntra.setItem(row, 6, QTableWidgetItem(resguardo))
             self.TableEntra.setItem(row, 7, QTableWidgetItem(
                 str(self.LineCantidadEntra.text())))
             self.TableEntra.setItem(row, 8, QTableWidgetItem(
@@ -656,21 +702,19 @@ class Ui_Main(object):
             self.control()    
             self.btnDelete.clicked.connect(self.contador)
             self.LineLoteEntra.setText('')
-            self.LineaAreaEntra.setText('')
             self.LineCantidadEntra.setText('')
             self.TextDescriEntra.setText('')
             self.LineClaveEntra.setText('')
             self.TextPresentaEntra.setText('')
-
-
-    
+            self.referencia =  self.LineReferenciaEntra.text()
+            self.origen = self.LineOrigenEntra.text()
 
     #Elimina las filas del tablewitget
     def contador(self):
         rowC = self.TableEntra.currentRow()
         self.TableEntra.removeRow(rowC)
-        self.conta = self.conta - 1 
-        self.LineControlEntra.setText(str(self.Ncontrol + self.conta))
+        #self.conta = self.conta - 1
+        #self.LineControlEntra.setText(str(self.Ncontrol + self.conta))
         row2 = self.TableEntra.rowCount()
         for a in range(row2):
                 if a >= rowC:
@@ -682,29 +726,46 @@ class Ui_Main(object):
         Nombre_pdf ='manual.pdf'
         Nombre_pdf = path.abspath(Nombre_pdf)
         wb.open_new(r'%s'%Nombre_pdf)
-        print(path.abspath(Nombre_pdf))
+        # print(path.abspath(Nombre_pdf))
+
+    def insertRecord(self):
+        # Ingreso DEl dataframe a la bd tipo ingreso pandas(NO SQLALCHEMY) pero a la tabla historial
+        self.Dp['Entrada_NoEntrada'] = session.query(func.max(Entrada.NoEntrada)).scalar()
+        self.Dp.to_sql('historial', engine, index=False, if_exists="append")
+        self.Dp.drop(columns=['Entrada_NoEntrada'])
+        session.close()
+
+    def openRef(self):
+        self.vtnRef = QtWidgets.QWidget()
+        self.uiRef = Ui_VtnES()
+        self.uiRef.setupUi(self.vtnRef)
+        self.vtnRef.show()
+
 
 
     def retranslateUi(self, Main):
         _translate = QtCore.QCoreApplication.translate
         Main.setWindowTitle(_translate("Main", "Sistema de Inventario"))
         self.subwindowEntradas.setWindowTitle(_translate("Main", "Entradas"))
-        self.label_5.setText(_translate("Main", "Origen:"))
-        self.label_6.setText(_translate("Main", "Fecha:"))
-        self.label_7.setText(_translate("Main", "Control Secuencial:"))
+        self.label_5.setText(_translate("Main", "Proveedor:"))
+        self.label_6.setText(_translate("Main", "F.Entrada:"))
+        self.label_7.setText(_translate("Main", "N.Entrada:"))
         self.DateFechaEntra.setDisplayFormat(_translate("Main", "dd/MM/yyyy"))
         self.label_15.setText(_translate("Main", "Tipo:"))
-        self.comboBoxEntradas.setItemText(0, _translate("Main", "Medicina"))
-        self.comboBoxEntradas.setItemText(1, _translate("Main", "Material/Curacion"))
+        self.comboBoxEntradas.setItemText(0, _translate("Main", "Medicamento"))
+        self.comboBoxEntradas.setItemText(1, _translate("Main", "M.Curacion"))
+        self.label_16.setText(_translate("Main", "N.Referencia:"))
+        self.label_17.setText(_translate("Main", "F.Referencia:"))
+        self.DateFreferenciaEntra.setDisplayFormat(_translate("Main", "dd/MM/yyyy"))
         self.label_8.setText(_translate("Main", "Clave:"))
-        self.label_9.setText(_translate("Main", "Descripción:"))
+        self.label_9.setText(_translate("Main", "Descripción :"))
         self.label_10.setText(_translate("Main", "Presentación:"))
         item = self.TableEntra.horizontalHeaderItem(0)
         item.setText(_translate("Main", "Eliminar"))
         item = self.TableEntra.horizontalHeaderItem(1)
-        item.setText(_translate("Main", "Control"))
+        item.setText(_translate("Main", "N.Entrada"))
         item = self.TableEntra.horizontalHeaderItem(2)
-        item.setText(_translate("Main", "Origen"))
+        item.setText(_translate("Main", "Proveedor"))
         item = self.TableEntra.horizontalHeaderItem(3)
         item.setText(_translate("Main", "Clave"))
         item = self.TableEntra.horizontalHeaderItem(4)
@@ -722,12 +783,16 @@ class Ui_Main(object):
         item = self.TableEntra.horizontalHeaderItem(10)
         item.setText(_translate("Main", "Fecha"))
         self.label_11.setText(_translate("Main", "Cantidad:"))
-        self.label_12.setText(_translate("Main", "Area Almacen:"))
+        self.label_12.setText(_translate("Main", "A.resguardo:"))
         self.label_13.setText(_translate("Main", "Caducidad:"))
         self.label_14.setText(_translate("Main", "Lote:"))
-        self.btnAgregarEntra.setText(_translate("Main", "Agregar"))
         self.btnFinalizarEntra.setText(_translate("Main", "Finalizar"))
         self.DateCaducidadEntra.setDisplayFormat(_translate("Main", "dd/MM/yyyy"))
+        self.radioButton.setText(_translate("Main", "Almacen"))
+        self.radioButton_2.setText(_translate("Main", "Bodega"))
+        self.btnAgregarEntra.setText(_translate("Main", "Agregar"))
+        #self.pushButto.setShortcut(_translate("Main", "Enter"))
+        self.btnTotalEntradasEntra.setShortcut(_translate("Main", "Ctrl+E"))
         self.menuEntradas.setTitle(_translate("Main", "Entradas"))
         self.menuSalidas.setTitle(_translate("Main", "Salidas"))
         self.menuConsultas.setTitle(_translate("Main", "Consultas"))

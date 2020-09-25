@@ -13,7 +13,7 @@ import pandas as pd
 import pymysql
 
 
-engine = create_engine('mysql+pymysql://root:@localhost/farmaciaDB')
+engine = create_engine('mysql+pymysql://root:wil99@localhost/farmaciaDB')
 Session = sessionmaker(bind=engine)
 session = Session()
 class Ui_BDP(object):

@@ -16,7 +16,8 @@ from farm import Farmaco
 import pandas as pd
 from reports import Report as reportes
 import pymysql
-engine = create_engine('mysql+pymysql://root:@localhost/farmaciaDB')
+
+engine = create_engine('mysql+pymysql://root:wil99@localhost/farmaciaDB')
 Session = sessionmaker(bind=engine)
 session = Session()
 
@@ -70,7 +71,7 @@ class SubWindow(QWidget):
 "background:#dea806;\n"
 "}")
         self.frame_2 = QtWidgets.QFrame(self)
-        self.frame_2.setGeometry(QtCore.QRect(50, 110, 961, 560))
+        self.frame_2.setGeometry(QtCore.QRect(40, 110, 961, 560))
         self.frame_2.setStyleSheet("\n"
 " background:#fefefe;\n"
 "\n"
@@ -133,11 +134,14 @@ class SubWindow(QWidget):
         item = QtWidgets.QTableWidgetItem()
         item.setTextAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignTop)
         self.TableSalida.setHorizontalHeaderItem(8, item)
+
+
         #
         # #que la tabla no pueda ser editada
         self.TableSalida.setEditTriggers(QtWidgets.QTableWidget.NoEditTriggers)
         #
         #
+
         self.tableViewSalida = QtWidgets.QTableView(self.frame_2)
         self.tableViewSalida.setGeometry(QtCore.QRect(10, 70, 941, 200))
         self.tableViewSalida.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
@@ -145,8 +149,25 @@ class SubWindow(QWidget):
         self.LineDescripSalida = QtWidgets.QLineEdit(self.frame_2)
         self.LineDescripSalida.setGeometry(QtCore.QRect(370, 20, 541, 31))
         self.LineDescripSalida.setObjectName("LineDescripSalida")
+        self.btnTotalEntradasEntra = QtWidgets.QPushButton(self.frame_2)
+        self.btnTotalEntradasEntra.setGeometry(QtCore.QRect(710, 520, 51, 31))
+        self.btnTotalEntradasEntra.setStyleSheet("QPushButton{\n"
+"border-radius:15px;\n"
+"background:#ffc001;\n"
+"\n"
+"}\n"
+"QPushButton:hover{\n"
+"background:#dea806;\n"
+"}\n"
+"")
+        self.btnTotalEntradasEntra.setText("")
+        icon2 = QtGui.QIcon()
+        icon2.addPixmap(QtGui.QPixmap("../../Sistema Farmacia/imagenes/papeleo.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.btnTotalEntradasEntra.setIcon(icon2)
+        self.btnTotalEntradasEntra.setIconSize(QtCore.QSize(30, 30))
+        self.btnTotalEntradasEntra.setObjectName("btnTotalEntradasEntra")
         self.Frame2 = QtWidgets.QFrame(self)
-        self.Frame2.setGeometry(QtCore.QRect(90, 20, 881, 71))
+        self.Frame2.setGeometry(QtCore.QRect(80, 20, 881, 71))
         self.Frame2.setStyleSheet("\n"
 " background:#fefefe;\n"
 "\n"
@@ -155,17 +176,15 @@ class SubWindow(QWidget):
         self.Frame2.setFrameShadow(QtWidgets.QFrame.Raised)
         self.Frame2.setObjectName("Frame2")
         self.label_16 = QtWidgets.QLabel(self.Frame2)
-        self.label_16.setGeometry(QtCore.QRect(30, 10, 91, 20))
+        self.label_16.setGeometry(QtCore.QRect(30, 10, 61, 20))
         self.label_16.setObjectName("label_16")
         self.label_17 = QtWidgets.QLabel(self.Frame2)
         self.label_17.setGeometry(QtCore.QRect(550, 10, 91, 21))
         self.label_17.setObjectName("label_17")
         self.LineControlSalida = QtWidgets.QLineEdit(self.Frame2)
-        self.LineControlSalida.setGeometry(QtCore.QRect(120, 10, 121, 21))
-        self.LineControlSalida.setObjectName("LineControlSalida")
-        #
         self.LineControlSalida.setEnabled(False)
-        #
+        self.LineControlSalida.setGeometry(QtCore.QRect(90, 10, 121, 21))
+        self.LineControlSalida.setObjectName("LineControlSalida")
         self.DateFechaPSalida = QtWidgets.QDateEdit(self.Frame2)
         self.DateFechaPSalida.setGeometry(QtCore.QRect(640, 10, 121, 22))
         self.DateFechaPSalida.setAccelerated(False)
@@ -175,10 +194,10 @@ class SubWindow(QWidget):
         self.DateFechaPSalida.setDate(QtCore.QDate(2020, 1, 1))
         self.DateFechaPSalida.setObjectName("DateFechaPSalida")
         self.label_18 = QtWidgets.QLabel(self.Frame2)
-        self.label_18.setGeometry(QtCore.QRect(30, 40, 41, 20))
+        self.label_18.setGeometry(QtCore.QRect(30, 40, 51, 20))
         self.label_18.setObjectName("label_18")
         self.LineAreaSalida = QtWidgets.QLineEdit(self.Frame2)
-        self.LineAreaSalida.setGeometry(QtCore.QRect(120, 40, 121, 21))
+        self.LineAreaSalida.setGeometry(QtCore.QRect(90, 40, 121, 21))
         self.LineAreaSalida.setObjectName("LineAreaSalida")
         self.label_19 = QtWidgets.QLabel(self.Frame2)
         self.label_19.setGeometry(QtCore.QRect(550, 40, 91, 21))
@@ -202,8 +221,19 @@ class SubWindow(QWidget):
 
         self.retranslateUi()
         QtCore.QMetaObject.connectSlotsByName(self)
+        self.setTabOrder(self.LineAreaSalida, self.comboboxSalida)
+        self.setTabOrder(self.comboboxSalida, self.DateFechaPSalida)
+        self.setTabOrder(self.DateFechaPSalida, self.DateFechaESalida)
+        self.setTabOrder(self.DateFechaESalida, self.LineClaveSalida)
+        self.setTabOrder(self.LineClaveSalida, self.btnTotalEntradasEntra)
+        self.setTabOrder(self.btnTotalEntradasEntra, self.btnFinalizarSalida)
+        self.setTabOrder(self.btnFinalizarSalida, self.tableViewSalida)
+        self.setTabOrder(self.tableViewSalida, self.TableSalida)
+        self.setTabOrder(self.TableSalida, self.LineControlSalida)
+        self.setTabOrder(self.LineControlSalida, self.LineDescripSalida)
 
-         
+                # self.setTabOrder(self.LineClaveSalida, self.LineDescripSalida)
+        # self.setTabOrder(self.LineDescripSalida, self.btnFinalizarSalida)
 
 
         #INICIO DEL CODIGO
@@ -211,15 +241,15 @@ class SubWindow(QWidget):
         self.DateFechaESalida.setDate(now)
         self.DateFechaPSalida.setDate(now)
 
-        #Consulta al numero de control Ventana Salida
-        self.conta = 0
         self.NcontrolS()
         self.TableViewInsertSalida()
         self.comboboxSalida.currentIndexChanged.connect(self.TableViewInsertSalida)
 
         #cuando se le da el click a esto , le otorga los permisos de busqueda
+
         self.LineDescripSalida.mousePressEvent = self.click
         self.LineClaveSalida.mousePressEvent = self.click
+        
 
         #funcion para enviar los datos a la base de datos y crear el archivo.
         self.btnFinalizarSalida.clicked.connect(self.bdFinalizarSalida)
@@ -243,13 +273,14 @@ class SubWindow(QWidget):
             rows = self.TableSalida.rowCount()
             Column = self.TableSalida.columnCount()
             #TUVIMOS QUE ARREGLAR EL ORDEN DE LOS HEADERS PARA QUE JALE LA CONSULTA JUSTO CON LA TABLA DE BD Y EL DATAFRAME
-            headers = ['idSalida', 'clave_corta', 'cantidadSal', 'Caducidad','FechaPedido','fechaEntrega','area','lote','numero_pedido']
+            headers = ['clave_corta', 'cantidadSal', 'Caducidad','FechaPedido','fechaEntrega','area','lote','numero_pedido']
             for i in range(rows):
                 for j in range(Column + 3):
                     # Este If es por que no necesitamos las columnas de descripcion y presentacion en el ingreso al DATAFRAME ya que al ingresar el dataframe a la BD no estan esos campos
-                    if j != 0 and j < Column:
+                    
+                    if j != 0 and j < Column and j!=1:
                         self.DfReport.loc[i, j] = self.TableSalida.item(i, j).text()
-                    if j != 3 and j != 4 and j != 0 and j != 9 and j != 10 and j != 11:
+                    if j != 3 and j != 4 and j != 0 and j != 9 and j != 10 and j != 11 and j!=1:
                         DfSalida.loc[i, j] = self.TableSalida.item(i, j).text()
                     if j == 9:
                         DfSalida.loc[i, j] = self.LineAreaSalida.text()
@@ -259,7 +290,7 @@ class SubWindow(QWidget):
                         self.DfReport.loc[i, j] = self.listaLote[i]
                     if j == 11:
                         DfSalida.loc[i, j] = self.Npedidoup
-                        DfSalida.loc[i, j] = self.Npedidoup
+
             DfSalida.columns = headers
             #print(DfSalida)
             #Ingreso DEl dataframe a la bd tipo ingreso pandas(NO SQLALCHEMY)
@@ -293,7 +324,7 @@ class SubWindow(QWidget):
             self.vtnObserv.show()
             self.uiObser.btnAceptarObservaciones.clicked.connect(self.observaciones)
 
-            self.conta= 0
+            
             #receteamos el numero de control para que no exista problemas
             self.NcontrolS()
             #limpiamos la lista para que no contenga un ID y acepte todos nuevamente
@@ -442,9 +473,11 @@ class SubWindow(QWidget):
 
     #funcion con la cual controlamos el control de salida
     def NcontrolS(self):  
-        self.Ncontrol = session.query(Salida).count()
-        self.conta= self.conta + 1
-        self.LineControlSalida.setText(str(self.Ncontrol + self.conta))
+        self.Ncontrol = session.query(func.max(Salida.numero_pedido)).scalar()
+        if self.Ncontrol  is None:
+            self.Ncontrol = 0
+
+        self.LineControlSalida.setText(str(self.Ncontrol + 1))
         session.close()
     #Elimina filas den tableWidget y resta a al control de salida
     def contadorSalida(self):
@@ -455,14 +488,8 @@ class SubWindow(QWidget):
         self.listaCantidad.pop(rowC)
         self.listaLote.pop(rowC)
         self.TableSalida.removeRow(rowC)
-        self.conta = self.conta - 1 
-        self.LineControlSalida.setText(str(self.Ncontrol + self.conta))
         row2 = self.TableSalida.rowCount()
-        for a in range(row2):
-                if a >= rowC:
-                        numeroControl = int(self.TableSalida.item(a,1).text())
-                        NumeroControlUp = numeroControl - 1 
-                        self.TableSalida.setItem(a,1,QTableWidgetItem(str(NumeroControlUp)))
+
  
 
     #le pasa el parametro de busqueda al lineDescribe
@@ -514,9 +541,6 @@ class SubWindow(QWidget):
         #cerrar session y automaticamente se abre otra.
         session.close()
 
-
-
-
     def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
         #self.setWindowTitle(_translate("InterFazSalida", "Salidas"))
@@ -526,7 +550,7 @@ class SubWindow(QWidget):
         item = self.TableSalida.horizontalHeaderItem(0)
         item.setText(_translate("InterFazSalida", "Eliminar"))
         item = self.TableSalida.horizontalHeaderItem(1)
-        item.setText(_translate("InterFazSalida", "Control Salida"))
+        item.setText(_translate("InterFazSalida", "N.Salida"))
         item = self.TableSalida.horizontalHeaderItem(2)
         item.setText(_translate("InterFazSalida", "Clave"))
         item = self.TableSalida.horizontalHeaderItem(3)
@@ -541,14 +565,16 @@ class SubWindow(QWidget):
         item.setText(_translate("InterFazSalida", "Fecha pedido"))
         item = self.TableSalida.horizontalHeaderItem(8)
         item.setText(_translate("InterFazSalida", "Fecha Entrega"))
-        self.label_16.setText(_translate("InterFazSalida", "Control Salida:"))
+
+        self.btnTotalEntradasEntra.setShortcut(_translate("InterFazSalida", "Ctrl+E"))
+        self.label_16.setText(_translate("InterFazSalida", "N.Salida:"))
         self.label_17.setText(_translate("InterFazSalida", "Fecha Pedido:"))
         self.DateFechaPSalida.setDisplayFormat(_translate("InterFazSalida", "dd/MM/yyyy"))
-        self.label_18.setText(_translate("InterFazSalida", "Area:"))
+        self.label_18.setText(_translate("InterFazSalida", "Destino:"))
         self.label_19.setText(_translate("InterFazSalida", "Fecha Entrega:"))
         self.DateFechaESalida.setDisplayFormat(_translate("InterFazSalida", "dd/MM/yyyy"))
-        self.comboboxSalida.setItemText(0, _translate("InterFazSalida", "Medicina"))
-        self.comboboxSalida.setItemText(1, _translate("InterFazSalida", "Material/Curacion"))
+        self.comboboxSalida.setItemText(0, _translate("InterFazSalida", "Medicamento"))
+        self.comboboxSalida.setItemText(1, _translate("InterFazSalida", "M.Curacion"))
         self.label_20.setText(_translate("InterFazSalida", "Tipo:"))
 
 

@@ -11,7 +11,7 @@ from farm import Clave
 from vtnConfirmacion import Ui_vtnDatosCorrectos
 import pymysql
 
-engine = create_engine('mysql+pymysql://root:@localhost/farmaciaDB')
+engine = create_engine('mysql+pymysql://root:wil99@localhost/farmaciaDB')
 Session = sessionmaker(bind=engine)
 session = Session()
 
