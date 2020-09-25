@@ -10,7 +10,7 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
-from PyQt5.QtWidgets import QHeaderView, QWidget
+from PyQt5.QtWidgets import QHeaderView, QWidget, QTableWidgetItem
 from PyQt5.QtCore import Qt, QSortFilterProxyModel
 from sqlalchemy import create_engine
 from sqlalchemy.sql import func
@@ -19,6 +19,7 @@ import sys
 sys.path.append('../Modelo/')
 from farm import Clave, Farmaco, Entrada, Historial
 import pandas as pd
+from functools import partial
 
 engine = create_engine('mysql+pymysql://root:wil99@localhost/farmaciaDB')
 Session = sessionmaker(bind=engine)
@@ -135,6 +136,7 @@ class Ui_VtnES(QWidget):
         self.btnPDF.hide()
         self.btnActualizarReferencia.hide()
         self.tableWidgetReferencia.hide()
+        self.tableViewReferencia.setSelectionBehavior(QtWidgets.QTableView.SelectRows)
 
         self.radioButtonTodas.setChecked(True)
         self.radioButtonPedido.setChecked(True)
@@ -143,7 +145,13 @@ class Ui_VtnES(QWidget):
         self.radioButtonProveedor.toggled.connect(self.fillTableView)
         self.fillTableView()
 
-        self.tableViewReferencia.doubleClicked.connect(self.showTableW)
+        vtn = VtnES
+
+        change = partial(self.showTableW, vtn)
+        self.tableViewReferencia.doubleClicked.connect(change)
+
+        if self.tableWidgetReferencia.isVisible():
+            VtnES.resize(900,500)
 
     def fillTableView(self):
         if self.radioButtonTodas.isChecked() == True:
@@ -170,11 +178,27 @@ class Ui_VtnES(QWidget):
                 self.lineEdit.textChanged.connect(self.buscador.setFilterRegExp)
             self.tableViewReferencia.setModel(self.buscador)
 
-    def showTableW(self):
+    def showTableW(self, VtnES):
         indexTableview = self.tableViewReferencia.currentIndex().row()
         NReferencia = self.tableViewReferencia.model().index(indexTableview,0).data()
-        print(NReferencia)
-        self.tableViewReferencia.hide()
+        if self.tableViewReferencia.isVisible():
+            self.radioButtonTodas.hide()
+            self.radioButtonMes.hide()
+            self.frame.hide()
+            self.tableViewReferencia.hide()
+        VtnES.resize(900,500)
+        self.query = pd.read_sql('SELECT * FROM historial WHERE Entrada_NoEntrada = %s' %NReferencia, engine)
+
+        for i in range(self.query.shape[0]):
+            for j in range(self.query.shape[1]):
+                val = QStandardItemModel(str(self.query.values[i][j]))
+                print(val)
+                # x = str(self.query.iloc[i,j])
+                # self.tableWidgetReferencia.setItem(i , j, QTableWidgetItem(x))
+
+        self.tableWidgetReferencia.show()
+
+
 
     def retranslateUi(self, VtnES):
         _translate = QtCore.QCoreApplication.translate
@@ -194,6 +218,6 @@ if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     VtnES = QtWidgets.QWidget()
     ui = Ui_VtnES()
-    ui.setupUi(VtnES)
+    ui.showTableW(VtnES)
     VtnES.show()
     sys.exit(app.exec_())
