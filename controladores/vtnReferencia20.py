@@ -119,6 +119,7 @@ class Ui_VtnES(QWidget):
 "background:#dea806;\n"
 "}\n"
 "")
+        self.btnAtras.setToolTip("Regresa a la ventana anterior")
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("../imagenes/pdf.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.btnPDF.setIcon(icon)
@@ -151,10 +152,13 @@ class Ui_VtnES(QWidget):
         vtn = VtnES
 
         change = partial(self.showTableW, vtn)
+        back = partial(self.back, vtn)
         self.tableViewReferencia.doubleClicked.connect(change)
 
-        if self.tableWidgetReferencia.isVisible():
-            VtnES.resize(900,500)
+        self.btnAtras.clicked.connect(back)
+
+        # self.btnDelete.clicked.connect(self.deleteRowWi)
+
 
     def fillTableView(self):
         if self.radioButtonTodas.isChecked() == True:
@@ -204,12 +208,18 @@ class Ui_VtnES(QWidget):
                 if col == 0:
                     self.BtnDelete(VtnES)
                     self.tableWidgetReferencia.setCellWidget(row, col, self.btnDelete)
+                    self.btnDelete.clicked.connect(self.deleteRowWi)
                     self.tableWidgetReferencia.setItem(row, col + 1, QTableWidgetItem(str(j)))
                 if col == 3:
                     self.createSpinBox(int(j), VtnES)
                     self.tableWidgetReferencia.setCellWidget(row, col + 1, self.spinBox)
                 if col != 0 and col != 3:
-                    self.tableWidgetReferencia.setItem(row, col + 1, QTableWidgetItem(str(j)))
+                    item = QTableWidgetItem(str(j))
+                    if col == 1:
+                        item.setToolTip(str(j))
+                    if col == 2:
+                        item.setToolTip(str(j))
+                    self.tableWidgetReferencia.setItem(row, col + 1, item)
         if not self.tableViewReferencia.isVisible():
             self.tableWidgetReferencia.show()
             self.btnAtras.show()
@@ -217,6 +227,11 @@ class Ui_VtnES(QWidget):
             self.btnActualizarReferencia.show()
             self.tableWidgetReferencia.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
 
+
+
+    def deleteRowWi(self):
+        rowC = self.tableWidgetReferencia.currentRow()
+        self.tableWidgetReferencia.removeRow(rowC)
 
     def BtnDelete(self, VtnES):
         self.btnDelete = QtWidgets.QPushButton(VtnES)
@@ -243,6 +258,17 @@ class Ui_VtnES(QWidget):
         self.spinBox.setObjectName("spinBox")
         self.spinBox.setValue(j)
 
+
+    def back(self, VtnES):
+        self.btnAtras.hide()
+        self.btnPDF.hide()
+        self.btnActualizarReferencia.hide()
+        self.tableWidgetReferencia.hide()
+        VtnES.resize(670, 635)
+        self.radioButtonTodas.show()
+        self.radioButtonMes.show()
+        self.frame.show()
+        self.tableViewReferencia.show()
 
     def retranslateUi(self, VtnES):
         _translate = QtCore.QCoreApplication.translate
