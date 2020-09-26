@@ -507,7 +507,6 @@ class SubWindow(QWidget):
         self.model = QStandardItemModel(0,8)
         self.model.setHorizontalHeaderLabels(['Id farmaco','Clave', 'Descripción','Caducidad', 'Lote', 'Cantidad', 'Area Almacen','Fecha Ingreso'])
         self.tableViewSalida.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        print('cambio realizado')
         #aqui se necesita convertir a str por que el datatime hacia problemas
         for item in self.q:
             self.model.appendRow([QStandardItem(str(x)) for x in item])

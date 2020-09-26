@@ -144,6 +144,7 @@ class Ui_VtnES(QWidget):
 
         self.radioButtonTodas.setChecked(True)
         self.radioButtonPedido.setChecked(True)
+        self.radioButtonMes.toggled.connect(self.fillTableView)
         self.radioButtonPedido.toggled.connect(self.fillTableView)
         self.radioButtonReferencia.toggled.connect(self.fillTableView)
         self.radioButtonProveedor.toggled.connect(self.fillTableView)
@@ -157,7 +158,7 @@ class Ui_VtnES(QWidget):
 
         self.btnAtras.clicked.connect(back)
 
-        # self.btnDelete.clicked.connect(self.deleteRowWi)
+        self.btnActualizarReferencia.clicked.connect(self.send)
 
 
     def fillTableView(self):
@@ -187,18 +188,21 @@ class Ui_VtnES(QWidget):
 
     def showTableW(self, VtnES):
         indexTableview = self.tableViewReferencia.currentIndex().row()
-        NEntrada = self.tableViewReferencia.model().index(indexTableview,0).data()
+        NEntrada = self.tableViewReferencia.model().index(indexTableview, 0).data()
         if self.tableViewReferencia.isVisible():
             self.radioButtonTodas.hide()
             self.radioButtonMes.hide()
             self.frame.hide()
             self.tableViewReferencia.hide()
-        VtnES.resize(1011,380)
-        self.query = session.query(Historial.clave_corta, Clave.descripcion, Clave.presentacion, Historial.cantidad, Historial.lote,
-                                   Historial.area).join(Clave).filter(and_(Historial.clave_corta == Clave.corta, Historial.Entrada_NoEntrada == NEntrada))
+            # self.btnBorrarItemView.hide()
+        VtnES.resize(1011, 380)
+        self.query = session.query(Historial.clave_corta, Clave.descripcion, Clave.presentacion, Historial.cantidad,
+                                   Historial.lote,
+                                   Historial.area, Historial.idFarmaco).join(Clave).filter(and_(Historial.clave_corta == Clave.corta, Historial.Entrada_NoEntrada == NEntrada))
 
-        self.tableWidgetReferencia.setColumnCount(7)
-        self.tableWidgetReferencia.setHorizontalHeaderLabels(['Eliminar','Clave', 'Descripción', 'Presentación', 'Cantidad', 'Lote', 'Resguardo'])
+        self.tableWidgetReferencia.setColumnCount(8)
+        self.tableWidgetReferencia.setHorizontalHeaderLabels(['Eliminar','Clave', 'Descripción', 'Presentación', 'Cantidad', 'Lote', 'Resguardo', 'id'])
+        self.tableWidgetReferencia.setColumnHidden(7, True)
         self.tableWidgetReferencia.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.tableWidgetReferencia.setRowCount(self.query.count())
         # print(self.query.count())
@@ -213,13 +217,16 @@ class Ui_VtnES(QWidget):
                 if col == 3:
                     self.createSpinBox(int(j), VtnES)
                     self.tableWidgetReferencia.setCellWidget(row, col + 1, self.spinBox)
-                if col != 0 and col != 3:
+                if col != 0 and col != 3 :
                     item = QTableWidgetItem(str(j))
                     if col == 1:
                         item.setToolTip(str(j))
                     if col == 2:
                         item.setToolTip(str(j))
                     self.tableWidgetReferencia.setItem(row, col + 1, item)
+        self.ids = list()
+        for i in range(self.tableWidgetReferencia.rowCount()):
+            self.ids.append(int(self.tableWidgetReferencia.item(i,7).text()))
         if not self.tableViewReferencia.isVisible():
             self.tableWidgetReferencia.show()
             self.btnAtras.show()
@@ -257,6 +264,10 @@ class Ui_VtnES(QWidget):
         self.spinBox.setMaximum(10000)
         self.spinBox.setObjectName("spinBox")
         self.spinBox.setValue(j)
+    #     self.spinBox.valueChanged.connect(self.addCant)
+    #
+    # def addCant(self, value):
+    #     print(value)
 
 
     def back(self, VtnES):
@@ -269,6 +280,30 @@ class Ui_VtnES(QWidget):
         self.radioButtonMes.show()
         self.frame.show()
         self.tableViewReferencia.show()
+
+    def send(self):
+        rows = self.tableWidgetReferencia.rowCount()
+        # print('==========================')
+        self.idsNow = list()
+        for i in range(rows):
+            self.idsNow.append(int(self.tableWidgetReferencia.item(i,7).text()))
+        self.idsRes =  list(set(self.ids) - set(self.idsNow))
+        for inx, value in enumerate(self.idsRes):
+            session.query(Historial).filter(Historial.idFarmaco == value).delete()
+            session.commit()
+        print(str(self.tableWidgetReferencia.rowCount()))
+        print(len(self.idsRes))
+        for i in range(self.tableWidgetReferencia.rowCount()):
+            value = int(self.tableWidgetReferencia.cellWidget(i, 4).value())
+            queryUpdate = session.query(Historial).get(self.idsNow[i])
+            queryUpdate.cantidad = value
+            session.commit()
+
+
+
+
+
+
 
     def retranslateUi(self, VtnES):
         _translate = QtCore.QCoreApplication.translate

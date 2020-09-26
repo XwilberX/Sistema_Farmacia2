@@ -515,7 +515,6 @@ class Ui_Main(object):
             headers = ['origen', 'clave_corta', 'area','cantidad','caducidad','lote','fechaIngreso']
             for i in range(rows):
                 for j in range(Column):
-                    print(j)
                     #Este If es por que no necesitamos las columnas de descripcion y presentacion en el ingreso al DATAFRAME ya que al ingresar el dataframe a la BD no estan esos campos
                     if j != 4 and j != 5 and j != 0 and j != 1:
                         self.Dp.loc[i,j] = self.TableEntra.item(i,j).text()
@@ -523,7 +522,6 @@ class Ui_Main(object):
             #print(Dp)
             #Ingreso DEl dataframe a la bd tipo ingreso pandas(NO SQLALCHEMY) a la tabla farmaco
             self.Dp.to_sql('farmaco', engine, index= False, if_exists="append")
-            print((self.Dp))
 
             #Tabla de entrada en la base de datos
             headers1 = ['NoReferencia', 'FeReferencia', 'FeEntrada','origen']
@@ -536,8 +534,7 @@ class Ui_Main(object):
             DpEntrada.loc[0,3] = str(fechaEntrada)
             DpEntrada.loc[0,4] = self.origen
             DpEntrada.columns =headers1
-            print(DpEntrada)
-            DpEntrada.to_sql('Entrada',engine, index= False, if_exists="append")
+            DpEntrada.to_sql('entrada',engine, index= False, if_exists="append")
             session.close()
 
             self.insertRecord()
@@ -589,9 +586,6 @@ class Ui_Main(object):
                 Desc = session.query(Clave.descripcion, Clave.presentacion).filter_by(corta=Vclave, tipo=0).one()
             if tipos == 1:
                 Desc = session.query(Clave.descripcion, Clave.presentacion).filter_by(corta=Vclave, tipo=1).one()
-
-            # print(Desc[0])
-            # print(Desc[1])
             self.TextDescriEntra.setText(Desc[0])
             self.TextPresentaEntra.setText(Desc[1])
         except:
@@ -616,7 +610,6 @@ class Ui_Main(object):
     def BusquedaTreal(self):
         list = []
         tipos = self.comboBoxEntradas.currentIndex()
-        print(tipos)
         if tipos == 0:
             clave123 = session.query(Clave.corta).filter_by(tipo=0).all()
         if tipos == 1:
@@ -733,6 +726,7 @@ class Ui_Main(object):
         self.Dp['Entrada_NoEntrada'] = session.query(func.max(Entrada.NoEntrada)).scalar()
         self.Dp.to_sql('historial', engine, index=False, if_exists="append")
         self.Dp.drop(columns=['Entrada_NoEntrada'])
+        session.commit()
         session.close()
 
     def openRef(self):
