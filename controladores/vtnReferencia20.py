@@ -136,32 +136,43 @@ class Ui_VtnES(QWidget):
         VtnES.setTabOrder(self.tableWidgetReferencia, self.btnActualizarReferencia)
         VtnES.setTabOrder(self.btnActualizarReferencia, self.btnPDF)
         VtnES.setTabOrder(self.radioButtonMes, self.radioButtonTodas)
+        # Ocultando cosas que tiene que ver cuando aun no se da doble click en el tableview
         self.btnAtras.hide()
         self.btnPDF.hide()
         self.btnActualizarReferencia.hide()
         self.tableWidgetReferencia.hide()
+        # indicamos que cuando de click en una celda se selecione toda su fila
         self.tableViewReferencia.setSelectionBehavior(QtWidgets.QTableView.SelectRows)
 
         self.radioButtonTodas.setChecked(True)
         self.radioButtonPedido.setChecked(True)
+        # enviamos un señal de cuando algun radiobutton este selecionado ala funcion fillTableView
         self.radioButtonMes.toggled.connect(self.fillTableView)
         self.radioButtonPedido.toggled.connect(self.fillTableView)
         self.radioButtonReferencia.toggled.connect(self.fillTableView)
         self.radioButtonProveedor.toggled.connect(self.fillTableView)
         self.fillTableView()
 
+        # guardando en una variable el un objeto de tipo widgget
         vtn = VtnES
 
+        # preparamos un variable que sirve para enviar argumentos a un funcion
         change = partial(self.showTableW, vtn)
-        back = partial(self.back, vtn)
+        back = partial(self.back, vtn).
+
+        # aqui en el evento dobleclick del tablewidget enviamos una de esas variables
         self.tableViewReferencia.doubleClicked.connect(change)
 
+        # si ya esta en la consulta de los farmacos y da click oculta y muestra
         self.btnAtras.clicked.connect(back)
 
+        # al dar click en actualizar si algo se a modificado o borrado
         self.btnActualizarReferencia.clicked.connect(self.send)
 
-
+# Funciones.
+    # Funcion de llenado de tableview y actualiza segun el tipo de busqueda
     def fillTableView(self):
+        # checando si el radiobuttontodas esta seleccionada
         if self.radioButtonTodas.isChecked() == True:
             self.query = pd.read_sql('SELECT * FROM entrada', engine)
             self.model = QStandardItemModel(self.query.shape[0], self.query.shape[1])
@@ -175,6 +186,7 @@ class Ui_VtnES(QWidget):
             self.buscador.setFilterCaseSensitivity(Qt.CaseInsensitive)
             self.buscador.setSourceModel(self.model)
 
+            # cambio el tipo de busqueda que indique el radio button
             if self.radioButtonPedido.isChecked():
                 self.buscador.setFilterKeyColumn(0)
                 self.lineEdit.textChanged.connect(self.buscador.setFilterRegExp)
@@ -186,16 +198,19 @@ class Ui_VtnES(QWidget):
                 self.lineEdit.textChanged.connect(self.buscador.setFilterRegExp)
             self.tableViewReferencia.setModel(self.buscador)
 
+    # funcion que entra cuando ya se dio dobleclick en el tableview y muestra el tablewidget
     def showTableW(self, VtnES):
         indexTableview = self.tableViewReferencia.currentIndex().row()
         NEntrada = self.tableViewReferencia.model().index(indexTableview, 0).data()
+        # ocultando algunos widgets
         if self.tableViewReferencia.isVisible():
             self.radioButtonTodas.hide()
             self.radioButtonMes.hide()
             self.frame.hide()
             self.tableViewReferencia.hide()
-            # self.btnBorrarItemView.hide()
+        # Cambiando tamaño de la ventana
         VtnES.resize(1011, 380)
+        # Consulta
         self.query = session.query(Historial.clave_corta, Clave.descripcion, Clave.presentacion, Historial.cantidad,
                                    Historial.lote,
                                    Historial.area, Historial.idFarmaco).join(Clave).filter(and_(Historial.clave_corta == Clave.corta, Historial.Entrada_NoEntrada == NEntrada))
@@ -205,15 +220,17 @@ class Ui_VtnES(QWidget):
         self.tableWidgetReferencia.setColumnHidden(7, True)
         self.tableWidgetReferencia.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.tableWidgetReferencia.setRowCount(self.query.count())
-        # print(self.query.count())
 
+        # ciclos para llenar la tabla segun lo que corresponda
         for row, i in enumerate(self.query):
             for col, j in enumerate(i):
+                #Agregando el boton para eliminar fila
                 if col == 0:
                     self.BtnDelete(VtnES)
                     self.tableWidgetReferencia.setCellWidget(row, col, self.btnDelete)
                     self.btnDelete.clicked.connect(self.deleteRowWi)
                     self.tableWidgetReferencia.setItem(row, col + 1, QTableWidgetItem(str(j)))
+                # Agregando un spinbox en la columna de cnatidades
                 if col == 3:
                     self.createSpinBox(int(j), VtnES)
                     self.tableWidgetReferencia.setCellWidget(row, col + 1, self.spinBox)
@@ -225,6 +242,7 @@ class Ui_VtnES(QWidget):
                         item.setToolTip(str(j))
                     self.tableWidgetReferencia.setItem(row, col + 1, item)
         self.ids = list()
+        # llenando lista con ids que entrar de la consulta
         for i in range(self.tableWidgetReferencia.rowCount()):
             self.ids.append(int(self.tableWidgetReferencia.item(i,7).text()))
         if not self.tableViewReferencia.isVisible():
@@ -234,12 +252,12 @@ class Ui_VtnES(QWidget):
             self.btnActualizarReferencia.show()
             self.tableWidgetReferencia.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
 
-
-
+    # funcion para eliminar una fila
     def deleteRowWi(self):
         rowC = self.tableWidgetReferencia.currentRow()
         self.tableWidgetReferencia.removeRow(rowC)
 
+    # funcion de creacion de boton delete y ser agregado con un widget
     def BtnDelete(self, VtnES):
         self.btnDelete = QtWidgets.QPushButton(VtnES)
         self.btnDelete.setGeometry(QtCore.QRect(320, 20, 21, 21))
@@ -257,6 +275,7 @@ class Ui_VtnES(QWidget):
                                      "}\n"
                                      "")
 
+    # funcion de creacion de un spinbox y ser agregado con un widget
     def createSpinBox(self, j, VtnES):
         self.spinBox = QtWidgets.QSpinBox(VtnES)
         self.spinBox.setGeometry(QtCore.QRect(1270, 70, 42, 22))
@@ -264,12 +283,8 @@ class Ui_VtnES(QWidget):
         self.spinBox.setMaximum(10000)
         self.spinBox.setObjectName("spinBox")
         self.spinBox.setValue(j)
-    #     self.spinBox.valueChanged.connect(self.addCant)
-    #
-    # def addCant(self, value):
-    #     print(value)
 
-
+    # culta los elementos que aparecen despues del dobleclick
     def back(self, VtnES):
         self.btnAtras.hide()
         self.btnPDF.hide()
@@ -283,27 +298,26 @@ class Ui_VtnES(QWidget):
 
     def send(self):
         rows = self.tableWidgetReferencia.rowCount()
-        # print('==========================')
         self.idsNow = list()
+        # llenando una lista con los ids de los farmacos que sigan estando en la tabla
         for i in range(rows):
             self.idsNow.append(int(self.tableWidgetReferencia.item(i,7).text()))
+        # lista que contiene los ids de los farmacos que se an eliminado en caso de no a ver eliminado nada
+        # estara vacio
         self.idsRes =  list(set(self.ids) - set(self.idsNow))
+        # for para eliminaciones si asi se a hecho, para tabla farmaco e historial de la base de datos
         for inx, value in enumerate(self.idsRes):
             session.query(Historial).filter(Historial.idFarmaco == value).delete()
+            session.query(Farmaco).filter(Farmaco.idFarmaco == value).delete()
             session.commit()
-        print(str(self.tableWidgetReferencia.rowCount()))
-        print(len(self.idsRes))
+        # for para actualizar cantidades de farmacos si es que se han y aun que no xd
         for i in range(self.tableWidgetReferencia.rowCount()):
             value = int(self.tableWidgetReferencia.cellWidget(i, 4).value())
             queryUpdate = session.query(Historial).get(self.idsNow[i])
+            queryUpdate2 = session.query(Farmaco).get(self.idsNow[i])
+            queryUpdate2.cantidad = value
             queryUpdate.cantidad = value
             session.commit()
-
-
-
-
-
-
 
     def retranslateUi(self, VtnES):
         _translate = QtCore.QCoreApplication.translate
