@@ -14,6 +14,7 @@ from PyQt5.QtWidgets import QHeaderView, QWidget, QTableWidgetItem
 from PyQt5.QtCore import Qt, QSortFilterProxyModel
 from sqlalchemy import create_engine
 from sqlalchemy.sql import func
+from sqlalchemy import and_
 from sqlalchemy.orm import sessionmaker, relationship
 import sys
 sys.path.append('../Modelo/')
@@ -24,6 +25,7 @@ from functools import partial
 engine = create_engine('mysql+pymysql://root:wil99@localhost/farmaciaDB')
 Session = sessionmaker(bind=engine)
 session = Session()
+
 
 class Ui_VtnES(QWidget):
     def setupUi(self, VtnES):
@@ -73,14 +75,6 @@ class Ui_VtnES(QWidget):
         self.lineEdit.setGeometry(QtCore.QRect(90, 30, 371, 21))
         self.lineEdit.setText("")
         self.lineEdit.setObjectName("lineEdit")
-        self.dateEdit = QtWidgets.QDateEdit(VtnES)
-        self.dateEdit.setGeometry(QtCore.QRect(1130, 70, 110, 22))
-        self.dateEdit.setObjectName("dateEdit")
-        self.spinBox = QtWidgets.QSpinBox(VtnES)
-        self.spinBox.setGeometry(QtCore.QRect(1270, 70, 42, 22))
-        self.spinBox.setMinimum(1)
-        self.spinBox.setMaximum(10000)
-        self.spinBox.setObjectName("spinBox")
         self.tableViewReferencia = QtWidgets.QTableView(VtnES)
         self.tableViewReferencia.setGeometry(QtCore.QRect(0, 0, 591, 551))
         self.tableViewReferencia.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
@@ -113,7 +107,18 @@ class Ui_VtnES(QWidget):
 "background:#dea806;\n"
 "}\n"
 "")
-        self.btnPDF.setText("")
+        self.btnAtras = QtWidgets.QPushButton(VtnES)
+        self.btnAtras.setGeometry(QtCore.QRect(860, 330, 131, 31))
+        self.btnAtras.setText("Regresar")
+        self.btnAtras.setStyleSheet("QPushButton{\n"
+"border-radius:15px;\n"
+"background:#ffc001;\n"
+"\n"
+"}\n"
+"QPushButton:hover{\n"
+"background:#dea806;\n"
+"}\n"
+"")
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("../imagenes/pdf.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.btnPDF.setIcon(icon)
@@ -129,10 +134,8 @@ class Ui_VtnES(QWidget):
         VtnES.setTabOrder(self.tableViewReferencia, self.tableWidgetReferencia)
         VtnES.setTabOrder(self.tableWidgetReferencia, self.btnActualizarReferencia)
         VtnES.setTabOrder(self.btnActualizarReferencia, self.btnPDF)
-        VtnES.setTabOrder(self.btnPDF, self.spinBox)
-        VtnES.setTabOrder(self.spinBox, self.dateEdit)
-        VtnES.setTabOrder(self.dateEdit, self.radioButtonMes)
         VtnES.setTabOrder(self.radioButtonMes, self.radioButtonTodas)
+        self.btnAtras.hide()
         self.btnPDF.hide()
         self.btnActualizarReferencia.hide()
         self.tableWidgetReferencia.hide()
@@ -180,24 +183,65 @@ class Ui_VtnES(QWidget):
 
     def showTableW(self, VtnES):
         indexTableview = self.tableViewReferencia.currentIndex().row()
-        NReferencia = self.tableViewReferencia.model().index(indexTableview,0).data()
+        NEntrada = self.tableViewReferencia.model().index(indexTableview,0).data()
         if self.tableViewReferencia.isVisible():
             self.radioButtonTodas.hide()
             self.radioButtonMes.hide()
             self.frame.hide()
             self.tableViewReferencia.hide()
-        VtnES.resize(900,500)
-        self.query = pd.read_sql('SELECT * FROM historial WHERE Entrada_NoEntrada = %s' %NReferencia, engine)
+        VtnES.resize(1011,380)
+        self.query = session.query(Historial.clave_corta, Clave.descripcion, Clave.presentacion, Historial.cantidad, Historial.lote,
+                                   Historial.area).join(Clave).filter(and_(Historial.clave_corta == Clave.corta, Historial.Entrada_NoEntrada == NEntrada))
 
-        for i in range(self.query.shape[0]):
-            for j in range(self.query.shape[1]):
-                val = QStandardItemModel(str(self.query.values[i][j]))
-                print(val)
-                # x = str(self.query.iloc[i,j])
-                # self.tableWidgetReferencia.setItem(i , j, QTableWidgetItem(x))
+        self.tableWidgetReferencia.setColumnCount(7)
+        self.tableWidgetReferencia.setHorizontalHeaderLabels(['Eliminar','Clave', 'Descripción', 'Presentación', 'Cantidad', 'Lote', 'Resguardo'])
+        self.tableWidgetReferencia.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.tableWidgetReferencia.setRowCount(self.query.count())
+        # print(self.query.count())
 
-        self.tableWidgetReferencia.show()
+        for row, i in enumerate(self.query):
+            for col, j in enumerate(i):
+                if col == 0:
+                    self.BtnDelete(VtnES)
+                    self.tableWidgetReferencia.setCellWidget(row, col, self.btnDelete)
+                    self.tableWidgetReferencia.setItem(row, col + 1, QTableWidgetItem(str(j)))
+                if col == 3:
+                    self.createSpinBox(int(j), VtnES)
+                    self.tableWidgetReferencia.setCellWidget(row, col + 1, self.spinBox)
+                if col != 0 and col != 3:
+                    self.tableWidgetReferencia.setItem(row, col + 1, QTableWidgetItem(str(j)))
+        if not self.tableViewReferencia.isVisible():
+            self.tableWidgetReferencia.show()
+            self.btnAtras.show()
+            self.btnPDF.show()
+            self.btnActualizarReferencia.show()
+            self.tableWidgetReferencia.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
 
+
+    def BtnDelete(self, VtnES):
+        self.btnDelete = QtWidgets.QPushButton(VtnES)
+        self.btnDelete.setGeometry(QtCore.QRect(320, 20, 21, 21))
+        ################################################################################ SE CREO MANUAL
+        IconoDelete = QtGui.QIcon()
+        IconoDelete.addPixmap(QtGui.QPixmap("../imagenes/ic_delete_128_28267.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.btnDelete.setIcon(IconoDelete)
+        self.btnDelete.setStyleSheet("QPushButton{\n"
+                                     "border-radius:15px;\n"
+                                     "background:#fefefe;\n"
+                                     "\n"
+                                     "}\n"
+                                     "QPushButton:hover{\n"
+                                     "background:#dea806;\n"
+                                     "}\n"
+                                     "")
+
+    def createSpinBox(self, j, VtnES):
+        self.spinBox = QtWidgets.QSpinBox(VtnES)
+        self.spinBox.setGeometry(QtCore.QRect(1270, 70, 42, 22))
+        self.spinBox.setMinimum(1)
+        self.spinBox.setMaximum(10000)
+        self.spinBox.setObjectName("spinBox")
+        self.spinBox.setValue(j)
 
 
     def retranslateUi(self, VtnES):
