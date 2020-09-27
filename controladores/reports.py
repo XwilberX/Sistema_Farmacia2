@@ -96,25 +96,29 @@ def create(*args):
     footerstyle = ParagraphStyle(name='MyDoctorHeader', fontName='Vera',alignment=TA_CENTER ,fontSize=10, spaceAfter=4)
 
     now = datetime.now()
-    outfilename = 'ReporteSal-{0}-{1}-{2}-{3}-{4}.pdf'.format(now.year, now.month, now.day, now.hour, now.second)
+    if args[6] == 0:
+        outfilename = 'ReporteEntra-{0}-{1}-{2}-{3}-{4}.pdf'.format(now.year, now.month, now.day, now.hour, now.second)
+    if args[6] == 1:
+        outfilename = 'ReporteSal-{0}-{1}-{2}-{3}-{4}.pdf'.format(now.year, now.month, now.day, now.hour, now.second)
     outfilepath = os.path.join(os.path.expanduser("~"), "Documents/Reportes", outfilename)
 
     doc = BaseDocTemplate(outfilepath, pagesize=A4, rightMargin=20, leftMargin=20, topMargin=20, bottomMargin=60)
 
     frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height-2*cm, id='normal')
-    header_content = Paragraph("<b>Instituto de salud</b>" + "<br/>" + "<b>Salida de almacen</b>" , headstyle)
+    if args[6] == 0:
+        header_content = Paragraph("<b>Instituto de salud</b>" + "<br/>" + "<b>Entrada de almacen</b>", headstyle)
+    if args[6] == 1:
+        header_content = Paragraph("<b>Instituto de salud</b>" + "<br/>" + "<b>Salida de almacen</b>", headstyle)
 
     template = PageTemplate(id='test', frames=frame, onPage=partial(header, content=header_content))
     doc.addPageTemplates([template])
 
-    colOne = [[Paragraph("<b>Salida de almacén con destino a:</b> " + args[1], style=prostyle)],
-                      [Paragraph("<b>Numero de salida:</b> "+args[6], style=prostyle)],
-                      [Paragraph("<b>Numero pedido:</b> " + str(args[2]), style=prostyle)]
-                    ]
-
-    colThree = [[Paragraph("<b>Fecha de solicitud:</b> " + args[3], style=prostyle2)],
-                [Paragraph("<b>Fecha de surtimiento:</b> " + args[4], style=prostyle2)]
-                ]
+    if args[6] == 0:
+        colOne = [[Paragraph("<b>Entrada almacen del proveedor:</b> " + args[1], style=prostyle)], [Paragraph("<b>Numero entrada:</b> " + str(args[2]), style=prostyle)]]
+        colThree = [[Paragraph("<b>Fecha de referencia:</b> " + args[3], style=prostyle2)], [Paragraph("<b>Fecha de entrada:</b> " + args[4], style=prostyle2)]]
+    if args[6] == 1:
+        colOne = [[Paragraph("<b>Salida de almacén con destino a:</b> " + args[1], style=prostyle)], [Paragraph("<b>Numero salida:</b> " + str(args[2]), style=prostyle)]]
+        colThree = [[Paragraph("<b>Fecha de solicitud:</b> " + args[3], style=prostyle2)], [Paragraph("<b>Fecha de surtimiento:</b> " + args[4], style=prostyle2)]]
 
     tblrow2 = Table([[colOne, colThree]])
     tblrow2.setStyle(
@@ -125,32 +129,31 @@ def create(*args):
             ('SPAN', (0,3), (1,3)),
         ]))
 
-
     text = []
     text.append(tblrow2)
     text.append(Spacer(1, 10))
-    if not len(args[5]) > 0:
-        text.append(Paragraph("<b>Observaciones:</b> No hay observaciones", style=prostyleJ))
-    else:
-        text.append(Paragraph("<b>Observaciones:</b> " + args[5], style=prostyleJ))
+    if not args[6] == 0:
+        if not len(args[5]) > 0:
+            text.append(Paragraph("<b>Observaciones:</b> No hay observaciones", style=prostyleJ))
+        else:
+            text.append(Paragraph("<b>Observaciones:</b> " + args[5], style=prostyleJ))
 
     data = args[0]
     newdata = []
     temp = []
     for i in range(len(data)):
         for j in range(len(data[1])):
-            if j == 2:
+            if j == 1:
                 if i > 0:
                     desc = data[i][j]
                     temp.append(Paragraph(desc[:50] + "...", styleT))
                 else:
                     temp.append(Paragraph(data[i][j], styleT))
-            if j != 2:
+            if j != 1:
                 t = Paragraph(data[i][j], styleT)
                 temp.append(t)
         newdata.append(temp)
         temp = []
-
 
     tableData = Table(newdata, repeatRows=1)
     tableData.setStyle(
@@ -176,9 +179,6 @@ def create(*args):
         ])
     )
 
-
     text.append(TopPadder(tblrow))
-
     doc.build(text, canvasmaker=NumberedCanvas)
-
     os.startfile(outfilepath)

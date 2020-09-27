@@ -21,6 +21,7 @@ sys.path.append('../Modelo/')
 from farm import Clave, Farmaco, Entrada, Historial
 import pandas as pd
 from functools import partial
+from reports import Report as reportes
 
 engine = create_engine('mysql+pymysql://root:wil99@localhost/farmaciaDB')
 Session = sessionmaker(bind=engine)
@@ -158,7 +159,7 @@ class Ui_VtnES(QWidget):
 
         # preparamos un variable que sirve para enviar argumentos a un funcion
         change = partial(self.showTableW, vtn)
-        back = partial(self.back, vtn).
+        back = partial(self.back, vtn)
 
         # aqui en el evento dobleclick del tablewidget enviamos una de esas variables
         self.tableViewReferencia.doubleClicked.connect(change)
@@ -168,6 +169,8 @@ class Ui_VtnES(QWidget):
 
         # al dar click en actualizar si algo se a modificado o borrado
         self.btnActualizarReferencia.clicked.connect(self.send)
+
+        self.btnPDF.clicked.connect(self.sendReport)
 
 # Funciones.
     # Funcion de llenado de tableview y actualiza segun el tipo de busqueda
@@ -201,7 +204,10 @@ class Ui_VtnES(QWidget):
     # funcion que entra cuando ya se dio dobleclick en el tableview y muestra el tablewidget
     def showTableW(self, VtnES):
         indexTableview = self.tableViewReferencia.currentIndex().row()
-        NEntrada = self.tableViewReferencia.model().index(indexTableview, 0).data()
+        self.NEntrada = self.tableViewReferencia.model().index(indexTableview, 0).data()
+        self.proveedor = self.tableViewReferencia.model().index(indexTableview, 4).data()
+        self.fechaR = self.tableViewReferencia.model().index(indexTableview, 2).data()
+        self.fechaE = self.tableViewReferencia.model().index(indexTableview, 3).data()
         # ocultando algunos widgets
         if self.tableViewReferencia.isVisible():
             self.radioButtonTodas.hide()
@@ -213,7 +219,7 @@ class Ui_VtnES(QWidget):
         # Consulta
         self.query = session.query(Historial.clave_corta, Clave.descripcion, Clave.presentacion, Historial.cantidad,
                                    Historial.lote,
-                                   Historial.area, Historial.idFarmaco).join(Clave).filter(and_(Historial.clave_corta == Clave.corta, Historial.Entrada_NoEntrada == NEntrada))
+                                   Historial.area, Historial.idFarmaco).join(Clave).filter(and_(Historial.clave_corta == Clave.corta, Historial.Entrada_NoEntrada == self.NEntrada))
 
         self.tableWidgetReferencia.setColumnCount(8)
         self.tableWidgetReferencia.setHorizontalHeaderLabels(['Eliminar','Clave', 'Descripción', 'Presentación', 'Cantidad', 'Lote', 'Resguardo', 'id'])
@@ -318,6 +324,30 @@ class Ui_VtnES(QWidget):
             queryUpdate2.cantidad = value
             queryUpdate.cantidad = value
             session.commit()
+
+    def sendReport(self):
+        datarow = ['Clave', 'Descripción', 'Presentación', 'Cantidad', 'Lote', 'Resguardo']
+        dataall = list()
+        dataall.append(datarow)
+
+
+        for row in range(self.tableWidgetReferencia.rowCount()):
+            datarow = []
+            for column in range(self.tableWidgetReferencia.columnCount()):
+                if column != 0 and column != 4 and column < 7:
+                    datarow.append(str(self.tableWidgetReferencia.item(row, column).text()))
+                if column == 4:
+                    datarow.append(str(self.tableWidgetReferencia.cellWidget(row, column).value()))
+            dataall.append(datarow)
+
+        observacion = ''
+
+        tipo = 0
+
+        reportes(dataall, self.proveedor, self.NEntrada, self.fechaR, self.fechaE, observacion, tipo)
+
+
+
 
     def retranslateUi(self, VtnES):
         _translate = QtCore.QCoreApplication.translate

@@ -264,7 +264,7 @@ class SubWindow(QWidget):
     def bdFinalizarSalida(self):
         try:
             DfSalida = pd.DataFrame()
-            self.DfReport = pd.DataFrame()
+
             #el func.max es la funcion SELECT MAX de sql (obtiene el dato con mayor valor)
             Npedido = session.query(func.max(Salida.numero_pedido)).scalar()
             if Npedido is None:
@@ -277,17 +277,13 @@ class SubWindow(QWidget):
             for i in range(rows):
                 for j in range(Column + 3):
                     # Este If es por que no necesitamos las columnas de descripcion y presentacion en el ingreso al DATAFRAME ya que al ingresar el dataframe a la BD no estan esos campos
-                    
-                    if j != 0 and j < Column and j!=1:
-                        self.DfReport.loc[i, j] = self.TableSalida.item(i, j).text()
+
                     if j != 3 and j != 4 and j != 0 and j != 9 and j != 10 and j != 11 and j!=1:
                         DfSalida.loc[i, j] = self.TableSalida.item(i, j).text()
                     if j == 9:
                         DfSalida.loc[i, j] = self.LineAreaSalida.text()
-                        self.DfReport.loc[i, j] = self.LineAreaSalida.text()
                     if j == 10:
                         DfSalida.loc[i, j] = self.listaLote[i]
-                        self.DfReport.loc[i, j] = self.listaLote[i]
                     if j == 11:
                         DfSalida.loc[i, j] = self.Npedidoup
 
@@ -295,12 +291,10 @@ class SubWindow(QWidget):
             #print(DfSalida)
             #Ingreso DEl dataframe a la bd tipo ingreso pandas(NO SQLALCHEMY)
             DfSalida.to_sql('salida', engine, index= False, if_exists="append")
-            #borramos los datos de la tablaWidget
-            for i in reversed(range(self.TableSalida.rowCount())):
-                self.TableSalida.removeRow(i)
+
             #elimina stock de la tabla farmaco
             #ciclo para que vaya ejecutando el update de cada uno de ellos 
-                self.listaCantidad
+            self.listaCantidad
             rango = len(self.listaId)
             for i in range(rango):
                 idd = self.listaId[i]
@@ -330,7 +324,7 @@ class SubWindow(QWidget):
             #limpiamos la lista para que no contenga un ID y acepte todos nuevamente
             self.listaId[:] = [] 
             self.listaCantidad[:] = [] 
-            self.listaLote[:] =[]
+            # self.listaLote[:] =[]
             self.TableViewInsertSalida()
 
             
@@ -348,12 +342,21 @@ class SubWindow(QWidget):
 
     def EnvioReport(self):
         # mandando datos para generar reportes
-        # cambiando nombre de las columnas para el reporte solamente
-        list_names = ['Id', 'Clave', 'Desc.' ,'Present.', 'Cantidad', 'Caducidad', 'FechaP', 'Fechap', 'Destino', 'Lote']
-        self.DfReport.columns = list_names
-        #pasando de dataframe a una lista de listas
-        LisReport = [self.DfReport.columns[:, ].values.astype(str).tolist()] + self.DfReport.values.tolist()
-        #print(len(LisReport[0]))
+        datarow = ['Clave', 'Descripción', 'Presentación', 'Cantidad', 'Caducidad', 'Lote']
+        dataall = list()
+        dataall.append(datarow)
+        for row in range(self.TableSalida.rowCount()):
+            datarow = []
+            for column in range(self.TableSalida.columnCount()):
+                if column > 1 and column < 7:
+                    datarow.append(str(self.TableSalida.item(row, column).text()))
+            datarow.append(self.listaLote[row])
+            dataall.append(datarow)
+
+        # borramos los datos de la tablaWidget
+        for i in reversed(range(self.TableSalida.rowCount())):
+            self.TableSalida.removeRow(i)
+
 
         Date = self.DateFechaESalida.date()
         FechaEsalida = Date.toPyDate()
@@ -361,8 +364,10 @@ class SubWindow(QWidget):
         FechaPsalida = Date.toPyDate()
         idSalidaU = int(self.LineControlSalida.text())-1
 
-        reportes(LisReport, self.LineAreaSalida.text(), self.Npedidoup, str(FechaEsalida),
-                                     str(FechaPsalida), self.vObserva,str(idSalidaU))
+        tipo = 1
+
+        reportes(dataall, self.LineAreaSalida.text(), self.Npedidoup, str(FechaEsalida),
+                                     str(FechaPsalida), self.vObserva, tipo)
     def observaciones(self):
         self.vObserva = self.uiObser.textObservaciones.toPlainText()
         self.EnvioReport()
