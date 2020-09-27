@@ -98,6 +98,8 @@ Base.metadata.create_all(engine)
 # # Pandas
 q = session.query(Clave).count()
 if q  <= 0:
+    session.add(Entrada(NoReferencia='001', FeReferencia='2021-07-20', FeEntrada='2021-07-20', origen='Carlos'))
+    session.commit()
     medicamentos_df = pd.read_csv('medicamentos.csv', encoding = 'utf-8')
     frame_Medi = pd.DataFrame(medicamentos_df)
     frame_Medi.to_sql(con=engine, name='clave', if_exists='append', index=False)
@@ -105,6 +107,10 @@ if q  <= 0:
     farmacos_df = pd.read_csv('farmacos.csv', encoding = 'utf-8')
     frame_Farma = pd.DataFrame(farmacos_df)
     frame_Farma.to_sql(con=engine, name='farmaco', if_exists='append', index=False)
+
+    historia_df = pd.read_csv('historial.csv', encoding = 'utf-8')
+    frame_Hist = pd.DataFrame(historia_df)
+    frame_Hist.to_sql(con=engine, name='historial', if_exists='append', index=False)
 else:
     print('ya hay datos')
 

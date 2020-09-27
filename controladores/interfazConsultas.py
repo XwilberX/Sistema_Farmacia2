@@ -380,10 +380,6 @@ class SubWindow(QWidget):
 
 
 
-                
-
-
-
     def fillTableQuery(self,Query):
         if self.TipoConsulta == 0 or self.TipoConsulta == 1:
                 rows = 0
