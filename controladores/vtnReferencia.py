@@ -227,8 +227,9 @@ class Ui_VtnES(object):
             bdFilaEntrada2 = session.query(Historial.idFarmaco).filter(Historial.Entrada_NoEntrada == numeroE).all()
             #eliminamos los ID que tenian el mismo numero de entrada (se eliminan de farmaco) bdFilaEntrada2 con tiene esos id , cuando se agrega un item tinen el mismo ID
             for a in bdFilaEntrada2:
-                print(a)
-                bdFilaEntrada4 = session.query(Farmaco).filter(Farmaco.idFarmaco == a).delete()
+                for i in a:
+                    print(i)
+                    bdFilaEntrada4 = session.query(Farmaco).filter(Farmaco.idFarmaco == i).delete()
             #se eliminar los datos que tienen el mismo numero de entrada de HISTORIAL
             bdFilaEntrada3 = session.query(Historial).filter(Historial.Entrada_NoEntrada == numeroE).delete()
             #aqui se elimina lo de bdFilaEntrada

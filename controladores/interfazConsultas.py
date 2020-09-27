@@ -224,7 +224,7 @@ class SubWindow(QWidget):
         self.DateFechaPrimeroConsulta.setDate(Fecha2)
 
         
-
+        self.exclusiveXtipo=False
         
 
         self.consultar()
@@ -273,9 +273,9 @@ class SubWindow(QWidget):
                 
                 
         if self.TipoConsulta == 1:
-                Query = session.query(Historial.idFarmaco,Historial.clave_corta,Clave.descripcion,Clave.presentacion,Historial.cantidad,Historial.caducidad,Historial.area,Historial.origen,Historial.fechaIngreso,Historial.lote).join(Clave).filter(Historial.fechaIngreso.between(vFecha,VFecha2)).all()
-                self.TableConsulta.setColumnCount(10)
-                self.TableConsulta.setHorizontalHeaderLabels(['id Farmaco','Clave','Descripcion','Presentacion','Cantidad','Caducidad','Area almacen','Origen','Fecha ingreso','Lote'])
+                Query = session.query(Historial.idFarmaco,Historial.clave_corta,Clave.descripcion,Clave.presentacion,Historial.cantidad,Historial.caducidad,Historial.area,Historial.origen,Historial.fechaIngreso,Historial.lote,Historial.Entrada_NoEntrada).join(Clave).filter(Historial.fechaIngreso.between(vFecha,VFecha2)).all()
+                self.TableConsulta.setColumnCount(11)
+                self.TableConsulta.setHorizontalHeaderLabels(['id Farmaco','Clave','Descripcion','Presentacion','Cantidad','Caducidad','Area almacen','Origen','Fecha ingreso','Lote','N Entrada'])
                 self.filas = len(Query)
                 self.TableConsulta.setRowCount(self.filas)
                 self.fillTableQuery(Query)
@@ -310,9 +310,9 @@ class SubWindow(QWidget):
                 self.TableConsulta.setRowCount(self.filas)
                 self.fillTableQuery(Query)
         if self.TipoConsulta == 1:
-                Query = session.query(Historial.idFarmaco,Historial.clave_corta,Clave.descripcion,Clave.presentacion,Historial.cantidad,Historial.caducidad,Historial.fechaIngreso,Historial.area,Historial.origen,Historial.lote).join(Clave).filter(Clave.tipo == self.Por_Tipo).all()
-                self.TableConsulta.setColumnCount(10)
-                self.TableConsulta.setHorizontalHeaderLabels(['Id ','Clave','Descripcion','Presentacion','Cantidad','Caducidad','Fecha Ingreso','Area Almacen','Origen','Lote'])
+                Query = session.query(Historial.idFarmaco,Historial.clave_corta,Clave.descripcion,Clave.presentacion,Historial.cantidad,Historial.caducidad,Historial.fechaIngreso,Historial.area,Historial.origen,Historial.lote,Historial.Entrada_NoEntrada).join(Clave).filter(Clave.tipo == self.Por_Tipo).all()
+                self.TableConsulta.setColumnCount(11)
+                self.TableConsulta.setHorizontalHeaderLabels(['Id ','Clave','Descripcion','Presentacion','Cantidad','Caducidad','Fecha Ingreso','Area Almacen','Origen','Lote','N Entrada'])
                 self.filas = len(Query)
                 self.TableConsulta.setRowCount(self.filas)
                 self.fillTableQuery(Query)
@@ -321,19 +321,22 @@ class SubWindow(QWidget):
                 #hay algo rato en tipo
                 Query = session.query(Salida.idSalida,Salida.clave_corta,Clave.descripcion,Clave.presentacion,Salida.cantidadSal,Salida.Caducidad,Salida.fechaEntrega,Salida.area,Salida.lote).join(Clave).filter(Clave.tipo == self.Por_Tipo).all()
                 Query1 = session.query(Historial.idFarmaco,Historial.clave_corta,Clave.descripcion,Clave.presentacion,Historial.cantidad,Historial.caducidad,Historial.fechaIngreso,Historial.origen,Historial.lote).join(Clave).filter(Clave.tipo == self.Por_Tipo).all()
-                self.TableConsulta.setColumnCount(10)
-                self.TableConsulta.setHorizontalHeaderLabels(['Id','Clave','Descripcion','Presentacion','Cantidad','Caducidad','Fecha Salida/Entrada','Destino/Origen','Lote','Tipo'])
+                self.TableConsulta.setColumnCount(11)
+                self.TableConsulta.setHorizontalHeaderLabels(['Id','Clave','Descripcion','Presentacion','Cantidad','Caducidad','Fecha Salida/Entrada','Destino/Origen','Lote','Tipo','Entrada o Salida'])
                 self.filas = len(Query) + len(Query1)
                 self.TableConsulta.setRowCount(self.filas)
+                self.exclusiveXtipo=True
                 self.maxCol = 9
                 self.rows = 0
                 if self.Por_Tipo == 0:
                         self.SoE = 'Medicina'    
                 else:
-                        self.SoE = 'Ma-Curacion'          
+                        self.SoE = 'Ma-Curacion'
+                self.se = 'Salida'          
                 self.fillTableQuery(Query)
                 Query = session.query(Historial.idFarmaco,Historial.clave_corta,Clave.descripcion,Clave.presentacion,Historial.cantidad,Historial.caducidad,Historial.fechaIngreso,Historial.origen,Historial.lote).join(Clave).filter(Clave.tipo == self.Por_Tipo).all()
-                
+                self.exclusiveXtipo=True
+                self.se = 'Entrada'
                 self.fillTableQuery(Query)
 
     def consultaxExistencia(self):
@@ -408,9 +411,12 @@ class SubWindow(QWidget):
                                 if col == self.maxCol:
                                         #ponemos si la consulta proviene de Salidas o de Entradas(Historial) y colocamos el resultado en la celda 0,7
                                         self.TableConsulta.setItem(self.rows,self.maxCol,QTableWidgetItem(self.SoE))
+                                if self.exclusiveXtipo==True:
+                                        self.TableConsulta.setItem(self.rows,self.maxCol+1,QTableWidgetItem(self.se))
                         col = 0
                         self.rows = self.rows + 1    
-                self.lineFilasConsulta.setText(str(self.filas))   
+                self.lineFilasConsulta.setText(str(self.filas)) 
+                self.exclusiveXtipo=False
 
 
 

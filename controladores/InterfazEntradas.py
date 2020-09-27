@@ -605,9 +605,17 @@ class Ui_Main(object):
 
     #consulta para el Numero de control
     def control(self):
-        self.Ncontrol = session.query(func.max(Entrada.NoEntrada)).scalar()
-        self.conta = 1
-        self.LineControlEntra.setText(str(self.Ncontrol + self.conta))
+        #self.Ncontrol = session.query(func.max(Entrada.NoEntrada)).scalar()
+        #self.conta = 1
+        self.Ncontrol = session.execute("""
+    SELECT AUTO_INCREMENT
+    FROM information_schema.TABLES
+    WHERE TABLE_SCHEMA = "farmaciadb"
+    AND TABLE_NAME = "entrada"
+""").scalar()
+ 
+
+        self.LineControlEntra.setText(str(self.Ncontrol))
         session.close()
 
 

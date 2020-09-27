@@ -162,7 +162,7 @@ class SubWindow(QWidget):
 "")
         self.btnTotalEntradasEntra.setText("")
         icon2 = QtGui.QIcon()
-        icon2.addPixmap(QtGui.QPixmap("../../Sistema Farmacia/imagenes/papeleo.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon2.addPixmap(QtGui.QPixmap("../imagenes/papeleo.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.btnTotalEntradasEntra.setIcon(icon2)
         self.btnTotalEntradasEntra.setIconSize(QtCore.QSize(30, 30))
         self.btnTotalEntradasEntra.setObjectName("btnTotalEntradasEntra")
@@ -473,11 +473,17 @@ class SubWindow(QWidget):
 
     #funcion con la cual controlamos el control de salida
     def NcontrolS(self):  
-        self.Ncontrol = session.query(func.max(Salida.numero_pedido)).scalar()
-        if self.Ncontrol  is None:
-            self.Ncontrol = 0
+        #self.Ncontrol = session.query(func.max(Salida.numero_pedido)).scalar()
+        self.Ncontrol = session.execute("""
+    SELECT AUTO_INCREMENT
+    FROM information_schema.TABLES
+    WHERE TABLE_SCHEMA = "farmaciadb"
+    AND TABLE_NAME = "salida"
+""").scalar()
+        # if self.Ncontrol  is None:
+        #     self.Ncontrol = 0
 
-        self.LineControlSalida.setText(str(self.Ncontrol + 1))
+        self.LineControlSalida.setText(str(self.Ncontrol))
         session.close()
     #Elimina filas den tableWidget y resta a al control de salida
     def contadorSalida(self):
