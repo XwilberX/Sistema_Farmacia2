@@ -7,6 +7,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy.sql import func
 from vtnCantidad import Ui_vtnCantidad
+from vtnReferencia import Ui_VtnES
 from vtnObservaciones import Ui_Observaciones
 import sys
 sys.path.append('../Modelo/')
@@ -258,6 +259,9 @@ class SubWindow(QWidget):
         self.listaCantidad=[]
         self.listaLote=[]
 
+        self.btnTotalEntradasEntra.clicked.connect(self.openRef)
+        self.EnOsal=0
+
 
 
     #mete los datos de la tabla a la base de datos
@@ -273,14 +277,14 @@ class SubWindow(QWidget):
             rows = self.TableSalida.rowCount()
             Column = self.TableSalida.columnCount()
             #TUVIMOS QUE ARREGLAR EL ORDEN DE LOS HEADERS PARA QUE JALE LA CONSULTA JUSTO CON LA TABLA DE BD Y EL DATAFRAME
-            headers = ['clave_corta', 'cantidadSal', 'Caducidad','FechaPedido','fechaEntrega','area','lote','numero_pedido']
+            headers = ['clave_corta', 'cantidadSal', 'Caducidad','FechaPedido','fechaEntrega','area','lote','numero_pedido','idFarmaco']
             for i in range(rows):
-                for j in range(Column + 3):
+                for j in range(Column + 4):
                     # Este If es por que no necesitamos las columnas de descripcion y presentacion en el ingreso al DATAFRAME ya que al ingresar el dataframe a la BD no estan esos campos
                     
                     if j != 0 and j < Column and j!=1:
                         self.DfReport.loc[i, j] = self.TableSalida.item(i, j).text()
-                    if j != 3 and j != 4 and j != 0 and j != 9 and j != 10 and j != 11 and j!=1:
+                    if j != 3 and j != 4 and j != 0 and j != 9 and j != 10 and j != 11 and j!=1 and j!=12:
                         DfSalida.loc[i, j] = self.TableSalida.item(i, j).text()
                     if j == 9:
                         DfSalida.loc[i, j] = self.LineAreaSalida.text()
@@ -290,6 +294,8 @@ class SubWindow(QWidget):
                         self.DfReport.loc[i, j] = self.listaLote[i]
                     if j == 11:
                         DfSalida.loc[i, j] = self.Npedidoup
+                    if j == 12:
+                        DfSalida.loc[i, j] = self.listaId[i]
 
             DfSalida.columns = headers
             #print(DfSalida)
@@ -547,6 +553,15 @@ class SubWindow(QWidget):
         #cerrar session y automaticamente se abre otra.
         session.close()
 
+
+    def openRef(self):
+        self.vtnRef = QtWidgets.QWidget()
+        self.uiRef = Ui_VtnES(self.EnOsal)
+        self.uiRef.setupUi(self.vtnRef)
+        self.vtnRef.show()     
+
+
+
     def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
         #self.setWindowTitle(_translate("InterFazSalida", "Salidas"))
@@ -574,10 +589,10 @@ class SubWindow(QWidget):
 
         self.btnTotalEntradasEntra.setShortcut(_translate("InterFazSalida", "Ctrl+E"))
         self.label_16.setText(_translate("InterFazSalida", "N.Salida:"))
-        self.label_17.setText(_translate("InterFazSalida", "Fecha Pedido:"))
+        self.label_17.setText(_translate("InterFazSalida", "Fecha Entrega:"))
         self.DateFechaPSalida.setDisplayFormat(_translate("InterFazSalida", "dd/MM/yyyy"))
         self.label_18.setText(_translate("InterFazSalida", "Destino:"))
-        self.label_19.setText(_translate("InterFazSalida", "Fecha Entrega:"))
+        self.label_19.setText(_translate("InterFazSalida", "Fecha Pedido:"))
         self.DateFechaESalida.setDisplayFormat(_translate("InterFazSalida", "dd/MM/yyyy"))
         self.comboboxSalida.setItemText(0, _translate("InterFazSalida", "Medicamento"))
         self.comboboxSalida.setItemText(1, _translate("InterFazSalida", "M.Curacion"))

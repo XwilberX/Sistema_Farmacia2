@@ -432,8 +432,6 @@ class Ui_Main(object):
         self.uiConsulta.createSubWindow()
         self.mdiArea.addSubWindow(self.uiConsulta,Qt.WindowTitleHint)
 
-        
-
         self.radioButton.setChecked(True)
         
 
@@ -479,6 +477,7 @@ class Ui_Main(object):
 
         self.comboBoxEntradas.currentIndexChanged.connect(self.BusquedaTreal)
         self.btnTotalEntradasEntra.clicked.connect(self.openRef)
+        self.EnOsal=1
         
 
 #FUNCIONES
@@ -745,7 +744,7 @@ class Ui_Main(object):
 
     def openRef(self):
         self.vtnRef = QtWidgets.QWidget()
-        self.uiRef = Ui_VtnES()
+        self.uiRef = Ui_VtnES(self.EnOsal)
         self.uiRef.setupUi(self.vtnRef)
         self.vtnRef.show()
 

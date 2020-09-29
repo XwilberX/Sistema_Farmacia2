@@ -69,6 +69,7 @@ class Salida(Base):
     area = Column(String(50))
     lote = Column(String(30))
     numero_pedido = Column(Integer)
+    idFarmaco = Column(Integer)
 
 class Entrada(Base):
     __tablename__ = 'entrada'

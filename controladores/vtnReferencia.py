@@ -10,7 +10,7 @@ from sqlalchemy import extract
 from datetime import datetime
 import sys
 sys.path.append('../Modelo/')
-from farm import Clave, Farmaco, Entrada, Historial
+from farm import Clave, Farmaco, Entrada, Historial, Salida
 import pandas as pd
 from functools import partial
 
@@ -19,6 +19,9 @@ Session = sessionmaker(bind=engine)
 session = Session()
 
 class Ui_VtnES(object):
+    def __init__(self, EnOsal):
+        print('el mensaje es :' + str(EnOsal))
+        self.EnOsal = EnOsal
     def setupUi(self, VtnES):
         VtnES.setObjectName("VtnES")
         VtnES.resize(670, 635)
@@ -209,12 +212,20 @@ class Ui_VtnES(object):
         # al dar click en actualizar si algo se a modificado o borrado
         self.btnActualizarReferencia.clicked.connect(self.send)
 
+        if self.EnOsal == 0:
+            self.radioButtonProveedor.setText("Por Destino")
+            self.radioButtonPedido.setText("por N.salida")
+            self.radioButtonReferencia.hide()
+
 
     ######################
     def borrarEntrada(self):
         confirmacion = QtWidgets.QMessageBox()
         confirmacion.setIcon(QtWidgets.QMessageBox.Information)
-        confirmacion.setText("Esta seguro que desea eliminar esta entrada?")
+        if self.EnOsal == 1:
+            confirmacion.setText("Esta seguro que desea eliminar esta entrada?")
+        else:
+            confirmacion.setText("Esta seguro que desea eliminar esta salida?")
         confirmacion.setWindowTitle("Aviso")
         confirmacion.setStandardButtons(QtWidgets.QMessageBox.Yes| QtWidgets.QMessageBox.No)
         decision = confirmacion.exec()
@@ -222,19 +233,22 @@ class Ui_VtnES(object):
             filaAzul = self.tableViewReferencia.currentIndex().row()
             numeroE = int(self.tableViewReferencia.model().index(filaAzul,0).data())
             #obtenemos la entrada seleccionada y lo eliminamos
-            bdFilaEntrada = session.query(Entrada).get(numeroE)
-            #obtenemos el ID de historial de todas aquellos que tengan el mismo numero de entrada
-            bdFilaEntrada2 = session.query(Historial.idFarmaco).filter(Historial.Entrada_NoEntrada == numeroE).all()
-            #eliminamos los ID que tenian el mismo numero de entrada (se eliminan de farmaco) bdFilaEntrada2 con tiene esos id , cuando se agrega un item tinen el mismo ID
-            for a in bdFilaEntrada2:
-                for i in a:
-                    print(i)
-                    bdFilaEntrada4 = session.query(Farmaco).filter(Farmaco.idFarmaco == i).delete()
-            #se eliminar los datos que tienen el mismo numero de entrada de HISTORIAL
-            bdFilaEntrada3 = session.query(Historial).filter(Historial.Entrada_NoEntrada == numeroE).delete()
-            #aqui se elimina lo de bdFilaEntrada
-            session.delete(bdFilaEntrada)
-            session.commit()
+            if self.EnOsal == 1:
+                bdFilaEntrada = session.query(Entrada).get(numeroE)
+                #obtenemos el ID de historial de todas aquellos que tengan el mismo numero de entrada o salida
+                bdFilaEntrada2 = session.query(Historial.idFarmaco).filter(Historial.Entrada_NoEntrada == numeroE).all()
+                #eliminamos los ID que tenian el mismo numero de entrada (se eliminan de farmaco) bdFilaEntrada2 con tiene esos id , cuando se agrega un item tinen el mismo ID
+                for a in bdFilaEntrada2:
+                    for i in a:
+                        print(i)
+                        bdFilaEntrada4 = session.query(Farmaco).filter(Farmaco.idFarmaco == i).delete()
+                #se eliminar los datos que tienen el mismo numero de entrada de HISTORIAL
+                bdFilaEntrada3 = session.query(Historial).filter(Historial.Entrada_NoEntrada == numeroE).delete()
+                #aqui se elimina lo de bdFilaEntrada
+                session.delete(bdFilaEntrada)
+                session.commit()
+            else:
+                print('programar la salida')
 
 
         
@@ -244,36 +258,62 @@ class Ui_VtnES(object):
         # checando si el radiobuttontodas esta seleccionada
         if self.radioButtonTodas.isChecked() == True:
             #self.query = pd.read_sql('SELECT * FROM entrada', engine)
-            self.query = session.query(Entrada.NoEntrada,Entrada.NoReferencia,Entrada.FeReferencia,Entrada.FeEntrada,Entrada.origen).all()
+            if self.EnOsal==1:
+                self.query = session.query(Entrada.NoEntrada,Entrada.NoReferencia,Entrada.FeReferencia,Entrada.FeEntrada,Entrada.origen).all()
+            else:
+                self.query = session.query(Salida.numero_pedido,Salida.FechaPedido,Salida.fechaEntrega,Salida.area).group_by(Salida.numero_pedido).all()
+                   
         if self.radioButtonMes.isChecked() == True:
             mesActual = datetime.today().month
-            self.query = session.query(Entrada.NoEntrada,Entrada.NoReferencia,Entrada.FeReferencia,Entrada.FeEntrada,Entrada.origen).filter(extract('month', Entrada.FeEntrada)==mesActual).all()
-        self.model = QStandardItemModel(len(self.query), 5)
-        self.model.setHorizontalHeaderLabels(['NumEntrada', 'NumReferencia', 'Fe-Referencia', 'Fe-Entrada', 'Proveedor'])
+            if self.EnOsal==1:            
+                self.query = session.query(Entrada.NoEntrada,Entrada.NoReferencia,Entrada.FeReferencia,Entrada.FeEntrada,Entrada.origen).filter(extract('month', Entrada.FeEntrada)==mesActual).all()
+            else:
+                
+                self.query = session.query(Salida.numero_pedido,Salida.FechaPedido,Salida.fechaEntrega,Salida.area).group_by(Salida.numero_pedido).filter(extract('month', Salida.FechaPedido)==mesActual).all()        
+                print(self.query)
+        if self.EnOsal==1: 
+            self.model = QStandardItemModel(len(self.query), 5)
+            self.model.setHorizontalHeaderLabels(['NumEntrada', 'NumReferencia', 'Fe-Referencia', 'Fe-Entrada', 'Proveedor'])
+        else:
+            self.model = QStandardItemModel(len(self.query), 4)
+            self.model.setHorizontalHeaderLabels(['NumSalida', 'Fe-Pedido', 'Fe-Entrega', 'Destino'])
+            
+
         self.tableViewReferencia.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
         for row,z in enumerate(self.query):
             for col,m in enumerate(z):
                 item = QStandardItem(str(m))
                 self.model.setItem(row, col, item)
+                
         self.buscador = QSortFilterProxyModel()
         self.buscador.setFilterCaseSensitivity(Qt.CaseInsensitive)
         self.buscador.setSourceModel(self.model)
         # cambio el tipo de busqueda que indique el radio button
-        if self.radioButtonPedido.isChecked():
-            self.buscador.setFilterKeyColumn(0)
-            self.lineEdit.textChanged.connect(self.buscador.setFilterRegExp)
-        if self.radioButtonReferencia.isChecked():
-            self.buscador.setFilterKeyColumn(1)
-            self.lineEdit.textChanged.connect(self.buscador.setFilterRegExp)
-        if self.radioButtonProveedor.isChecked():
-            self.buscador.setFilterKeyColumn(4)
-            self.lineEdit.textChanged.connect(self.buscador.setFilterRegExp)
-        self.tableViewReferencia.setModel(self.buscador)
+
+        if self.EnOsal==1: 
+            if self.radioButtonPedido.isChecked():
+                self.buscador.setFilterKeyColumn(0)
+                self.lineEdit.textChanged.connect(self.buscador.setFilterRegExp)
+            if self.radioButtonReferencia.isChecked():
+                self.buscador.setFilterKeyColumn(1)
+                self.lineEdit.textChanged.connect(self.buscador.setFilterRegExp)
+            if self.radioButtonProveedor.isChecked():
+                self.buscador.setFilterKeyColumn(4)
+                self.lineEdit.textChanged.connect(self.buscador.setFilterRegExp)
+            self.tableViewReferencia.setModel(self.buscador)
+        else:
+            if self.radioButtonPedido.isChecked():
+                self.buscador.setFilterKeyColumn(0)
+                self.lineEdit.textChanged.connect(self.buscador.setFilterRegExp)
+            if self.radioButtonProveedor.isChecked():
+                self.buscador.setFilterKeyColumn(3)
+                self.lineEdit.textChanged.connect(self.buscador.setFilterRegExp)
+            self.tableViewReferencia.setModel(self.buscador)
+
 
     def showTableW(self, VtnES):
-        indexTableview = self.tableViewReferencia.currentIndex().row()
-        NEntrada = self.tableViewReferencia.model().index(indexTableview, 0).data()
+
         # ocultando algunos widgets
         if self.tableViewReferencia.isVisible():
             self.radioButtonTodas.hide()
@@ -283,14 +323,28 @@ class Ui_VtnES(object):
             self.btnBorrarItemView.hide()
         # Cambiando tamaño de la ventana
         VtnES.resize(1011, 380)
+        if self.EnOsal==1:
+            indexTableview = self.tableViewReferencia.currentIndex().row()
+            NEntrada = self.tableViewReferencia.model().index(indexTableview, 0).data()
         # Consulta
-        self.query = session.query(Historial.clave_corta, Clave.descripcion, Clave.presentacion, Historial.cantidad,
+            self.query = session.query(Historial.clave_corta, Clave.descripcion, Clave.presentacion, Historial.cantidad,
                                    Historial.lote,
                                    Historial.area, Historial.idFarmaco).join(Clave).filter(and_(Historial.clave_corta == Clave.corta, Historial.Entrada_NoEntrada == NEntrada))
+            self.tableWidgetReferencia.setColumnCount(8)
+            self.tableWidgetReferencia.setHorizontalHeaderLabels(['Eliminar','Clave', 'Descripción', 'Presentación', 'Cantidad', 'Lote', 'Resguardo', 'id'])
+            self.tableWidgetReferencia.setColumnHidden(7, True)
+        else:
+            indexTableview = self.tableViewReferencia.currentIndex().row()
+            NSalida = self.tableViewReferencia.model().index(indexTableview, 0).data()
+        # Consulta
+            self.query = session.query(Salida.clave_corta,Clave.descripcion,Clave.presentacion,Salida.cantidadSal,
+                                    Salida.lote,
+                                    Salida.area,Salida.idSalida).join(Clave).filter(and_(Salida.clave_corta == Clave.corta, Salida.numero_pedido == NSalida))
+            self.tableWidgetReferencia.setColumnCount(8)
+            self.tableWidgetReferencia.setHorizontalHeaderLabels(['Eliminar','Clave', 'Descripción', 'Presentación', 'Cantidad', 'Lote', 'Destino', 'id'])
+            self.tableWidgetReferencia.setColumnHidden(7, True)
 
-        self.tableWidgetReferencia.setColumnCount(8)
-        self.tableWidgetReferencia.setHorizontalHeaderLabels(['Eliminar','Clave', 'Descripción', 'Presentación', 'Cantidad', 'Lote', 'Resguardo', 'id'])
-        self.tableWidgetReferencia.setColumnHidden(7, True)
+
         self.tableWidgetReferencia.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.tableWidgetReferencia.setRowCount(self.query.count())
 
@@ -315,9 +369,11 @@ class Ui_VtnES(object):
                         item.setToolTip(str(j))
                     self.tableWidgetReferencia.setItem(row, col + 1, item)
         self.ids = list()
+        self.cantidads=list()
         # llenando lista con ids que entrar de la consulta
         for i in range(self.tableWidgetReferencia.rowCount()):
             self.ids.append(int(self.tableWidgetReferencia.item(i,7).text()))
+            self.cantidads.append(int(self.tableWidgetReferencia.cellWidget(i,4).value()))
         if not self.tableViewReferencia.isVisible():
             self.tableWidgetReferencia.show()
             self.btnAtras.show()
@@ -376,25 +432,59 @@ class Ui_VtnES(object):
     def send(self):
         rows = self.tableWidgetReferencia.rowCount()
         self.idsNow = list()
+        self.cantidadNow = list()
         # llenando una lista con los ids de los farmacos que sigan estando en la tabla
         for i in range(rows):
             self.idsNow.append(int(self.tableWidgetReferencia.item(i,7).text()))
+            self.cantidadNow.append(int(self.tableWidgetReferencia.cellWidget(i,4).value()))
         # lista que contiene los ids de los farmacos que se an eliminado en caso de no a ver eliminado nada
         # estara vacio
         self.idsRes =  list(set(self.ids) - set(self.idsNow))
+        self.cantidadRes = list(set(self.cantidads)-set(self.cantidadNow))
         # for para eliminaciones si asi se a hecho, para tabla farmaco e historial de la base de datos
         for inx, value in enumerate(self.idsRes):
-            session.query(Historial).filter(Historial.idFarmaco == value).delete()
-            session.query(Farmaco).filter(Farmaco.idFarmaco == value).delete()
-            session.commit()
+            if self.EnOsal==1:
+                session.query(Historial).filter(Historial.idFarmaco == value).delete()
+                session.query(Farmaco).filter(Farmaco.idFarmaco == value).delete()               
+            else:
+                #si el articulo ya no existe de la bd
+                a = session.query(Salida).get(Salida.idSalida == value)
+                b = session.query(Historial).get(Historial.idFarmaco == a.idFarmaco)
+                if session.query(Farmaco).filter(Farmaco.idFarmaco == a.idFarmaco).scalar() == None:
+                    d = Farmaco(idFarmaco=b.idFarmaco,lote=b.lote,cantidad=a.cantidad,caducidad=b.caducidad,area=b.area,origen=b.origen,fechaIngreso=b.fechaIngreso,clave_corta=b.clave_corta)
+                    session.add(d)
+                    session.flush()
+                a = session.query(Salida).filter(Salida.idSalida == value).delete()
+                
+
+
+        session.commit()
         # for para actualizar cantidades de farmacos si es que se han y aun que no xd
         for i in range(self.tableWidgetReferencia.rowCount()):
-            value = int(self.tableWidgetReferencia.cellWidget(i, 4).value())
-            queryUpdate = session.query(Historial).get(self.idsNow[i])
-            queryUpdate2 = session.query(Farmaco).get(self.idsNow[i])
-            queryUpdate2.cantidad = value
-            queryUpdate.cantidad = value
-            session.commit()
+            if self.EnOsal==1:
+                value = int(self.tableWidgetReferencia.cellWidget(i, 4).value())
+                queryUpdate = session.query(Historial).get(self.idsNow[i])
+                queryUpdate2 = session.query(Farmaco).get(self.idsNow[i])
+                queryUpdate2.cantidad = value
+                queryUpdate.cantidad = value
+                session.commit()
+            else:
+                value = int(self.tableWidgetReferencia.cellWidget(i, 4).value())
+                print(value)
+                queryUpdate = session.query(Salida).get(self.idsNow[i])
+
+                ##########
+                queryUpdate2 = session.query(Farmaco).filter(Farmaco.idFarmaco==queryUpdate.idFarmaco).scalar()
+                queryUpdate.cantidad = value
+                session.commit()
+                cantidad_nueva =self.cantidads[i] - value
+                if cantidad_nueva > 0:
+                    queryUpdate2.cantidad = queryUpdate2.cantidad - cantidad_nueva
+                    session.commit()
+                else:
+                    queryUpdate2.cantidad = queryUpdate2.cantidad + cantidad_nueva
+                    session.commit()
+               
 
 
 
@@ -405,7 +495,7 @@ class Ui_VtnES(object):
         self.radioButtonMes.setText(_translate("VtnES", "Mes"))
         self.radioButtonReferencia.setText(_translate("VtnES", "Por referencia"))
         self.radioButtonProveedor.setText(_translate("VtnES", "Por Proveedor"))
-        self.radioButtonPedido.setText(_translate("VtnES", "Por pedido"))
+        self.radioButtonPedido.setText(_translate("VtnES", "Por N.Entrada"))
         self.btnActualizarReferencia.setToolTip(_translate("VtnES", "Actualizar"))
         self.btnActualizarReferencia.setShortcut(_translate("VtnES", "Ctrl+A"))
         self.btnPDF.setToolTip(_translate("VtnES", "Generar PDF"))
