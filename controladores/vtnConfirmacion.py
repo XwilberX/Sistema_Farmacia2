@@ -68,6 +68,8 @@ class Ui_vtnDatosCorrectos(object):
         self.label_3.setPixmap(QtGui.QPixmap("../imagenes/alert_icon_129491.png"))
         self.label_3.setScaledContents(True)
         self.label_3.setObjectName("label_3")
+        self.btnCancelardialogClave.setToolTip('Cancela la insercción de los datos')
+        self.btnAceptardialogClave.setToolTip('Confirmar la insercción de los datos')
 
         self.retranslateUi(vtnDatosCorrectos)
         QtCore.QMetaObject.connectSlotsByName(vtnDatosCorrectos)

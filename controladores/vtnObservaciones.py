@@ -51,6 +51,8 @@ class Ui_Observaciones(object):
         self.label = QtWidgets.QLabel(Observaciones)
         self.label.setGeometry(QtCore.QRect(140, 0, 121, 31))
         self.label.setObjectName("label")
+        self.btnAceptarObservaciones.setToolTip('Se añadiran las observaciones al reporte si se indican')
+        self.textObservaciones.setToolTip('Añada sus observaciones de la salida para adjuntarlo al reporte')
 
         self.retranslateUi(Observaciones)
         #self.btnAceptarObservaciones.clicked.connect(Observaciones.close)

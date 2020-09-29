@@ -194,6 +194,13 @@ class SubWindow(QWidget):
         self.label = QtWidgets.QLabel(self.frame_2)
         self.label.setGeometry(QtCore.QRect(40, 10, 61, 20))
         self.label.setObjectName("label")
+        self.groupBox_5.setToolTip('Elegir ranngo de fechas')
+        self.groupBox_4.setToolTip('Elegir entre si se requieren medicamentos o materiales de curacion')
+        self.groupBox_2.setToolTip('Buscar existencias entre medicamentos o meteriales de curacion')
+        self.groupBox_6.setToolTip('Elegir entre entrada, salidas o ambas del almacen')
+        self.lineFilasConsulta.setToolTip('Numero de filas de la consulta realizada')
+        self.btnConsultarConsulta.setToolTip('Enviar a la tabla la consulta indicada segun sus filtros')
+        self.btnExportarConsulta.setToolTip('Exportar tabla con la consulta actual en formato de excel')
 
         self.retranslateUi()
         self.radioButton_3.clicked.connect(self.groupBox_6.hide)
@@ -269,6 +276,7 @@ class SubWindow(QWidget):
                 #aqui le indicamos cuantas filas tendra nuestra tabla
                 self.filas = len(Query)
                 self.TableConsulta.setRowCount(self.filas)
+                session.commit()
                 self.fillTableQuery(Query)
                 
                 
@@ -278,6 +286,7 @@ class SubWindow(QWidget):
                 self.TableConsulta.setHorizontalHeaderLabels(['id Farmaco','Clave','Descripcion','Presentacion','Cantidad','Caducidad','Area almacen','Origen','Fecha ingreso','Lote'])
                 self.filas = len(Query)
                 self.TableConsulta.setRowCount(self.filas)
+                session.commit()
                 self.fillTableQuery(Query)
         
         if self.TipoConsulta == 2:
@@ -293,6 +302,7 @@ class SubWindow(QWidget):
                 self.fillTableQuery(Query)
                 Query = session.query(Historial.idFarmaco,Historial.clave_corta,Clave.descripcion,Clave.presentacion,Historial.cantidad,Historial.caducidad,Historial.origen,Historial.fechaIngreso,Historial.lote).join(Clave).filter(Historial.fechaIngreso.between(vFecha,VFecha2)).all()
                 self.SoE = 'Entrada'
+                session.commit()
                 self.fillTableQuery(Query)               
 
                 
@@ -308,6 +318,7 @@ class SubWindow(QWidget):
                 self.TableConsulta.setHorizontalHeaderLabels(['Id Salida','Clave','Descripcion','Presentacion','Cantidad','Caducidad','Fecha Pedido','Fecha Salida','Destino','Lote','N pedido'])
                 self.filas = len(Query)
                 self.TableConsulta.setRowCount(self.filas)
+                session.commit()
                 self.fillTableQuery(Query)
         if self.TipoConsulta == 1:
                 Query = session.query(Historial.idFarmaco,Historial.clave_corta,Clave.descripcion,Clave.presentacion,Historial.cantidad,Historial.caducidad,Historial.fechaIngreso,Historial.area,Historial.origen,Historial.lote).join(Clave).filter(Clave.tipo == self.Por_Tipo).all()
@@ -315,6 +326,7 @@ class SubWindow(QWidget):
                 self.TableConsulta.setHorizontalHeaderLabels(['Id ','Clave','Descripcion','Presentacion','Cantidad','Caducidad','Fecha Ingreso','Area Almacen','Origen','Lote'])
                 self.filas = len(Query)
                 self.TableConsulta.setRowCount(self.filas)
+                session.commit()
                 self.fillTableQuery(Query)
 
         if self.TipoConsulta == 2:
@@ -330,10 +342,11 @@ class SubWindow(QWidget):
                 if self.Por_Tipo == 0:
                         self.SoE = 'Medicina'    
                 else:
-                        self.SoE = 'Ma-Curacion'          
+                        self.SoE = 'Ma-Curacion'
+                session.commit()
                 self.fillTableQuery(Query)
                 Query = session.query(Historial.idFarmaco,Historial.clave_corta,Clave.descripcion,Clave.presentacion,Historial.cantidad,Historial.caducidad,Historial.fechaIngreso,Historial.origen,Historial.lote).join(Clave).filter(Clave.tipo == self.Por_Tipo).all()
-                
+                session.commit()
                 self.fillTableQuery(Query)
 
     def consultaxExistencia(self):
@@ -346,6 +359,7 @@ class SubWindow(QWidget):
                 self.TableConsulta.setHorizontalHeaderLabels(['id Farmaco','Clave','Descripcion','Presentacion','Cantidad','Caducidad','Area almacen','Origen','Lote','Tipo'])
                 self.filas = len(Query)
                 self.TableConsulta.setRowCount(self.filas)
+                session.commit()
                 self.fillTableQuery(Query)
                 for a in range(self.filas):
                         self.TableConsulta.setItem(a,9,QTableWidgetItem(self.tipo))
@@ -358,12 +372,14 @@ class SubWindow(QWidget):
                 self.TableConsulta.setHorizontalHeaderLabels(['id Farmaco','Clave','Descripcion','Presentacion','Cantidad','Caducidad','Area almacen','Origen','Lote','Tipo'])
                 self.filas = len(Query)
                 self.TableConsulta.setRowCount(self.filas)
+                session.commit()
                 self.fillTableQuery(Query)
                 for a in range(self.filas):
                         self.TableConsulta.setItem(a,9,QTableWidgetItem(self.tipo))
         if self.TipoConsulta == 2:
                 Query = session.query(Farmaco.idFarmaco,Farmaco.clave_corta,Clave.descripcion,Clave.presentacion,Farmaco.cantidad,Farmaco.caducidad,Farmaco.area,Farmaco.origen,Farmaco.lote).join(Clave).filter(Clave.tipo == 0).all()
                 Query1 = session.query(Farmaco.idFarmaco,Farmaco.clave_corta,Clave.descripcion,Clave.presentacion,Farmaco.cantidad,Farmaco.caducidad,Farmaco.area,Farmaco.origen,Farmaco.lote).join(Clave).filter(Clave.tipo == 1).all()
+                session.commit()
                 self.TableConsulta.setColumnCount(10)
                 self.tipo = 'Ma-Curacion'
                 #pone false en tipo
@@ -375,42 +391,48 @@ class SubWindow(QWidget):
                 self.SoE = 'Medicina'              
                 self.fillTableQuery(Query)
                 Query  = session.query(Farmaco.idFarmaco,Farmaco.clave_corta,Clave.descripcion,Clave.presentacion,Farmaco.cantidad,Farmaco.caducidad,Farmaco.area,Farmaco.origen,Farmaco.lote).join(Clave).filter(Clave.tipo == 1).all()
+                session.commit()
                 self.SoE = 'Ma-Curacion'
                 self.fillTableQuery(Query)
-
-
-
     def fillTableQuery(self,Query):
         if self.TipoConsulta == 0 or self.TipoConsulta == 1:
-                rows = 0
+            rows = 0
+            col = 0
+            #hacemos un for anidado en el cual el primero se encarga de las filas de la  consulta
+            #y el segundo de las columnas de cada fila
+            #a contiene una fila y b contiene una columna de la fila
+            for a in Query:
+                for b in a:
+                    item = QTableWidgetItem(str(b))
+                    if col == 2:
+                        item.setToolTip(str(b))
+                    if col == 3:
+                        item.setToolTip(str(b))
+                    self.TableConsulta.setItem(rows,col, item)
+                    col = col + 1
                 col = 0
-                #hacemos un for anidado en el cual el primero se encarga de las filas de la  consulta
-                #y el segundo de las columnas de cada fila
-                #a contiene una fila y b contiene una columna de la fila
-                for a in Query:
-                        for b in a:
-                                self.TableConsulta.setItem(rows,col,QTableWidgetItem(str(b)))
-                                # if self.tipo !='':
-                                #         self.TableConsulta.setItem(rows,col,QTableWidgetItem(str(self.tipo)))
-                                col = col + 1
-                        col = 0
-                        rows = rows + 1 
-                self.lineFilasConsulta.setText(str(self.filas))
+                rows = rows + 1
+            self.lineFilasConsulta.setText(str(self.filas))
         if self.TipoConsulta == 2:
-                #aqui no declaro las rows (filas) en 0 por que son dos consultas que pasan por aqui. si se llegara a poner en 0 ensimaria los datos y no se mostarian todos
-                #declaro las filas arriba en el tipoconsulta = 2
+            #aqui no declaro las rows (filas) en 0 por que son dos consultas que pasan por aqui. si se llegara a poner en 0 ensimaria los datos y no se mostarian todos
+            #declaro las filas arriba en el tipoconsulta = 2
+            col = 0
+            for a in Query:
+                for b in a:
+                    item = QTableWidgetItem(str(b))
+                    if col == 2:
+                        item.setToolTip(str(b))
+                    if col == 3:
+                        item.setToolTip(str(b))
+                    self.TableConsulta.setItem(self.rows,col,item)
+                    col = col + 1
+                    #QUITAR EL ESTATICO PARA MANDAR MAS COLUMNAS DESDE LAS FUNCIONES
+                    if col == self.maxCol:
+                        #ponemos si la consulta proviene de Salidas o de Entradas(Historial) y colocamos el resultado en la celda 0,7
+                        self.TableConsulta.setItem(self.rows,self.maxCol,QTableWidgetItem(self.SoE))
                 col = 0
-                for a in Query:
-                        for b in a:
-                                self.TableConsulta.setItem(self.rows,col,QTableWidgetItem(str(b)))
-                                col = col + 1
-                                #QUITAR EL ESTATICO PARA MANDAR MAS COLUMNAS DESDE LAS FUNCIONES
-                                if col == self.maxCol:
-                                        #ponemos si la consulta proviene de Salidas o de Entradas(Historial) y colocamos el resultado en la celda 0,7
-                                        self.TableConsulta.setItem(self.rows,self.maxCol,QTableWidgetItem(self.SoE))
-                        col = 0
-                        self.rows = self.rows + 1    
-                self.lineFilasConsulta.setText(str(self.filas))   
+                self.rows = self.rows + 1
+            self.lineFilasConsulta.setText(str(self.filas))
 
 
 

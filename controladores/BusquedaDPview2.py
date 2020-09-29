@@ -97,6 +97,8 @@ class Ui_BDP(object):
         for z in range(self.numero):
             for m in range(2):
                 item = QStandardItem(self.q.iloc[z, m])
+                if m == 1:
+                    item.setToolTip(str(self.q.iloc[z, m]))
                 self.model.setItem(z, m, item)
         #se instancia la clase , esa clase nos ayuda que al escribir busque algo
         buscador = QSortFilterProxyModel()

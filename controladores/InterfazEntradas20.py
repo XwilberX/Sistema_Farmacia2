@@ -409,8 +409,22 @@ class Ui_Main(object):
         Main.setTabOrder(self.btnTotalEntradasEntra, self.btnAgregarEntra)
         Main.setTabOrder(self.btnAgregarEntra, self.btnFinalizarEntra)
         Main.setTabOrder(self.btnFinalizarEntra, self.TableEntra)
-
-
+        self.LineOrigenEntra.setToolTip('Introducir nombre del proveedor')
+        self.DateFreferenciaEntra.setToolTip('Introducir fecha de referencia')
+        self.LineReferenciaEntra.setToolTip('Introducir numero de referencia')
+        self.comboBoxEntradas.setToolTip('Eligir medicamento o material de curación')
+        self.LineControlEntra.setToolTip('Numero automatico de la entrada')
+        self.DateFechaEntra.setToolTip('Introduccir fecha de entrada')
+        self.LineClaveEntra.setToolTip('Clave del medicamento o material de curación')
+        self.btnClaveEntra.setToolTip('Abrir ventana para busqueda de claves')
+        self.TextDescriEntra.setToolTip('Descripción correspondiente a la clave')
+        self.TextPresentaEntra.setToolTip('Presentación correspondiente a la clave')
+        self.LineCantidadEntra.setToolTip('Introducir cantidad entrante')
+        self.LineLoteEntra.setToolTip('Introducir lote')
+        self.DateCaducidadEntra.setToolTip('Introducir fecha de caducidad del medicamento o material de curación')
+        self.btnTotalEntradasEntra.setToolTip('Abrir ventana para modificar entradas ya hechas')
+        self.btnAgregarEntra.setToolTip('Agregar farmaco')
+        self.btnFinalizarEntra.setToolTip('Guardar los medicamentos y materiales de curación que se han introducido')
 
         #comente el nombre de todos los titulos de cada pestaña para que no se pusieraS
         #agregando subwindow entrada ,Qt.WindowTitleHint para que no pueda minizar ni cerrar la subwindow
@@ -432,13 +446,11 @@ class Ui_Main(object):
         self.uiConsulta.createSubWindow()
         self.mdiArea.addSubWindow(self.uiConsulta,Qt.WindowTitleHint)
 
-        
-
         self.radioButton.setChecked(True)
         
 
         self.mdiArea.activateNextSubWindow()
-        
+
         #inicio del codigo
         # Para que aparezca la ventana de entradas al iniciar
 
@@ -488,6 +500,10 @@ class Ui_Main(object):
         self.uiClave.hide()
         self.uiSalida.hide()
         self.uiConsulta.showMaximized()
+        if self.uiConsulta.isVisible():
+            self.uiConsulta.consultar()
+            print('hola')
+
     def abrirClaves(self):
         self.uiConsulta.hide()
         self.subwindowEntradas.hide()
@@ -498,11 +514,16 @@ class Ui_Main(object):
         self.uiClave.hide()
         self.subwindowEntradas.hide()
         self.uiSalida.showMaximized()
+        if self.uiSalida.isVisible() == True:
+                self.uiSalida.update()
     def abrirVentana(self):
         self.uiConsulta.hide()
         self.uiClave.hide()
         self.uiSalida.hide()
         self.subwindowEntradas.showMaximized()
+        if self.subwindowEntradas.isVisible():
+            self.BusquedaTreal()
+
     def FinalizarTabla(self):
         try:
             self.Dp = pd.DataFrame()
@@ -541,6 +562,7 @@ class Ui_Main(object):
             
             for i in reversed(range(self.TableEntra.rowCount())):
                 self.TableEntra.removeRow(i)
+                self.TableEntra.removeRow(i)
             self.conta= 0
             self.control()
             session.close()
@@ -568,8 +590,8 @@ class Ui_Main(object):
         self.ventanaDP.show()
         self.ui.tableView.doubleClicked.connect(self.fnti)
         #self.ui.tableView.doubleClicked.connect(self.fnti)
-    
-    def fnti(self):  
+        #self.ui.tableView.doubleClicked.connect(self.fnti)
+    def fnti(self):
         index = self.ui.tableView.currentIndex().row()
         value = self.ui.tableView.model().index(index,0).data()
         self.LineClaveEntra.setText(value)
@@ -604,22 +626,25 @@ class Ui_Main(object):
         self.LineControlEntra.setText(str(self.Ncontrol + self.conta))
         session.close()
 
-
+    def queryClave(self):
+        tipos = self.comboBoxEntradas.currentIndex()
+        if tipos == 0:
+                self.clave123 = session.query(Clave.corta).filter_by(tipo=0).all()
+        if tipos == 1:
+                self.clave123 = session.query(Clave.corta).filter_by(tipo=1).all()
+        session.commit()
     
     #busqueda en tiempo real
     def BusquedaTreal(self):
+        self.queryClave()
         list = []
-        tipos = self.comboBoxEntradas.currentIndex()
-        if tipos == 0:
-            clave123 = session.query(Clave.corta).filter_by(tipo=0).all()
-        if tipos == 1:
-            clave123 = session.query(Clave.corta).filter_by(tipo=1).all()
-        for n in clave123:
+        for n in self.clave123:
             for c in n:
                 list.append(c)
         ListaClave = list
         completer =  QCompleter(ListaClave)
         self.LineClaveEntra.setCompleter(completer)
+
 
     #Envia los datos a la tabla
     def enviar(self):
@@ -681,8 +706,10 @@ class Ui_Main(object):
                 str(self.LineClaveEntra.text())))
             self.TableEntra.setItem(row, 4, QTableWidgetItem(
                 str(self.TextDescriEntra.toPlainText())))
+            self.TableEntra.item(row,4).setToolTip(str(self.TextDescriEntra.toPlainText()))
             self.TableEntra.setItem(row, 5, QTableWidgetItem(
                 str(self.TextPresentaEntra.toPlainText())))
+            self.TableEntra.item(row, 5).setToolTip(str(self.TextPresentaEntra.toPlainText()))
             self.TableEntra.setItem(row, 6, QTableWidgetItem(resguardo))
             self.TableEntra.setItem(row, 7, QTableWidgetItem(
                 str(self.LineCantidadEntra.text())))

@@ -112,9 +112,12 @@ class SubWindow(QWidget):
         self.label_22.setPixmap(QtGui.QPixmap("../imagenes/claveproducto.png"))
         self.label_22.setScaledContents(True)
         self.label_22.setObjectName("label_22")
-
-
-
+        self.comboboxClave.setToolTip('Elegir entre medicamento o material de curacion')
+        self.LineClaveLClave.setToolTip('Ingresar calve larga')
+        self.LineClaveCClave.setToolTip('Ingresar clave corta')
+        self.TextDescriClave.setToolTip('Ingresa la descricion de la clave')
+        self.TextPresentaClave.setToolTip('Ingresa la presentacion de la clave')
+        self.btnFinalizarClave.setToolTip('Enviar los datos')
 
         self.retranslateUi()
         QtCore.QMetaObject.connectSlotsByName(self)

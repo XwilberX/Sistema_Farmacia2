@@ -135,7 +135,6 @@ class SubWindow(QWidget):
         item.setTextAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignTop)
         self.TableSalida.setHorizontalHeaderItem(8, item)
 
-
         #
         # #que la tabla no pueda ser editada
         self.TableSalida.setEditTriggers(QtWidgets.QTableWidget.NoEditTriggers)
@@ -231,6 +230,14 @@ class SubWindow(QWidget):
         self.setTabOrder(self.tableViewSalida, self.TableSalida)
         self.setTabOrder(self.TableSalida, self.LineControlSalida)
         self.setTabOrder(self.LineControlSalida, self.LineDescripSalida)
+        self.LineControlSalida.setToolTip('Numero automatico de la salida')
+        self.LineAreaSalida.setToolTip('Destino de la salida de los medicamentos o materiales de curación')
+        self.comboboxSalida.setToolTip('Eligir medicamento o material de curación')
+        self.DateFechaPSalida.setToolTip('Introducir fecha del pedido')
+        self.DateFechaESalida.setToolTip('Introducir fecha de la entrada')
+        self.LineClaveSalida.setToolTip('Clave del medicamento o matarial de curación')
+        self.LineDescripSalida.setToolTip('Descripción del medicamento o material de curación')
+        self.btnFinalizarSalida.setToolTip('Se envian los datos para generar reporte y se guardan al bd')
 
                 # self.setTabOrder(self.LineClaveSalida, self.LineDescripSalida)
         # self.setTabOrder(self.LineDescripSalida, self.btnFinalizarSalida)
@@ -258,8 +265,6 @@ class SubWindow(QWidget):
         self.listaCantidad=[]
         self.listaLote=[]
 
-
-
     #mete los datos de la tabla a la base de datos
     def bdFinalizarSalida(self):
         try:
@@ -277,7 +282,6 @@ class SubWindow(QWidget):
             for i in range(rows):
                 for j in range(Column + 3):
                     # Este If es por que no necesitamos las columnas de descripcion y presentacion en el ingreso al DATAFRAME ya que al ingresar el dataframe a la BD no estan esos campos
-
                     if j != 3 and j != 4 and j != 0 and j != 9 and j != 10 and j != 11 and j!=1:
                         DfSalida.loc[i, j] = self.TableSalida.item(i, j).text()
                     if j == 9:
@@ -308,8 +312,6 @@ class SubWindow(QWidget):
                 #para que se realice el cambio
                 session.commit()
                 session.close()
-
-
                 
             #aqui abrimos la ventana de observaciones
             self.vtnObserv = QtWidgets.QWidget()
@@ -317,7 +319,6 @@ class SubWindow(QWidget):
             self.uiObser.setupUi(self.vtnObserv)
             self.vtnObserv.show()
             self.uiObser.btnAceptarObservaciones.clicked.connect(self.observaciones)
-
             
             #receteamos el numero de control para que no exista problemas
             self.NcontrolS()
@@ -326,10 +327,6 @@ class SubWindow(QWidget):
             self.listaCantidad[:] = [] 
             # self.listaLote[:] =[]
             self.TableViewInsertSalida()
-
-            
-            
-
         except Exception as e:
             print(e)
             self.LineAreaSalida.setFocus()
@@ -338,7 +335,6 @@ class SubWindow(QWidget):
             error_dialog.setText("No hay datos en la tabla")
             error_dialog.setWindowTitle("Error")
             error_dialog.exec()
-
 
     def EnvioReport(self):
         # mandando datos para generar reportes
@@ -357,7 +353,6 @@ class SubWindow(QWidget):
         for i in reversed(range(self.TableSalida.rowCount())):
             self.TableSalida.removeRow(i)
 
-
         Date = self.DateFechaESalida.date()
         FechaEsalida = Date.toPyDate()
         Date = self.DateFechaPSalida.date()
@@ -365,7 +360,6 @@ class SubWindow(QWidget):
         idSalidaU = int(self.LineControlSalida.text())-1
 
         tipo = 1
-
         reportes(dataall, self.LineAreaSalida.text(), self.Npedidoup, str(FechaEsalida),
                                      str(FechaPsalida), self.vObserva, tipo)
     def observaciones(self):
@@ -445,7 +439,9 @@ class SubWindow(QWidget):
                 self.TableSalida.setItem(Nrow,1,QTableWidgetItem(str(self.LineControlSalida.text()))) 
                 self.TableSalida.setItem(Nrow,2,QTableWidgetItem(str(self.Clavecorta)))
                 self.TableSalida.setItem(Nrow,3,QTableWidgetItem(str(self.Query[0])))
+                self.TableSalida.item(Nrow,3).setToolTip(str(self.Query[0]))
                 self.TableSalida.setItem(Nrow,4,QTableWidgetItem(str(self.Query[1])))
+                self.TableSalida.item(Nrow,4).setToolTip(str(self.Query[1]))
                 self.TableSalida.setItem(Nrow,5,QTableWidgetItem(str(cantidadPuesta)))
                 self.TableSalida.setItem(Nrow,6,QTableWidgetItem(str(self.Query[3])))
                 self.TableSalida.setItem(Nrow,7,QTableWidgetItem(str(FechaEsalida)))
@@ -509,12 +505,18 @@ class SubWindow(QWidget):
         self.q = session.query(Farmaco.idFarmaco,Farmaco.clave_corta, Clave.descripcion, Farmaco.caducidad, Farmaco.lote, Farmaco.cantidad,Farmaco.area,Farmaco.fechaIngreso).join(Clave).filter(Clave.tipo == self.x).all()
         #print(self.q)
         self.numero  = session.query(Farmaco.clave_corta).join(Clave).filter(Clave.tipo == self.x).count()
-        self.model = QStandardItemModel(0,8)
+        self.model = QStandardItemModel()
         self.model.setHorizontalHeaderLabels(['Id farmaco','Clave', 'Descripción','Caducidad', 'Lote', 'Cantidad', 'Area Almacen','Fecha Ingreso'])
         self.tableViewSalida.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        #aqui se necesita convertir a str por que el datatime hacia problemas
-        for item in self.q:
-            self.model.appendRow([QStandardItem(str(x)) for x in item])
+        # aqui se necesita convertir a str por que el datatime hacia problemas
+        for i, row in enumerate(self.q):
+            for j, item in enumerate(row):
+                add = QStandardItem(str(item))
+                if j == 2:
+                    add.setToolTip(str(item))
+                if j == 6:
+                    add.setToolTip(str(item))
+                self.model.setItem(i, j, add)
         #se instancia la clase , esa clase nos ayuda que al escribir busque algo
         buscador = QSortFilterProxyModel()
         #este sirve para que puedan buscar alguna cosa no importa si es en mayusculas o minusculas
@@ -529,12 +531,12 @@ class SubWindow(QWidget):
             self.LineDescripSalida.textChanged.connect(buscador.setFilterRegExp)
         self.tableViewSalida.setModel(buscador)
         #sirve para darle color a las celdas de cantidad las que tienen menor a 10 o 10
-        for h in range(self.numero):
-            cantiRojo = int(self.tableViewSalida.model().index(h,5).data())
-            #print(cantiRojo)
-            if cantiRojo <=10: 
-                self.model.setData(self.model.index(h,5), QtGui.QBrush(QtCore.Qt.white), QtCore.Qt.ForegroundRole)
-                self.model.setData(self.model.index(h,5), QtGui.QBrush(QtGui.QColor(236,47,6)), QtCore.Qt.BackgroundRole)
+        # for h in range(self.numero):
+        #     cantiRojo = int(self.tableViewSalida.model().index(h,5).data())
+        #     #print(cantiRojo)
+        #     if cantiRojo <=10:
+        #         self.model.setData(self.model.index(h,5), QtGui.QBrush(QtCore.Qt.white), QtCore.Qt.ForegroundRole)
+        #         self.model.setData(self.model.index(h,5), QtGui.QBrush(QtGui.QColor(236,47,6)), QtCore.Qt.BackgroundRole)
 
                     
         #poner de color rojo los farmacos que esten mejor de 10 
@@ -544,6 +546,8 @@ class SubWindow(QWidget):
         #y esa session tendra los nuevos datos
         #cerrar session y automaticamente se abre otra.
         session.close()
+    def update(self):
+        self.TableViewInsertSalida()
 
     def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
