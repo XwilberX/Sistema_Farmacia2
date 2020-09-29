@@ -196,11 +196,11 @@ class Ui_VtnES(object):
         # guardando en una variable el un objeto de tipo widgget
         vtn = VtnES
 
-        change = partial(self.showTableW, vtn)
+        self.change = partial(self.showTableW, vtn)
         back = partial(self.back, vtn)
 
         # aqui en el evento dobleclick del tablewidget enviamos una de esas variables
-        self.tableViewReferencia.doubleClicked.connect(change)
+        self.tableViewReferencia.doubleClicked.connect(self.change)
 
         # si ya esta en la consulta de los farmacos y da click oculta y muestra
         self.btnAtras.clicked.connect(back)
@@ -211,12 +211,14 @@ class Ui_VtnES(object):
         
         # al dar click en actualizar si algo se a modificado o borrado
         self.btnActualizarReferencia.clicked.connect(self.send)
+        self.btnActualizarReferencia.clicked.connect(back)
 
         if self.EnOsal == 0:
             self.radioButtonProveedor.setText("Por Destino")
             self.radioButtonPedido.setText("por N.salida")
             self.radioButtonReferencia.hide()
 
+        self.cantidadQuedaron= list()
 
     ######################
     def borrarEntrada(self):
@@ -225,7 +227,7 @@ class Ui_VtnES(object):
         if self.EnOsal == 1:
             confirmacion.setText("Esta seguro que desea eliminar esta entrada?")
         else:
-            confirmacion.setText("Esta seguro que desea eliminar esta salida?")
+            confirmacion.setText("Esta seguro que desea eliminar esta salida? De esta manera las salidas eliminadas no seran agregadas nuevamente al inventario")
         confirmacion.setWindowTitle("Aviso")
         confirmacion.setStandardButtons(QtWidgets.QMessageBox.Yes| QtWidgets.QMessageBox.No)
         decision = confirmacion.exec()
@@ -240,7 +242,6 @@ class Ui_VtnES(object):
                 #eliminamos los ID que tenian el mismo numero de entrada (se eliminan de farmaco) bdFilaEntrada2 con tiene esos id , cuando se agrega un item tinen el mismo ID
                 for a in bdFilaEntrada2:
                     for i in a:
-                        print(i)
                         bdFilaEntrada4 = session.query(Farmaco).filter(Farmaco.idFarmaco == i).delete()
                 #se eliminar los datos que tienen el mismo numero de entrada de HISTORIAL
                 bdFilaEntrada3 = session.query(Historial).filter(Historial.Entrada_NoEntrada == numeroE).delete()
@@ -248,7 +249,8 @@ class Ui_VtnES(object):
                 session.delete(bdFilaEntrada)
                 session.commit()
             else:
-                print('programar la salida')
+                bdFilaSalida = session.query(Salida).filter(Salida.numero_pedido== numeroE).delete()
+                
 
 
         
@@ -385,6 +387,9 @@ class Ui_VtnES(object):
     def deleteRowWi(self):
         rowC = self.tableWidgetReferencia.currentRow()
         self.tableWidgetReferencia.removeRow(rowC)
+        self.cantidadQuedaron.append(self.cantidads[rowC])
+        self.cantidads.pop(rowC)
+        
 
 
 
@@ -427,9 +432,11 @@ class Ui_VtnES(object):
         self.frame.show()
         self.tableViewReferencia.show()
         self.btnBorrarItemView.show()
+        self.fillTableView()
 
 
     def send(self):
+
         rows = self.tableWidgetReferencia.rowCount()
         self.idsNow = list()
         self.cantidadNow = list()
@@ -443,18 +450,25 @@ class Ui_VtnES(object):
         self.cantidadRes = list(set(self.cantidads)-set(self.cantidadNow))
         # for para eliminaciones si asi se a hecho, para tabla farmaco e historial de la base de datos
         for inx, value in enumerate(self.idsRes):
+
             if self.EnOsal==1:
                 session.query(Historial).filter(Historial.idFarmaco == value).delete()
                 session.query(Farmaco).filter(Farmaco.idFarmaco == value).delete()               
             else:
                 #si el articulo ya no existe de la bd
-                a = session.query(Salida).get(Salida.idSalida == value)
-                b = session.query(Historial).get(Historial.idFarmaco == a.idFarmaco)
+                a = session.query(Salida).filter(Salida.idSalida == value).scalar()
+                b = session.query(Historial).filter(Historial.idFarmaco == a.idFarmaco).scalar()
                 if session.query(Farmaco).filter(Farmaco.idFarmaco == a.idFarmaco).scalar() == None:
-                    d = Farmaco(idFarmaco=b.idFarmaco,lote=b.lote,cantidad=a.cantidad,caducidad=b.caducidad,area=b.area,origen=b.origen,fechaIngreso=b.fechaIngreso,clave_corta=b.clave_corta)
+                    d = Farmaco(idFarmaco=b.idFarmaco,lote=b.lote,cantidad=a.cantidadSal,caducidad=b.caducidad,area=b.area,origen=b.origen,fechaIngreso=b.fechaIngreso,clave_corta=b.clave_corta)
                     session.add(d)
                     session.flush()
+                if session.query(Farmaco).filter(Farmaco.idFarmaco == a.idFarmaco).scalar():
+                    c = session.query(Farmaco).filter(Farmaco.idFarmaco == a.idFarmaco).scalar()
+                    c.cantidad = c.cantidad + self.cantidadQuedaron[inx]
+                    session.commit()
                 a = session.query(Salida).filter(Salida.idSalida == value).delete()
+
+            
                 
 
 
@@ -465,6 +479,13 @@ class Ui_VtnES(object):
                 value = int(self.tableWidgetReferencia.cellWidget(i, 4).value())
                 queryUpdate = session.query(Historial).get(self.idsNow[i])
                 queryUpdate2 = session.query(Farmaco).get(self.idsNow[i])
+                if queryUpdate2.cantidad < 0 or queryUpdate.cantidad  < 0:
+                    confirmacion = QtWidgets.QMessageBox()
+                    confirmacion.setIcon(QtWidgets.QMessageBox.Information)
+                    confirmacion.setText("Una cantidad supera su total:"+str(value)+" Solo se realizaron los cambios de los articulos  arriba de esta")
+                    confirmacion.setWindowTitle("Aviso")
+                    decision = confirmacion.exec()
+                    break
                 queryUpdate2.cantidad = value
                 queryUpdate.cantidad = value
                 session.commit()
@@ -472,18 +493,38 @@ class Ui_VtnES(object):
                 value = int(self.tableWidgetReferencia.cellWidget(i, 4).value())
                 print(value)
                 queryUpdate = session.query(Salida).get(self.idsNow[i])
-
+                
+                session.commit()
                 ##########
                 queryUpdate2 = session.query(Farmaco).filter(Farmaco.idFarmaco==queryUpdate.idFarmaco).scalar()
-                queryUpdate.cantidad = value
-                session.commit()
-                cantidad_nueva =self.cantidads[i] - value
+                print(self.cantidadNow)
+                cantidad_nueva = value - self.cantidads[i]
                 if cantidad_nueva > 0:
                     queryUpdate2.cantidad = queryUpdate2.cantidad - cantidad_nueva
+                    loquequedo = queryUpdate2.cantidad
+                    if loquequedo < 0:
+                        confirmacion = QtWidgets.QMessageBox()
+                        confirmacion.setIcon(QtWidgets.QMessageBox.Information)
+                        confirmacion.setText("Una cantidad supera su total:"+str(value)+" Solo se realizaron los cambios de los articulos  arriba de esta")
+                        confirmacion.setWindowTitle("Aviso")
+                        decision = confirmacion.exec()
+                        break
+                    if loquequedo == 0 :
+                        session.delete(queryUpdate2)
+                    queryUpdate.cantidadSal = value
                     session.commit()
                 else:
-                    queryUpdate2.cantidad = queryUpdate2.cantidad + cantidad_nueva
+                    queryUpdate2.cantidad = queryUpdate2.cantidad + abs(cantidad_nueva)
                     session.commit()
+        self.ids[:] = []
+        self.idsNow[:] = []
+        self.idsRes[:] = []
+        self.cantidads[:] = []
+        self.cantidadNow[:] = []
+        self.cantidadRes[:] = []
+        self.cantidadQuedaron[:] = []
+                    
+
                
 
 
