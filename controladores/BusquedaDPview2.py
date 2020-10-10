@@ -11,9 +11,13 @@ from PyQt5.QtCore import Qt, QSortFilterProxyModel
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 import pandas as pd
 import pymysql
+user = 'root'
+passw = 'admin'
+host = 'localhost'
+port = '3307'
+database = 'farmaciaDB'
 
-
-engine = create_engine('mysql+pymysql://root:wil99@localhost/farmaciaDB')
+engine = create_engine('mysql+pymysql://{0}:{1}@{2}:{3}/{4}'.format(user, passw, host, port, database))
 Session = sessionmaker(bind=engine)
 session = Session()
 class Ui_BDP(object):

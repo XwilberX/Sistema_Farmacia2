@@ -19,11 +19,15 @@ from interfazConsultas import SubWindow as vtnConsultas
 from vtnReferencia import Ui_VtnES
 import pymysql
 import pandas as pd
+user = 'root'
+passw = 'admin'
+host = 'localhost'
+port = '3307'
+database = 'farmaciaDB'
 
-engine = create_engine('mysql+pymysql://root:wil99@localhost/farmaciaDB')
+engine = create_engine('mysql+pymysql://{0}:{1}@{2}:{3}/{4}'.format(user, passw, host, port, database))
 Session = sessionmaker(bind=engine)
 session = Session()
-
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 

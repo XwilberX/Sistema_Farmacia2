@@ -68,8 +68,6 @@ class Ui_vtnDatosCorrectos(object):
         self.label_3.setPixmap(QtGui.QPixmap("../imagenes/alert_icon_129491.png"))
         self.label_3.setScaledContents(True)
         self.label_3.setObjectName("label_3")
-        self.btnAceptarObservaciones.setToolTip('Se añadiran las observaciones al reporte si se indican')
-        self.textObservaciones.setToolTip('Añada sus observaciones de la salida para adjuntarlo al reporte')
 
         self.retranslateUi(vtnDatosCorrectos)
         QtCore.QMetaObject.connectSlotsByName(vtnDatosCorrectos)

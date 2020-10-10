@@ -9,9 +9,9 @@ from sqlalchemy.sql import func
 
 
 user = 'root'
-passw = 'wil99'
+passw = 'admin'
 host = 'localhost'
-port = '3306'
+port = '3307'
 
 database = 'farmaciaDB'
 

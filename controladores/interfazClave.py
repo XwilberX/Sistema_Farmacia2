@@ -11,11 +11,15 @@ from farm import Clave
 from vtnConfirmacion import Ui_vtnDatosCorrectos
 import pymysql
 
-engine = create_engine('mysql+pymysql://root:wil99@localhost/farmaciaDB')
+user = 'root'
+passw = 'admin'
+host = 'localhost'
+port = '3307'
+database = 'farmaciaDB'
+
+engine = create_engine('mysql+pymysql://{0}:{1}@{2}:{3}/{4}'.format(user, passw, host, port, database))
 Session = sessionmaker(bind=engine)
 session = Session()
-
-
 class SubWindow(QWidget):
     def createSubWindow(self):
         self.setObjectName("InterFazClave")
@@ -149,7 +153,7 @@ class SubWindow(QWidget):
                         mensaje = 'ya existe esa clave'
                         self.mensajeCritico(mensaje)
                 if ifExistId == None and mensaje!='Hay un campo vacio':
-                        winsound.PlaySound("../otros_recursos/audios/hey", winsound.SND_FILENAME)
+                        winsound.PlaySound("../otros_recursos/audios/noti-alert", winsound.SND_FILENAME)
                         self.ventana = QtWidgets.QDialog()
                         self.vtnConfirmacion = Ui_vtnDatosCorrectos()
                         self.vtnConfirmacion.setupUi(self.ventana)
@@ -169,6 +173,10 @@ class SubWindow(QWidget):
         session.add(insertClave)
         session.commit()
         self.cerrarVtn()
+        self.LineClaveCClave.setText('')
+        self.LineClaveLClave.setText('')
+        self.TextDescriClave.setText('')
+        self.TextPresentaClave.setText('')
 
     def mensajeCritico(self,mensaje):
         error_dialog = QtWidgets.QMessageBox()
@@ -187,8 +195,8 @@ class SubWindow(QWidget):
         _translate = QtCore.QCoreApplication.translate
         #self.setWindowTitle(_translate("InterFazClave", "Claves"))
         self.btnFinalizarClave.setText(_translate("InterFazClave", "Aceptar"))
-        self.comboboxClave.setItemText(0, _translate("InterFazClave", "Medicina"))
-        self.comboboxClave.setItemText(1, _translate("InterFazClave", "Material/Curacion"))
+        self.comboboxClave.setItemText(0, _translate("InterFazClave", "Medicamento"))
+        self.comboboxClave.setItemText(1, _translate("InterFazClave", "M.Curación"))
         self.label_20.setText(_translate("InterFazClave", "Tipo:"))
         self.label_16.setText(_translate("InterFazClave", "Descripción:"))
         self.label_17.setText(_translate("InterFazClave", "Presentación:"))
