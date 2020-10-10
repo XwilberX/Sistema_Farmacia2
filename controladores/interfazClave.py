@@ -118,7 +118,6 @@ class SubWindow(QWidget):
         self.TextDescriClave.setToolTip('Ingresa la descricion de la clave')
         self.TextPresentaClave.setToolTip('Ingresa la presentacion de la clave')
         self.btnFinalizarClave.setToolTip('Enviar los datos')
-
         self.retranslateUi()
         QtCore.QMetaObject.connectSlotsByName(self)
         self.btnFinalizarClave.clicked.connect(self.GetDatos)

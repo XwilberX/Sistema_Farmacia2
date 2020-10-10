@@ -178,6 +178,12 @@ border-radius: 25px;
      <height>551</height>
     </rect>
    </property>
+   <property name="selectionMode">
+    <enum>QAbstractItemView::SingleSelection</enum>
+   </property>
+   <property name="selectionBehavior">
+    <enum>QAbstractItemView::SelectRows</enum>
+   </property>
   </widget>
   <widget class="QTableWidget" name="tableWidgetReferencia">
    <property name="geometry">
@@ -192,15 +198,18 @@ border-radius: 25px;
   <widget class="QPushButton" name="btnActualizarReferencia">
    <property name="geometry">
     <rect>
-     <x>10</x>
-     <y>330</y>
-     <width>131</width>
-     <height>31</height>
+     <x>160</x>
+     <y>320</y>
+     <width>51</width>
+     <height>51</height>
     </rect>
+   </property>
+   <property name="toolTip">
+    <string>Actualizar</string>
    </property>
    <property name="styleSheet">
     <string notr="true">QPushButton{
-border-radius:15px;
+border-radius:5px;
 background:#ffc001;
 
 }
@@ -210,7 +219,17 @@ background:#dea806;
 </string>
    </property>
    <property name="text">
-    <string>Actualizar</string>
+    <string/>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>../imagenes/actualizar.png</normaloff>../imagenes/actualizar.png</iconset>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>45</width>
+     <height>45</height>
+    </size>
    </property>
    <property name="shortcut">
     <string>Ctrl+A</string>
@@ -219,11 +238,14 @@ background:#dea806;
   <widget class="QPushButton" name="btnPDF">
    <property name="geometry">
     <rect>
-     <x>150</x>
+     <x>90</x>
      <y>320</y>
      <width>51</width>
      <height>51</height>
     </rect>
+   </property>
+   <property name="toolTip">
+    <string>Generar PDF</string>
    </property>
    <property name="styleSheet">
     <string notr="true">QPushButton{
@@ -251,6 +273,80 @@ background:#dea806;
    </property>
    <property name="shortcut">
     <string>Ctrl+P</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="btnAtras">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>320</y>
+     <width>51</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>Regresar</string>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QPushButton{
+border-radius:5px;
+background:#ffc001;
+
+}
+QPushButton:hover{
+background:#dea806;
+}
+</string>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>../imagenes/atras.png</normaloff>../imagenes/atras.png</iconset>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>45</width>
+     <height>45</height>
+    </size>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="btnBorrarItemView">
+   <property name="geometry">
+    <rect>
+     <x>600</x>
+     <y>70</y>
+     <width>51</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>Borrar una entrada completa</string>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QPushButton{
+border-radius:5px;
+background:#ffc001;
+
+}
+QPushButton:hover{
+background:#dea806;
+}
+</string>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>../imagenes/ic_delete_128_28267.png</normaloff>../imagenes/ic_delete_128_28267.png</iconset>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>45</width>
+     <height>45</height>
+    </size>
    </property>
   </widget>
  </widget>

@@ -16,10 +16,10 @@ from datetime import datetime
 import os
 from functools import partial
 
+
 class Report():
     def __init__(self, *args):
         create(*args)
-
 
 
 def header(canvas, doc, content):
@@ -28,16 +28,18 @@ def header(canvas, doc, content):
     canvas.saveState()
     content.wrap(doc.width, doc.topMargin)
     canvas.drawImage(logo_image, 45, 750, width=100, preserveAspectRatio=True)
-    canvas.drawImage(logo_image2, 420, 770, width=150, height= 50 ,mask='auto')
+    canvas.drawImage(logo_image2, 420, 770, width=150, height=50, mask='auto')
     content.drawOn(canvas, doc.leftMargin, doc.height + doc.topMargin + 10)
-    #canvas.drawString(inch, 0.75 * inch, "Page %d" % doc.page)
+    # canvas.drawString(inch, 0.75 * inch, "Page %d" % doc.page)
     canvas.restoreState()
+
 
 def footer(canvas, doc):
     canvas.saveState()
     canvas.setFont('Times-Roman', 9)
     canvas.dradrawString(inch, 0.75 * inch, "Nombre y frima del entregador")
     canvas.restoreState()
+
 
 class NumberedCanvas(canvas.Canvas):
     def __init__(self, *args, **kwargs):
@@ -64,17 +66,18 @@ class NumberedCanvas(canvas.Canvas):
         self.line(cm, 1.5 * cm, A4[0] - cm, 1.5 * cm)
         self.drawRightString(A4[0] - cm, 1 * cm, "Pg. %d de %d" % (self._pageNumber, page_count))
 
+
 def foot1(canvas, doc):
     page_num = canvas.getPageNumber()
     text = "Pages #%s" % page_num
     canvas.drawRightString(200 * mm, 20 * mm, text)
 
+
 def create(*args):
     print("llegoo")
     outfilepath = os.path.join(os.path.expanduser("~"), "Documents/Reportes")
-    if not os.path.exists(outfilepath ):
+    if not os.path.exists(outfilepath):
         os.mkdir(outfilepath)
-        
 
     styles = getSampleStyleSheet()
     styleN = styles['Normal']
@@ -91,9 +94,9 @@ def create(*args):
     prostyle = ParagraphStyle(name='MyDoctorHeader', fontName='Vera', fontSize=10, spaceAfter=4, alignment=TA_LEFT)
     prostyle2 = ParagraphStyle(name='MyDoctorHeader', fontName='Vera', fontSize=10, spaceAfter=4, alignment=TA_RIGHT)
     prostyleJ = ParagraphStyle(name='MyDoctorHeader', fontName='Vera', fontSize=10, spaceAfter=4, alignment=TA_JUSTIFY)
-    styleT = ParagraphStyle(name='table', fontName='Vera', fontSize=8,alignment=TA_CENTER)
+    styleT = ParagraphStyle(name='table', fontName='Vera', fontSize=8, alignment=TA_CENTER)
 
-    footerstyle = ParagraphStyle(name='MyDoctorHeader', fontName='Vera',alignment=TA_CENTER ,fontSize=10, spaceAfter=4)
+    footerstyle = ParagraphStyle(name='MyDoctorHeader', fontName='Vera', alignment=TA_CENTER, fontSize=10, spaceAfter=4)
 
     now = datetime.now()
     if args[6] == 0:
@@ -104,7 +107,7 @@ def create(*args):
 
     doc = BaseDocTemplate(outfilepath, pagesize=A4, rightMargin=20, leftMargin=20, topMargin=20, bottomMargin=60)
 
-    frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height-2*cm, id='normal')
+    frame = Frame(doc.leftMargin, doc.bottomMargin, doc.width, doc.height - 2 * cm, id='normal')
     if args[6] == 0:
         header_content = Paragraph("<b>Instituto de salud</b>" + "<br/>" + "<b>Entrada de almacen</b>", headstyle)
     if args[6] == 1:
@@ -114,25 +117,29 @@ def create(*args):
     doc.addPageTemplates([template])
 
     if args[6] == 0:
-        colOne = [[Paragraph("<b>Entrada almacen del proveedor:</b> " + args[1], style=prostyle)], [Paragraph("<b>Numero entrada:</b> " + str(args[2]), style=prostyle)]]
-        colThree = [[Paragraph("<b>Fecha de referencia:</b> " + args[3], style=prostyle2)], [Paragraph("<b>Fecha de entrada:</b> " + args[4], style=prostyle2)]]
+        colOne = [[Paragraph("<b>Entrada almacen del proveedor:</b> " + args[1], style=prostyle)],
+                  [Paragraph("<b>Numero entrada:</b> " + str(args[2]), style=prostyle)]]
+        colThree = [[Paragraph("<b>Fecha de referencia:</b> " + args[3], style=prostyle2)],
+                    [Paragraph("<b>Fecha de entrada:</b> " + args[4], style=prostyle2)]]
     if args[6] == 1:
-        colOne = [[Paragraph("<b>Salida de almacén con destino a:</b> " + args[1], style=prostyle)], [Paragraph("<b>Numero salida:</b> " + str(args[2]), style=prostyle)]]
-        colThree = [[Paragraph("<b>Fecha de solicitud:</b> " + args[3], style=prostyle2)], [Paragraph("<b>Fecha de surtimiento:</b> " + args[4], style=prostyle2)]]
+        colOne = [[Paragraph("<b>Salida de almacén con destino a:</b> " + args[1], style=prostyle)],
+                  [Paragraph("<b>Numero salida:</b> " + str(args[2]), style=prostyle)]]
+        colThree = [[Paragraph("<b>Fecha de solicitud:</b> " + args[3], style=prostyle2)],
+                    [Paragraph("<b>Fecha de surtimiento:</b> " + args[4], style=prostyle2)]]
 
     tblrow2 = Table([[colOne, colThree]])
     tblrow2.setStyle(
         TableStyle([
             ('ALIGN', (1, 0), (1, 0), 'RIGHT'),
             ('VALIGN', (1, 0), (1, 0), 'MIDDLE'),
-            ('BOX', (0,0), (-1,-1), 0.25, colors.black),
-            ('SPAN', (0,3), (1,3)),
+            ('BOX', (0, 0), (-1, -1), 0.25, colors.black),
+            ('SPAN', (0, 3), (1, 3)),
         ]))
 
     text = []
     text.append(tblrow2)
     text.append(Spacer(1, 10))
-    if not args[6] == 0:
+    if args[6] == 1:
         if not len(args[5]) > 0:
             text.append(Paragraph("<b>Observaciones:</b> No hay observaciones", style=prostyleJ))
         else:
@@ -158,10 +165,10 @@ def create(*args):
     tableData = Table(newdata, repeatRows=1)
     tableData.setStyle(
         TableStyle([
-            ('VALIGN',(0,0),(-1,-1), 'TOP'),
-            ('TEXTCOLOR',(0,0),(-1,0),colors.white),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
             ('BACKGROUND', (0, 0), (-1, 0), '#0097e6'),
-            ('GRID',(0,1),(-1,-1), 0.5, '#CFEAD4'),
+            ('GRID', (0, 1), (-1, -1), 0.5, '#CFEAD4'),
         ]))
     text.append(Spacer(1, 10))
     text.append(tableData)
@@ -170,12 +177,12 @@ def create(*args):
     Fcol2 = [[Paragraph("", style=footerstyle)]]
     Fcol3 = [[Paragraph("Nombre y firma de recicido", style=footerstyle)]]
 
-    tblrow = Table([[Fcol1, Fcol2 ,Fcol3]])
+    tblrow = Table([[Fcol1, Fcol2, Fcol3]])
 
     tblrow.setStyle(
         TableStyle([
-            ('LINEABOVE', (0,0), (0,0), 0.25, colors.black),
-            ('LINEABOVE', (2,0), (2,0), 0.25, colors.black),
+            ('LINEABOVE', (0, 0), (0, 0), 0.25, colors.black),
+            ('LINEABOVE', (2, 0), (2, 0), 0.25, colors.black),
         ])
     )
 

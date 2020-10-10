@@ -18,6 +18,7 @@ Session = sessionmaker(bind=engine)
 session = Session()
 class Ui_BDP(object):
     def __init__(self, x):
+        print('el mensaje es :' + x)
         self.x2 = x
     def setupUi(self, BDP):
         BDP.setObjectName("BDP")
@@ -87,6 +88,7 @@ class Ui_BDP(object):
     def TableViewInsert(self):
         # INGRESA LOS DATOS A LA TABLA Y HACE BUSQUEDA EN DESCRIPCION
         self.q = pd.read_sql('SELECT corta, descripcion FROM clave WHERE tipo = %s' %self.x2, engine)
+        print(self.q)
         self.numero  = session.query(Clave.corta).filter_by(tipo=self.x2).count()
         #aqui se le indica el numero de comlumnas que tendra la tabla
         self.model = QStandardItemModel(self.numero, 2)
